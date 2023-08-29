@@ -6,24 +6,6 @@
     <link rel="shortcut icon" type="image/x-icon" href="Images/微笑哦.png?">
 <style>
   body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-
-  .content-container {
-    width: 80%;
-    max-width: 800px;
-    margin: 0 auto;
-    overflow-y: scroll; /* 添加垂直滚动条 */
-    max-height: 80vh; /* 限制内容高度，以便在视口中滚动 */
-    border: 1px solid #ccc;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-</style>
-<style>
-  body {
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -39,104 +21,15 @@
     z-index: -1;
   }
 </style>
-    
 <style>
-        .text {
-          text-align: center;
-          font-size:60px;
-          line-height: 2;
-          color: #fff;
-          font-weight: bold;
-        }
-      
-        .native-text-shadow {
-          text-shadow: 0 0 4px #32003C;
-        }
-      
-        .multiple-text-shadow {
-          text-shadow: 0 0 4px #32003C,
-          0 0 4px #32003C,
-          0 0 4px #32003C,
-          0 0 4px #32003C,
-          0 0 4px #32003C,
-          0 0 4px #32003C,
-          0 0 4px #32003C;
-        }
-      
-        .native-webkit-text-stroke {
-          -webkit-text-stroke: 4px #32003C;
-        }
-        .improve-webkit-text-stroke {
-          -webkit-text-stroke: 8px #32003C;
-          position: relative;
-          z-index: 1;
-        }
-        .improve-webkit-text-stroke:after {
-          content: "字体描边 | font stroke";
-          color: #fff;
-          position: absolute;
-          z-index: 2;
-          left: 0;
-          right: 0;
-          top: 0;
-          -webkit-text-stroke-width: 0;
-        }
-      
-        /*没有模糊的字体阴影*/
-        /*上，右移动6px则 右上移动距离x,y 轴移动距离应该为 4px （6 / √2 ≈ 4.23 对角线长度为6的正方形的边长）  */
-        .text-stroke-no-blur {
-          text-shadow: 6px 0 0 #32003C,
-          -6px 0 0 #32003C,
-          0 6px 0 #32003C,
-          0 -6px 0 #32003C,
-          4px 4px 0 #32003C,
-          -4px 4px 0 #32003C,
-          4px -4px 0 #32003C,
-          -4px -4px 0 #32003C;
-        }
-      
-        .text-stroke {
-          text-shadow: 0 -6px 4px #32003C, /*上*/
-          4px -4px 4px #32003C, /*右上*/
-          6px 0 4px #32003C, /*右*/
-          4px 4px 4px #32003C, /*右下*/
-          0 6px 4px #32003C, /*下*/
-          -4px 4px 4px #32003C, /*左下*/
-          -6px 0 4px #32003C, /*左*/
-          -4px -4px 4px #32003C; /*左上*/
-        }
-        /*用于直观理解 .text-stroke 实现方式*/
-        .text-stroke-colours {
-          text-shadow: 0 -6px 4px #ff0000, /*上*/
-          4px -4px 4px #46ff00, /*右上*/
-          6px 0 4px #32003c, /*右*/
-          4px 4px 4px #ffffff, /*右下*/
-          0 6px 4px #ffd500, /*下*/
-          -4px 4px 4px #ee00ff, /*左下*/
-          -6px 0 4px #0021ff, /*左*/
-          -4px -4px 4px #000000; /*左上*/
-        }
-        .svg-text-stroke {
-          margin-top: 100px;
-        }
-        .svg-text-stroke svg,
-        .improve-svg-text-stroke svg {
-          overflow: visible;
-          height: 2em;
-        }
-        .svg-text-stroke text,
-        .improve-svg-text-stroke text{
-          text-anchor: middle;
-          fill: currentColor;
-        }
-        .svg-text-stroke text,
-        .improve-svg-text-stroke use{
-          stroke: #32003C;
-          stroke-width: 4px;  /*控制描边宽度*/
-          stroke-linejoin: round;
-        }
-        </style>
-        
+  .gradient-text {
+    background-image: linear-gradient(to right, #f06, #9f6);
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: 3em;
+    text-align: center;
+  }
+</style>
 </head>
 <body background="Images/ins.jpeg?"
     style="background-repeat: no-repeat;
@@ -145,54 +38,10 @@
 <video class="video-bg" autoplay loop muted>
     <source src="Video/haozi.mp4" type="video/mp4"> 
     <!-- 替换为您自己的视频 URL -->
-    Your browser does not support the video tag.
+    你的浏览器好像不太支持哦😅
 </video>
-<div class="native-text-shadow text";
-style="text-align: center";
-style="color: #000000;">
-欢迎来到我的网站
-</div>
-<div class="content-container">
-<span style="color:#ff0000"> </span>
-<span style="color:#ff9900">我</span>
-<span style="color:#ffcc00">是</span>
-<span style="color:#66cc00">一</span>
-<span style="color:#00ffcc">只</span>
-<span style="color:#66ccff">莫</span>
-<span style="color:#9900cc">名</span>
-<span style="color:#ff0000">其</span>
-<span style="color:#ff9900">妙</span>
-<span style="color:#ffcc00">的</span>
-<span style="color:#66cc00">大</span>
-<span style="color:#00ffcc">耗</span>
-<span style="color:#66ccff">子</span>
-<br>
-<span style="color:#ff0000"> </span>
-<span style="color:#ff9900"> </span>
-<span style="color:#ffcc00"> </span>
-<span style="color:#66cc00"> </span>
-<span style="color:#00ffcc">很</span>
-<span style="color:#66ccff">高</span>
-<span style="color:#9900cc">兴</span>
-<span style="color:#ff0000">认</span>
-<span style="color:#ff9900">识</span>
-<span style="color:#ffcc00">你</span>
-<br>
-<hr><!-- 这里放入您的页面内容 -->
-</div>    
-<div>
-<h1 style="text-align: center;"
-    style="color: #000000;">
-    Contact us
-    <br>
+<h1 class="gradient-text">Hello
 </h1>
-<h2>
-<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Z2_BYkjveVIvmqW97vS6mdLVsU5McVkw&authKey=jCjJN%2F2wcS1Mi%2BrzppRZRQNPsIuzZ07rr9KQN9PHBMpTSXtkyWzLffGbe6YQSIZY&noverify=0&group_code=178062859">QQ</a>
-&nbsp;
-<a href="https://space.bilibili.com/633365020">Bilibili</a>
-<br>
-</h2>
-</div>
 
 </body>
 </html>
