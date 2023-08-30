@@ -21,19 +21,25 @@
   body {
     margin: 0;
     padding: 0;
-    background: linear-gradient(to bottom, #3498db, #5942db);
-    font-family: Arial, sans-serif;
-    color: white;
-    text-align: center;
     display: flex;
-    align-items: center;
     justify-content: center;
-    min-height: 50vh;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(-45deg, #3498db, #e74c3c, #2ecc71, #f39c12);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s infinite;
   }
 
-  h1 {
-    font-size: 3em;
-    margin: 0;
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 </style>
 <!--渐变背景-->
