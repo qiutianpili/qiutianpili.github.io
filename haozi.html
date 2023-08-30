@@ -8,17 +8,25 @@
   body {
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(-45deg, #3498db, #e74c3c, #2ecc71, #f39c12);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s infinite;
   }
 
-  .video-bg {
-    position:fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 </style>
 <style>
@@ -35,18 +43,14 @@
     style="background-repeat: no-repeat;
     background-attachment:fixed;
     background-size:100% auto;">
-<video class="video-bg" autoplay loop>
-    <source src="Video/haozi.mp4" type="video/mp4"> 
-    <!-- 替换为您自己的视频 URL -->
-    你的浏览器好像不太支持哦😅
-</video>
 <br>
 <br>
 <br>
 <br>
 <br>
 <br>
-<h1 class="gradient-text">Hello
+<h1 class="gradient-text">
+    Hello
 </h1>
 </body>
 </html>
