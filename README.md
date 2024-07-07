@@ -1,4 +1,1 @@
-这是一个静态网站，我们承诺不会收集您的个人信息。
-如果你的我的视频感兴趣，
-可以关注我的bilibili账号
-https://b23.tv/WB075in
+Best Friend Forever
