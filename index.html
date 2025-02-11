@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(((o(*ﾟ▽ﾟ*)o)))你来啦！</title>
+    <title>梦幻Emoji雨</title>
     <style>
         * {
             margin: 0;
@@ -11,14 +11,20 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: violet; /* 修复背景问题 */
+            overflow: hidden;        /* 禁止滚动条 */
+        }
+
         body {
-            background-color: violet;
-            height: 100vh;
-            overflow: hidden;
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
+            min-height: 100vh;       /* 确保最小高度 */
         }
 
         .content {
@@ -39,14 +45,16 @@
         }
 
         .emoji {
-            position: absolute;
+            position: fixed;         /* 改为fixed定位 */
+            top: -50px;
             font-size: 24px;
             animation: fall linear forwards;
+            will-change: transform; /* 优化动画性能 */
         }
 
         @keyframes fall {
             from {
-                transform: translateY(-20vh) rotate(0deg);
+                transform: translateY(-50px) rotate(0deg);
                 opacity: 1;
             }
             to {
@@ -80,26 +88,24 @@
             emoji.className = 'emoji';
             emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
             
-            // 随机属性
-            const left = Math.random() * 100;
+            // 改进后的随机属性（限制横向位置范围）
+            const left = Math.random() * 90 + 5;  // 5%-95%范围
             const duration = Math.random() * 3 + 2;
             const delay = Math.random() * 2;
             const size = Math.random() * 20 + 20;
             
-            emoji.style.left = `${left}%`;
+            emoji.style.left = `${left}vw`;     // 使用视口单位
             emoji.style.fontSize = `${size}px`;
             emoji.style.animation = `fall ${duration}s ${delay}s linear forwards`;
             
             document.body.appendChild(emoji);
             
-            // 动画结束后移除元素
             setTimeout(() => {
                 emoji.remove();
             }, (duration + delay) * 1000);
         }
 
-        // 定时生成Emoji
-        setInterval(createEmoji, 500);
+        setInterval(createEmoji, 300);
     </script>
 </body>
 </html>
