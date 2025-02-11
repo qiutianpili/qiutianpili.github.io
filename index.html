@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(((o(*ﾟ▽ﾟ*)o)))你来啦！</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: violet;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 24px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            from {
+                transform: translateY(-20vh) rotate(0deg);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(120vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>✨ 欢迎来到梦幻星球 ✨</h1>
+        <p>❁ 让快乐随着Emoji一起降落 ❁</p>
+        <p>🌸 每一天都值得庆祝 🌸</p>
+    </div>
+
+    <script>
+        const emojis = ['🎉', '❤️', '🌟', '🎈', '💫', '🌸', '🎁', '🍭', '🌈', '🦄'];
+        
+        function createEmoji() {
+            const emoji = document.createElement('span');
+            emoji.className = 'emoji';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            // 随机属性
+            const left = Math.random() * 100;
+            const duration = Math.random() * 3 + 2;
+            const delay = Math.random() * 2;
+            const size = Math.random() * 20 + 20;
+            
+            emoji.style.left = `${left}%`;
+            emoji.style.fontSize = `${size}px`;
+            emoji.style.animation = `fall ${duration}s ${delay}s linear forwards`;
+            
+            document.body.appendChild(emoji);
+            
+            // 动画结束后移除元素
+            setTimeout(() => {
+                emoji.remove();
+            }, (duration + delay) * 1000);
+        }
+
+        // 定时生成Emoji
+        setInterval(createEmoji, 500);
+    </script>
+</body>
+</html>
