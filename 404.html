@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Hello Kitty</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #ff9ecb, #ffcfe0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            z-index: 10;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #a63272, #d84da3, #7a2c5e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            font-size: 2rem;
+            color: #4a4a4a;
+            margin-bottom: 1.5rem;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+        
+        .home-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(to right, #ff6bac, #ff4d92);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 172, 0.4);
+        }
+        
+        .home-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 172, 0.6);
+        }
+        
+        .home-btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* Hello Kitty 装饰元素 */
+        .kitty-face {
+            width: 150px;
+            height: 150px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .kitty-ear {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background-color: white;
+            top: -35px;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .kitty-ear.left {
+            left: 10px;
+            transform: rotate(-30deg);
+        }
+        
+        .kitty-ear.right {
+            right: 10px;
+            transform: rotate(30deg);
+        }
+        
+        .kitty-eye {
+            position: absolute;
+            width: 20px;
+            height: 25px;
+            background-color: black;
+            border-radius: 50%;
+            top: 60px;
+        }
+        
+        .kitty-eye.left {
+            left: 40px;
+        }
+        
+        .kitty-eye.right {
+            right: 40px;
+        }
+        
+        .kitty-nose {
+            position: absolute;
+            width: 25px;
+            height: 20px;
+            background-color: #ff6bac;
+            border-radius: 50%;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* 浮动元素装饰 */
+        .floating-element {
+            position: absolute;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        .bow {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(to right, #ff4d92, #ff80ab);
+            border-radius: 50%;
+            top: 10%;
+            right: 10%;
+            transform: rotate(45deg);
+        }
+        
+        .bow:before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #ff4d92;
+            border-radius: 50%;
+            top: 20px;
+            left: 20px;
+        }
+        
+        .heart {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #ff80ab;
+            transform: rotate(45deg);
+            bottom: 15%;
+            left: 10%;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: '';
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            background-color: #ff80ab;
+            border-radius: 50%;
+        }
+        
+        .heart:before {
+            top: -30px;
+            left: 0;
+        }
+        
+        .heart:after {
+            top: 0;
+            left: -30px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .kitty-face {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .kitty-eye {
+                top: 50px;
+            }
+            
+            .kitty-nose {
+                top: 70px;
+            }
+            
+            .bow, .heart {
+                transform: scale(0.7);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 4rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .kitty-face {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .kitty-ear {
+                width: 40px;
+                height: 60px;
+                top: -25px;
+            }
+            
+            .kitty-eye {
+                width: 15px;
+                height: 20px;
+                top: 40px;
+            }
+            
+            .kitty-eye.left {
+                left: 30px;
+            }
+            
+            .kitty-eye.right {
+                right: 30px;
+            }
+            
+            .kitty-nose {
+                width: 20px;
+                height: 15px;
+                top: 60px;
+            }
+            
+            .bow, .heart {
+                transform: scale(0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰元素 -->
+    <div class="floating-element bow"></div>
+    <div class="floating-element heart"></div>
+    
+    <div class="container">
+        <!-- Hello Kitty 脸部 -->
+        <div class="kitty-face">
+            <div class="kitty-ear left"></div>
+            <div class="kitty-ear right"></div>
+            <div class="kitty-eye left"></div>
+            <div class="kitty-eye right"></div>
+            <div class="kitty-nose"></div>
+        </div>
+        
+        <h1>404</h1>
+        <h2>哎呀！页面未找到</h2>
+        <p>看起来你可能输错了网址，或者页面已被移动。让我们一起返回主页，继续探索Hello Kitty的可爱世界吧！</p>
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i> 返回主页
+        </a>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            container.style.opacity = 0;
+            container.style.transform = 'translateY(20px)';
+            
+            // 简单的进入动画
+            setTimeout(() => {
+                container.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                container.style.opacity = 1;
+                container.style.transform = 'translateY(0)';
+            }, 200);
+            
+            // 浮动元素的动画
+            const floatingElements = document.querySelectorAll('.floating-element');
+            floatingElements.forEach(el => {
+                animateElement(el);
+            });
+            
+            function animateElement(el) {
+                const amplitude = 15;
+                const duration = 3000 + Math.random() * 2000;
+                const initialY = Math.random() * 20;
+                
+                function float() {
+                    el.animate([
+                        { transform: `translateY(${initialY}px) rotate(0deg)` },
+                        { transform: `translateY(${initialY + amplitude}px) rotate(5deg)` },
+                        { transform: `translateY(${initialY}px) rotate(0deg)` }
+                    ], {
+                        duration: duration,
+                        iterations: Infinity,
+                        direction: 'alternate',
+                        easing: 'ease-in-out'
+                    });
+                }
+                
+                float();
+            }
+        });
+    </script>
+</body>
+</html>
