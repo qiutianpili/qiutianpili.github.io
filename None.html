@@ -1,49 +1,281 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>index</title>
-<style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-  
-    .small-text {
-      font-size: 12px; /* 调整这个值以更改字体大小 */
-    }
-</style>
-<!--使用小字体请用class-->
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to bottom, #3498db, #5942db);
-    font-family: Arial, sans-serif;
-    color: rgb(0, 0, 0);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
-  h1 {
-    font-size: 3em;
-    margin: 0;
-  }
-</style>
-<!--渐变背景-->
-    
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-box {
+            max-width: 600px;
+            margin: 30px auto;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-box button:hover {
+            background: #2980b9;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-img {
+            height: 180px;
+            overflow: hidden;
+        }
+        
+        .feature-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .feature-card:hover .feature-img img {
+            transform: scale(1.05);
+        }
+        
+        .feature-content {
+            padding: 20px;
+        }
+        
+        .feature-content h3 {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .feature-content p {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        .learn-more {
+            color: #3498db;
+            font-weight: 600;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .learn-more:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            color: #7f8c8d;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    
-<div>
-<p>
-   &nbsp;:(
-</p>
-</div>
-       
+    <div class="container">
+        <header>
+            <h1>帮助中心</h1>
+            <p>在这里您可以找到所有功能的详细说明和使用指南，点击相应功能卡片查看详情</p>
+        </header>
+        
+        <div class="search-box">
+            <input type="text" placeholder="搜索您需要的帮助...">
+            <button>搜索</button>
+        </div>
+        
+        <div class="features">
+            <!-- 功能1 -->
+            <div class="feature-card" onclick="window.location.href='#功能1'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/3498db/ffffff?text=功能1" alt="功能1">
+                </div>
+                <div class="feature-content">
+                    <h3>功能一：用户管理</h3>
+                    <p>管理您的账户信息、隐私设置和安全选项，确保账户安全。</p>
+                    <a href="#功能1" class="learn-more">了解更多</a>
+                </div>
+            </div>
+            
+            <!-- 功能2 -->
+            <div class="feature-card" onclick="window.location.href='#功能2'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/e74c3c/ffffff?text=功能2" alt="功能2">
+                </div>
+                <div class="feature-content">
+                    <h3>功能二：文件管理</h3>
+                    <p>上传、下载、分享和管理您的文件，支持多种文件格式。</p>
+                    <a href="#功能2" class="learn-more">了解更多</a>
+                </div>
+            </div>
+            
+            <!-- 功能3 -->
+            <div class="feature-card" onclick="window.location.href='#功能3'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/2ecc71/ffffff?text=功能3" alt="功能3">
+                </div>
+                <div class="feature-content">
+                    <h3>功能三：团队协作</h3>
+                    <p>与团队成员实时协作，共享文档和进度，提高工作效率。</p>
+                    <a href="#功能3" class="learn-more">了解更多</a>
+                </div>
+            </div>
+            
+            <!-- 功能4 -->
+            <div class="feature-card" onclick="window.location.href='#功能4'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/9b59b6/ffffff?text=功能4" alt="功能4">
+                </div>
+                <div class="feature-content">
+                    <h3>功能四：数据分析</h3>
+                    <p>查看详细的数据报告和分析，帮助您做出更好的决策。</p>
+                    <a href="#功能4" class="learn-more">了解更多</a>
+                </div>
+            </div>
+            
+            <!-- 功能5 -->
+            <div class="feature-card" onclick="window.location.href='#功能5'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/f39c12/ffffff?text=功能5" alt="功能5">
+                </div>
+                <div class="feature-content">
+                    <h3>功能五：消息通知</h3>
+                    <p>管理您的通知偏好设置，确保不会错过重要信息。</p>
+                    <a href="#功能5" class="learn-more">了解更多</a>
+                </div>
+            </div>
+            
+            <!-- 功能6 -->
+            <div class="feature-card" onclick="window.location.href='#功能6'">
+                <div class="feature-img">
+                    <img src="https://placehold.co/600x400/34495e/ffffff?text=功能6" alt="功能6">
+                </div>
+                <div class="feature-content">
+                    <h3>功能六：设置与偏好</h3>
+                    <p>自定义您的使用体验，调整界面和功能设置以满足您的需求。</p>
+                    <a href="#功能6" class="learn-more">了解更多</a>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 帮助中心 | 如果您需要更多帮助，请联系我们：support@example.com</p>
+        </footer>
+    </div>
+
+    <script>
+        // 简单的搜索功能
+        document.querySelector('.search-box button').addEventListener('click', function() {
+            const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
+            const featureCards = document.querySelectorAll('.feature-card');
+            
+            featureCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // 允许按回车键搜索
+        document.querySelector('.search-box input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('.search-box button').click();
+            }
+        });
+    </script>
 </body>
 </html>
