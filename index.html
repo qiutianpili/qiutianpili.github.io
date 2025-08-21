@@ -3,109 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>最好的朋友！</title>
+    <title>哈雷彗星 - 宇宙的使者</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        html, body {
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0e29;
+            color: #e0e0ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: violet; /* 修复背景问题 */
-            overflow: hidden;        /* 禁止滚动条 */
+            z-index: -1;
         }
-
-        body {
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        /* 内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;       /* 确保最小高度 */
-        }
-
-        .content {
-            text-align: center;
-            color: white;
             z-index: 1;
-            padding: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+        }
+        
         h1 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
+            background: linear-gradient(90deg, #4fc3f7, #e100ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(225, 0, 255, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0ee;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* 彗星卡片 */
+        .comet-card {
+            background: rgba(16, 18, 46, 0.8);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 0 30px rgba(100, 50, 255, 0.3);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .comet-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .info-card {
+            background: rgba(25, 30, 70, 0.6);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #7e57c2;
+        }
+        
+        h2 {
+            color: #82b1ff;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        h3 {
+            color: #b388ff;
             margin-bottom: 1rem;
         }
-
+        
         p {
-            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
         }
-
-        .emoji {
-            position: fixed;         /* 改为fixed定位 */
-            top: -50px;
-            font-size: 24px;
-            animation: fall linear forwards;
-            will-change: transform; /* 优化动画性能 */
+        
+        ul {
+            list-style-position: inside;
+            padding-left: 1rem;
         }
-
-        @keyframes fall {
-            from {
-                transform: translateY(-50px) rotate(0deg);
-                opacity: 1;
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 动态彗星 */
+        .comet {
+            position: fixed;
+            top: 0;
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(90deg, white, #4fc3f7, #7c4dff);
+            border-radius: 50%;
+            box-shadow: 0 0 20px 5px rgba(79, 195, 247, 0.8);
+            z-index: 2;
+            animation: comet-flight 15s linear infinite;
+        }
+        
+        .comet::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -100px;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4fc3f7);
+            transform: translateY(-50%);
+        }
+        
+        @keyframes comet-flight {
+            0% {
+                left: -100px;
+                top: 30%;
             }
-            to {
-                transform: translateY(120vh) rotate(360deg);
-                opacity: 0;
+            100% {
+                left: 100%;
+                top: 60%;
             }
         }
-
+        
+        /* 响应式设计 */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
-            p {
-                font-size: 1rem;
+            
+            .comet-info {
+                grid-template-columns: 1fr;
             }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            color: #7c7cbe;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <h1>✨ 世界是如此的美好 ✨</h1>
-        <p>❁ 让我们将烦恼抛之脑后 ❁</p>
-        <p>🌸 庆祝每一天 🌸</p>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 动态彗星 -->
+    <div class="comet"></div>
+    
+    <div class="container">
+        <header>
+            <h1>哈雷彗星</h1>
+            <p class="subtitle">宇宙中最著名的周期性彗星，每隔76年回归内太阳系一次</p>
+        </header>
+        
+        <section class="comet-card">
+            <h2>关于哈雷彗星</h2>
+            <p>哈雷彗星（正式名称：1P/Halley）是唯一可以从地球上直接用肉眼看到的短周期彗星，也是人类历史上记录最早的彗星之一。它以英国天文学家埃德蒙·哈雷的名字命名，他在1705年计算出这颗彗星的轨道并预测了它的回归。</p>
+            
+            <div class="comet-info">
+                <div class="info-card">
+                    <h3>基本特征</h3>
+                    <ul>
+                        <li>轨道周期：约76地球年</li>
+                        <li>核心尺寸：约15×8公里，花生形状</li>
+                        <li>主要成分：冰、尘埃、岩石</li>
+                        <li>最近一次近日点：1986年2月9日</li>
+                        <li>下一次预计回归：2061年7月</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3>历史观测</h3>
+                    <ul>
+                        <li>最早记录：公元前240年（中国史料）</li>
+                        <li>1066年：出现在诺曼征服英格兰时期</li>
+                        <li>1301年：意大利画家乔托观测后创作《博士来拜》</li>
+                        <li>1910年：首次被拍照记录的回归</li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3>科学意义</h3>
+                    <p>哈雷彗星帮助科学家理解了彗星的性质和行为。1986年，多个航天器飞越哈雷彗星，首次直接观测了彗核，证实了弗雷德·惠普尔的"脏雪球"模型，即彗星主要由冰和尘埃组成。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="comet-card">
+            <h2>彗星的结构</h2>
+            <p>当哈雷彗星接近太阳时，太阳的热量使其冰核升华，形成以下结构：</p>
+            
+            <div class="comet-info">
+                <div class="info-card">
+                    <h3>彗核</h3>
+                    <p>固体的核心，直径约15公里，由冰、尘埃和小岩石颗粒组成。形状不规则，类似于花生。</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>彗发</h3>
+                    <p>围绕彗核的模糊云状物，直径可达10万公里，由彗核释放的气体和尘埃组成。</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>彗尾</h3>
+                    <p>彗星最显著的特征，通常有两条：一条由气体组成的离子尾（蓝色），一条由尘埃组成的尘埃尾（黄色白色），可延伸数千万公里。</p>
+                </div>
+            </div>
+        </section>
     </div>
+    
+    <footer>
+        <p>探索宇宙的奥秘 | 哈雷彗星专题页面</p>
+    </footer>
 
     <script>
-        const emojis = ['🎉', '❤️', '🌟', '🎈', '💫', '😋', '🎁', '🍭', '🌈', '🦄'];
-        
-        function createEmoji() {
-            const emoji = document.createElement('span');
-            emoji.className = 'emoji';
-            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
             
-            // 改进后的随机属性（限制横向位置范围）
-            const left = Math.random() * 90 + 5;  // 5%-95%范围
-            const duration = Math.random() * 3 + 2;
-            const delay = Math.random() * 2;
-            const size = Math.random() * 20 + 20;
-            
-            emoji.style.left = `${left}vw`;     // 使用视口单位
-            emoji.style.fontSize = `${size}px`;
-            emoji.style.animation = `fall ${duration}s ${delay}s linear forwards`;
-            
-            document.body.appendChild(emoji);
-            
-            setTimeout(() => {
-                emoji.remove();
-            }, (duration + delay) * 1000);
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // 随机星星属性
+                const size = Math.random() * 3;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 5;
+                
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${posX}%`;
+                star.style.top = `${posY}%`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
         }
-
-        setInterval(createEmoji, 300);
+        
+        // 页面加载时创建星星
+        window.addEventListener('load', createStars);
+        
+        // 添加多个彗星
+        function createComets() {
+            const cometCount = 3;
+            const body = document.querySelector('body');
+            
+            for (let i = 0; i < cometCount; i++) {
+                const comet = document.createElement('div');
+                comet.classList.add('comet');
+                
+                // 随机位置和动画延迟
+                const top = Math.random() * 50;
+                const delay = Math.random() * 30;
+                
+                comet.style.top = `${top}%`;
+                comet.style.animationDelay = `-${delay}s`;
+                
+                body.appendChild(comet);
+            }
+        }
+        
+        // 创建多个彗星
+        window.addEventListener('load', createComets);
     </script>
 </body>
 </html>
