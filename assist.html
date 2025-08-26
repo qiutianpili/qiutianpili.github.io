@@ -184,7 +184,7 @@
                 <div class="feature-content">
                     <h3>v2rayNG</h3>
                     <p>v2rayNG是Android平台上的一款代理翻墙应用,V2rayNG基于V2Ray内核,提供代理配置和管理功能.</p>
-                    <a href="https://github.com/2dust/v2rayNG/releases" class="learn-more" target="_blank" rel="noopener noreferrer">Github</a>
+                    <a href="https://github.com/2dust/v2rayNG/releases" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Android)</a>
                 </div>
             </div>
             
@@ -212,11 +212,28 @@
                     <a href="https://xn--4gqx1hgtfdmt.com/" class="learn-more" target="_blank" rel="noopener noreferrer">了解更多</a>
                 </div>
             </div>
-            
-            
-        
+            <!-- 功能4 -->
+            <div class="feature-card">
+                <div class="feature-img">
+                    <img src="Images/lxmusic.png" alt="lx-music">
+                </div>
+                <div class="feature-content">
+                    <h3>Lx Music</h3>
+                    <p>一个免费&开源的音乐查找工具，支持在 Linux、macOS、Windows 及 Android 平台上运行.</p>
+                    <a href="https://lxmusic.toside.cn/" class="learn-more" target="_blank" rel="noopener noreferrer">官网</a> &nbsp; <a href="https://github.com/lyswhut/lx-music-mobile" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Android)</a>
+                    <br>
+                    <a href="javascript:void(0);" id="copy-link" data-clipboard-text="http://xg.3.frp.one:30238/script?key=guoyue2010"  class="learn-more">点击复制付费音源链接</a>
+                    <span id="copy-tip" style="color:green;display:none;margin-left:10px;font-size:1em;">已复制！</span>
+                </div>
+            </div>
+        </div>
+
         <footer text-align: center>
-            <p margin: 0 auto>© 2025 帮助中心 | 如果您需要更多帮助,请联系我们:qiutianpili@foxmail.com</p>
+            <p>
+                © 2025 帮助中心 | 如果您需要更多帮助,请联系我们:
+                <a href="javascript:void(0);" id="copy-email" data-clipboard-text="qiutianpili@foxmail.com" class="learn-more">点击复制邮箱</a>
+                <span id="email-copy-tip" style="color:green;display:none;margin-left:10px;font-size:1em;">已复制！</span>
+            </p>
         </footer>
     </div>
 
@@ -243,6 +260,28 @@
             if (e.key === 'Enter') {
                 document.querySelector('.search-box button').click();
             }
+        });
+        
+        // 复制功能
+        document.getElementById('copy-link').addEventListener('click', function() {
+            const text = this.getAttribute('data-clipboard-text');
+            navigator.clipboard.writeText(text).then(function() {
+                document.getElementById('copy-tip').style.display = 'inline';
+                setTimeout(() => {
+                    document.getElementById('copy-tip').style.display = 'none';
+                }, 1500);
+            });
+        });
+
+        // 邮箱复制功能
+        document.getElementById('copy-email').addEventListener('click', function() {
+            const text = this.getAttribute('data-clipboard-text');
+            navigator.clipboard.writeText(text).then(function() {
+                document.getElementById('email-copy-tip').style.display = 'inline';
+                setTimeout(() => {
+                    document.getElementById('email-copy-tip').style.display = 'none';
+                }, 1500);
+            });
         });
     </script>
 </body>
