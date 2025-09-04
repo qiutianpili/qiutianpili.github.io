@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- ...existing code... -->
+  <style>
+    :root {
+      --bg-color: #f5f7fa;
+      --card-bg: #fff;
+      --card-text: #333;
+      --card-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      --link-color: #3498db;
+      --button-bg: #3498db;
+      --button-hover: #2980b9;
+    }
+    body {
+      background: var(--bg-color);
+      color: var(--card-text);
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      --bg-color: #181a20;
+      --card-bg: #23262f;
+      --card-text: #e4e6eb;
+      --card-shadow: 0 5px 15px rgba(0,0,0,0.32);
+      --link-color: #4aa3ff;
+      --button-bg: #23262f;
+      --button-hover: #181a20;
+    }
+    .search-box {
+        max-width: 600px;
+        margin: 30px auto;
+        position: relative;
+        width: 95%;
+    }
+    .search-box input {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 50px;
+        box-shadow: var(--card-shadow);
+        font-size: 1rem;
+        outline: none;
+        background: var(--card-bg);
+        color: var(--card-text);
+        transition: background 0.3s, color 0.3s;
+        min-width: 0;
+    }
+    .search-box button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        background: var(--button-bg);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .search-box button:hover {
+        background: var(--button-hover);
+    }
+    .theme-toggle-btn {
+        position: fixed;
+        top: 20px;
+        right: 30px;
+        z-index: 999;
+        background: var(--button-bg);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: var(--card-shadow);
+        transition: background 0.3s;
+    }
+    .theme-toggle-btn:hover {
+        background: var(--button-hover);
+    }
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 40px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .feature-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+        cursor: pointer;
+        color: var(--card-text);
+        min-width: 0;
+    }
+    .feature-img {
+        height: 180px;
+        background: var(--bg-color);
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+    }
+    .feature-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: transparent;
+    }
+    .feature-content {
+        padding: 20px;
+        text-align: center;
+        min-width: 0;
+    }
+    .learn-more {
+        color: var(--link-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    @media (max-width: 1024px) {
+        .features {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+        .feature-img {
+            height: 140px;
+        }
+    }
+    @media (max-width: 768px) {
+        .search-box input {
+            font-size: 1rem;
+        }
+        .theme-toggle-btn {
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+        }
+        .features {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        .feature-img {
+            height: 100px;
+        }
+    }
+    @media (max-width: 480px) {
+        .search-box {
+            margin: 16px auto;
+            padding: 0 4px;
+        }
+        .features {
+            gap: 8px;
+        }
+        .feature-card {
+            border-radius: 8px;
+        }
+        .feature-img {
+            height: 60px;
+        }
+        .feature-content {
+            padding: 12px;
+        }
+    }
+    /* ...原有样式... */
+    .feature-img.wechat-bg {
+        background: #1AAD19 !important; /* 微信绿色 */
+    }
+  </style>
+</head>
+<body>
+<!-- 日夜切换按钮 -->
+<button class="theme-toggle-btn" id="theme-toggle-btn">🌙 夜间模式</button>
+<main>
+    <!-- 搜索框插入位置 -->
+    <div class="search-box">
+        <input type="text" placeholder="搜索您需要的帮助...">
+        <button>搜索</button>
+    </div>
+    <section>
+        <h2 style="text-align:center">快捷链接</h2>
+        <p style="text-align:center">以下是一些可能会用到的链接</p>
+    </section>
+    <div class="features" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 40px;">
+        <!-- 卡片1 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="../Images\7ziplogo.png" alt="7-zip logo">
+            </div>
+            <div class="feature-content">
+                <h3>7-zip</h3>
+                <p>数据压缩软件</p>
+                <a href="https://www.7-zip.org/a/7z2408-x64.exe" class="learn-more" target="_blank" rel="noopener noreferrer">下载</a>
+            </div>
+        </div>
+        <!-- 卡片2 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" alt="Steam logo">
+            </div>
+            <div class="feature-content">
+                <h3>Steam</h3>
+                <p>官方首页</p>
+                <a href="https://store.steampowered.com/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
+            </div>
+        </div>
+        <!-- 卡片3 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="../Images\steam++logo.png" alt="Steam++ logo">
+            </div>
+            <div class="feature-content">
+                <h3>Steam++</h3>
+                <p>加速steam服务</p>
+                <a href="https://steampp.net/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
+            </div>
+        </div>
+        <!-- 卡片4 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="../Images\icon_geek_32.png" alt="Geek logo">
+            </div>
+            <div class="feature-content">
+                <h3>Geek</h3>
+                <p>卸载程序</p>
+                <a href="https://geekuninstaller.com/geek.7z" class="learn-more" target="_blank" rel="noopener noreferrer">下载</a>
+            </div>
+        </div>
+        <!-- 卡片5 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="../Images\qq.png" alt="QQ9 logo">
+            </div>
+            <div class="feature-content">
+                <h3>QQ9</h3>
+                <p>Windows下载页</p>
+                <a href="https://im.qq.com/pcqq/index.shtml" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
+            </div>
+        </div>
+        <!-- 卡片6 -->
+        <div class="feature-card">
+            <div class="feature-img wechat-bg">
+                <img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDYiIGhlaWdodD0iOTgiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAzMDYgOTgiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik01Ny44MyAyOS45NGMtMi44MyAwLTUuMTMtMi4zMS01LjEzLTUuMTdzMi4zLTUuMTcgNS4xMy01LjE3IDUuMTMgMi4zMSA1LjEzIDUuMTctMi4zIDUuMTctNS4xMyA1LjE3bS0yOC45MSAwYy0yLjgzIDAtNS4xMy0yLjMxLTUuMTMtNS4xN3MyLjMtNS4xNyA1LjEzLTUuMTcgNS4xMyAyLjMxIDUuMTMgNS4xNy0yLjMgNS4xNy01LjEzIDUuMTdNNDMuMzcgMEMxOS40MiAwIDAgMTYuMzEgMCAzNi40M2MwIDEwLjk4IDUuODQgMjAuODYgMTQuOTkgMjcuNTQuNzMuNTMgMS4yMSAxLjM5IDEuMjEgMi4zOCAwIC4zMi0uMDcuNjItLjE1LjkzLS43MyAyLjc1LTEuOSA3LjE0LTEuOTUgNy4zNS0uMDkuMzUtLjIzLjctLjIzIDEuMDcgMCAuOC42NSAxLjQ2IDEuNDUgMS40Ni4zMSAwIC41Ny0uMTIuODMtLjI3bDkuNS01LjUzYy43MS0uNDEgMS40Ny0uNjcgMi4zLS42Ny40NCAwIC44Ny4wNyAxLjI4LjE5IDQuNDMgMS4yOCA5LjIxIDIgMTQuMTYgMiAuOCAwIDEuNTktLjAyIDIuMzgtLjA6LS45NC0yLjg0LTEuNDYtNS44My0xLjQ2LTguOTMgMC0xOC4zNSAxNy43MS0zMy4yMyAzOS41Ni0zMy4yMy43OSAwIC45OS4wMyAxLjc3LjA2QzgyLjM2IDEzLjMxIDY1LjAxIDAgNDMuMzcgMCIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NS45IDU4LjcxYy0yLjQ5IDAtNC41MS0yLjA0LTQuNTEtNC41NXMyLjAyLTQuNTUgNC41MS00LjU1IDQuNTEgMi4wNCA0LjUxIDQuNTUtMi4wMiA0LjU1LTQuNTEgNC41NW0tMjQuMSAwYy0yLjQ5IDAtNC41MS0yLjA0LTQuNTEtNC41NXMyLjAyLTQuNTUgNC41MS00LjU1IDQuNTEgMi4wNCA0LjUxIDQuNTUtMi4wMiA0LjU1LTQuNTEgNC41NW0zNS43IDI4LjExYzcuNjItNS41NyAxMi40OS0xMy44IDEyLjQ5LTIyLjk1IDAtMTYuNzctMTYuMTgtMzAuMzYtMzYuMTQtMzAuMzZTNDcuNyA0Ny4xIDQ3LjcgNjMuODdzMTYuMTggMzAuMzYgMzYuMTUgMzAuMzZjNC4xMiAwIDguMTEtLjU5IDExLjgtMS42Ni4zNC0uMS42OS0uMTYgMS4wNi0uMTYuNjkgMCAxLjMyLjIxIDEuOTIuNTZsNy45MSA0LjZjLjIyLjEzLjQ0LjIzLjcuMjMuNjcgMCAxLjIxLS41NCAxLjIxLTEuMjEgMC0uMy0uMTItLjYtLjE5LS44OS0uMDUtLjE3LTEuMDItMy44NC0xLjYzLTYuMTItLjA3LS4yNi0uMTMtLjUxLS4xMy0uNzcgMC0uODIuNC0xLjU0IDEuMDEtMS45OG0zNS4wMS00Mi41YzQuMjUtMy40IDguMTMtNy4xMSAxMS42NS0xMS4xMy43OS0uNjggMS42Mi0xLjAyIDIuNDctMS4wMnMxLjYuMjggMi4yNS44NS45OCAxLjI4Ljk4IDIuMTJ2NDcuNDNjMCAuNC0uMTEuNzEtLjM0Ljk0cy0uNDguMzQtLjc2LjM0aC00LjI1Yy0uMzQgMC0uNjItLjExLS44NS0uMzRzLS4zNC0uNTQtLjM0LS45NFY0My4yM2MtMi42MSAyLjc4LTUuMSA1LjEzLTcuNDggNy4wNi0uMTEuMTEtLjIzLjE3LS4zNC4xN3EtLjI1NSAwLS41MS0uNTFsLTIuNjQtNC41Yy0uMjMtLjQ1LS4xNy0uODIuMTctMS4xem0xLjM2LTE3LjE3YzAtLjI4LjExLS41MS4zNC0uNjggNC45OS0zLjU3IDkuMzItNy42NSAxMy0xMi4yNC40NS0uNDUuODUtLjQ4IDEuMTktLjA4bDMuMjMgMy4xNWMuNC4zNC40NS43NC4xNyAxLjE5LTQuMDggNC45My04Ljc1IDkuMzgtMTQuMDIgMTMuMzQtLjIzLjExLS40LjE3LS41MS4xNy0uMjggMC0uNTEtLjE0LS42OC0uNDJsLTIuNTUtMy45MWMtLjExLS4yMy0uMTctLjQtLjE3LS41MXptMjQuNCAzNC4yNXYtNi4yOWMwLTEuODcuOTEtMi44IDIuNzItMi44aDEyLjgzYzEuNTMgMCAyLjY1LjMgMy4zNi44OS43MS42IDEuMDYgMS43NCAxLjA2IDMuNDR2MTEuODFsLjk0IDE0LjUzdi4xN2MwIC4yMy0uMDguNC0uMjUuNTFzLS4zNy4xNy0uNi4xN2gtNC4zM2MtLjU3IDAtLjg4LS4yNS0uOTQtLjc3bC0uOTMtMTQuNDV2LTkuNmMwLS41MS0uMjgtLjc3LS44NS0uNzdoLTYuMDRjLS4zNCAwLS41Ny4wNy0uNjguMjFzLS4xNy4zOC0uMTcuNzJ2My43NGMwIDUuNTUtMS4zIDEyLjI3LTMuOTEgMjAuMTQtLjE3LjUxLS41MS43Ny0xLjAyLjc3aC00LjY4Yy0uMjggMC0uNS0uMS0uNjQtLjNzLS4xNi0uNDQtLjA0LS43MnE0LjE3LTEzLjA5NSA0LjE3LTIxLjQyem0tMy4yMy00NC4yOWMwLS41Ny4yOC0uODUuODUtLjg1aDMuOTFjLjU3IDAgLjg1LjI4Ljg1Ljg1bC4wOCA5Ljk1YzAgLjQ1LjEuNzguMy45OHMuNTIuMy45OC4zaDMuNjZWMTMuMTRjMC0uNTcuMjUtLjg1Ljc2LS44NWg0LjE3Yy41MSAwIC43Ny4yOC43Ny44NXYxNS4yMWgzLjc0cS42IDAgLjgxLS4zYy4xNC0uMi4yMS0uNTIuMjEtLjk4di05Ljk1YzAtLjU3LjI4LS44NS44NS0uODVoMy43NGMuNTcgMCAuODUuMjguODUuODV2MTQuMTFjMCAuNzktLjIzIDEuNDItLjY4IDEuODdzLTEuMDguNjgtMS44Ny42OGgtMjEuNDJjLS43OSAwLTEuNDItLjIzLTEuODctLjY4cy0uNjgtMS4wOC0uNjgtMS44N1YxNy4xMnptMS4zNiAyMy4zOGMuMjMtLjIzLjUxLS4zNC44NS0uMzRoMjIuMzVjLjQgMCAuNzEuMTEuOTQuMzRzLjM0LjU0LjM0Ljk0djMuMzFjMCAuNC0uMTEuNzEtLjM0Ljk0cy0uNTQuMzQtLjk0LjM0aC0yMi4zNWMtLjM0IDAtLjYyLS4xMS0uODUtLjM0cy0uMzQtLjU0LS4zNC0uOTR2LTMuMzFjMC0uNC4xMS0uNzEuMzQtLjk0bTM2LjA0IDIzLjM4Yy0yLjYxLTUuODQtNC41OS0xMi44MS01Ljk1LTIwLjkxbC00LjQyLTIuMTJjLS41MS0uMjgtLjY1LS42NS0uNDItMS4xIDEuODEtMy42MyAzLjQtNy44NiA0Ljc2LTEyLjcxczIuMzUtOS4zMSAyLjk4LTEzLjM5Yy4wNi0uNC4yLS43MS40Mi0uOTQuMjMtLjIzLjU0LS4zMS45NC0uMjVsMy40LjM0Yy44NS4xMSAxLjI1LjU3IDEuMTkgMS4zNnEtLjc2NSA0LjQyNS0yLjA0IDEwLjJoMTUuODFjLjU3IDAgLjg1LjI4Ljg1Ljg1djQuNTljMCAuNTctLjI4Ljg1LS44NS44NWgtMy40OGMtLjM0IDcuMTQtLjk5IDEzLjMtMS45NiAxOC40OS0uOTYgNS4xOC0yLjQ0IDkuOTktNC40MiAxNC40MSAzIDUuNSA3LjA4IDEwLjgyIDEyLjI0IDE1Ljk4LjE3LjE3LjI1LjM0LjI1LjUxIDAgLjI4LS4xNC41MS0uNDMuNjhsLTMuODIgMy40Yy0uMTEuMTEtLjI4LjE3LS41MS4xNy0uMjggMC0uNTEtLjExLS42OC0uMzQtNC40OC00LjgyLTcuOTYtOS4zOC0xMC40Ni0xMy42OS0yLjU1IDQuMjUtNS45MiA4Ljc4LTEwLjEyIDEzLjYtLjM0LjQ1LS43NC41MS0xLjE5LjE3bC0zLjk5LTMuMzFjLS40LS4zNC0uNDMtLjc0LS4wOS0xLjE5IDUuMjEtNS4wNCA5LjIxLTEwLjI2IDExLjk5LTE1LjY0em0zLjQtNy45OWMyLjEtNi41NyAzLjM3LTE0Ljk5IDMuODMtMjUuMjVoLTcuOTFsLTEuMDIgMy40OGMxLjE5IDguNTYgMi44OSAxNS44MSA1LjEgMjEuNzZ6bTQxLjA5IDI3LjYyYy0uMi4yMy0uNDcuMzQtLjgxLjM0aC00LjQyYy0uNjggMC0xLjAyLS40Mi0xLjAyLTEuMjd2LTQyLjVjLTIuMTUgMy42OC00LjE3IDYuNjktNi4wNCA5LjAxLS4xNy4yMy0uMzcuMzQtLjYuMzRzLS40Mi0uMDgtLjU5LS4yNWwtNC0yLjg5Yy0uMzQtLjM0LS4zNC0uNzQgMC0xLjE5IDMuNTEtNC40OCA2Ljc2LTkuNiA5LjczLTE1LjM5IDIuOTgtNS43OCA1LjM3LTExLjM5IDcuMTgtMTYuODMuMjMtLjUxLjYtLjY4IDEuMS0uNTFsNC43NiAxLjM2Yy41Ny4xNy43NC41NC41MSAxLjFxLTMuNjYgOC44MzUtNS41MiAxMi43NXY1NWMwIC40LS4xLjcxLS4zLjk0em03LjE4LTYyLjMxYzAtLjU3LjI4LS44NS44NS0uODVoMjEuMDhWMTMuM3EwLS4zNDUuMjEtLjZjLjE0LS4xNy4zLS4yNS40Ny0uMjVoNS40NGMuMTcgMCAuMzMuMDguNDcuMjVxLjIxLjI1NS4yMS42djcuMDVoMjEuNDJjLjU3IDAgLjg1LjI4Ljg1Ljg1djQuNWMwIC41Ny0uMjguODUtLjg1Ljg1aC00OS4zYy0uNTcgMC0uODUtLjI4LS44NS0uODV6bTMuNjYgNDAuMjFjMC0xLjM2LjM3LTIuNDEgMS4xLTMuMTVzMS43OS0xLjEgMy4xNS0xLjFoMzMuODNjMS4zNiAwIDIuNDEuMzcgMy4xNSAxLjEuNzQuNzQgMS4xIDEuNzkgMS4xIDMuMTV2MTcuNmMwIDEuMzYtLjM3IDIuNDEtMS4xIDMuMTUtLjc0Ljc0LTEuNzkgMS4xLTMuMTUgMS4xaC0zMy44M2MtMS4zNiAwLTIuNDEtLjM3LTMuMTUtMS4xLS43NC0uNzQtMS4xLTEuNzktMS4xLTMuMTV6bTEuMTktMjcuODhjMC0uNTcuMjgtLjg1Ljg1LS44NWgzOC4yNWMuNTcgMCAuODUuMjguODUuODV2NC4xN2MwIC41Ny0uMjguODUtLjg1Ljg1aC0zOC4yNWMtLjU3IDAtLjg1LS4yOC0uODUtLjg1em0wIDEyLjE1YzAtLjU3LjI4LS44NS44NS0uODVoMzguMjVjLjU3IDAgLjg1LjI4Ljg1Ljg1djQuMTdjMCAuNTctLjI4Ljg1LS44NS44NWgtMzguMjVjLS41NyAwLS44NS0uMjgtLjg1LS44NXptNi4yMSAzMS40NWgyNy40NmMuMjggMCAuNTEtLjA4LjY4LS4yNXMuMjUtLjM3LjI1LS42VjY0LjA0YzAtLjIzLS4wOC0uNDMtLjI1LS42cy0uNC0uMjUtLjY4LS4yNWgtMjcuMzdjLS4yOCAwLS41MS4wOC0uNjguMjVzLS4yNS4zNy0uMjUuNnYxMi4yNGMwIC41Ny4yOC44NS44NS44NXoiLz48L3N2Zz4=" alt="微信 logo">
+            </div>
+            <div class="feature-content">
+                <h3>微信</h3>
+                <p>官方首页</p>
+                <a href="https://weixin.qq.com/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
+            </div>
+        </div>
+        <!-- 卡片8 -->
+        <div class="feature-card">
+            <div class="feature-img">
+                <img src="https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/logos/Global-Header_MCCB-Logo_300x51.svg" alt="Minecraft logo with stylized block letters on a transparent background, conveying a playful and creative tone.">
+            </div>
+            <div class="feature-content">
+                <h3>Minecraft</h3>
+                <p>官方登录页</p>
+                <a href="https://www.minecraft.net/zh-hans/login.html" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- ...existing code... -->
+<script>
+    // 搜索功能（与assist.html一致）
+    document.querySelector('.search-box button').addEventListener('click', function() {
+        const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        featureCards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const description = card.querySelector('p').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // 允许按回车键搜索
+    document.querySelector('.search-box input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('.search-box button').click();
+        }
+    });
+
+    // 日夜切换功能
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    let darkMode = false;
+    themeBtn.addEventListener('click', function() {
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+        themeBtn.textContent = darkMode ? '☀️ 日间模式' : '🌙 夜间模式';
+    });
+</script>
+</body>
+</html>

@@ -18,6 +18,11 @@
             line-height: 1.6;
         }
         
+        body.night-mode {
+            background-color: #23272f;
+            color: #e0e0e0;
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -147,7 +152,27 @@
             color: #7f8c8d;
             border-top: 1px solid #eaeaea;
         }
-        
+
+        /* 夜间模式切换按钮样式 */
+        .night-toggle {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            z-index: 999;
+            background: #fff;
+            color: #23272f;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.3s, color 0.3s;
+        }
+        .night-toggle.night {
+            background: #23272f;
+            color: #fff;
+        }
         @media (max-width: 768px) {
             .features {
                 grid-template-columns: 1fr;
@@ -160,10 +185,19 @@
             header p {
                 font-size: 1rem;
             }
+
+            .night-toggle {
+                top: 12px;
+                right: 12px;
+                padding: 6px 12px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 夜间模式切换按钮 -->
+    <button class="night-toggle" id="nightToggle" title="切换夜间模式">🌙</button>
     <div class="container">
         <header>
             <h1>帮助中心</h1>
@@ -238,6 +272,27 @@
     </div>
 
     <script>
+        // 夜间模式切换功能
+        const nightToggle = document.getElementById('nightToggle');
+        function setNightMode(isNight) {
+            if (isNight) {
+                document.body.classList.add('night-mode');
+                nightToggle.classList.add('night');
+                nightToggle.textContent = '☀️';
+                localStorage.setItem('nightMode', '1');
+            } else {
+                document.body.classList.remove('night-mode');
+                nightToggle.classList.remove('night');
+                nightToggle.textContent = '🌙';
+                localStorage.setItem('nightMode', '0');
+            }
+        }
+        // 初始化
+        setNightMode(localStorage.getItem('nightMode') === '1');
+        nightToggle.onclick = function() {
+            setNightMode(!document.body.classList.contains('night-mode'));
+        };
+
         // 简单的搜索功能
         document.querySelector('.search-box button').addEventListener('click', function() {
             const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
