@@ -7,8 +7,8 @@
   },
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/reg", "dest": "/api/reg.php" },
+    { "src": "/postReg", "dest": "/api/postReg.php" },
     { "src": "/(.*)", "dest": "/api/index.php" }
-    { "src": "/reg", "dest": "/api/reg.php" }
-    { "src": "/postReg", "dest": "/api/postReg.php" }
   ]
 }
