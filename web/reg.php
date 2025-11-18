@@ -79,7 +79,8 @@
         <a href="#">资料修改<small class="en">Edit Profile</small></a>
         <a href="#">后台管理<small class="en">Admin</small></a>
     </h2>
-    <form action="postReg.php" method="post">
+</div>
+<form action="postReg.php" method="post" onsubmit="return check()">
         <table border="1" align="center" style="width: 90%;border-collapse: collapse;max-width: 500px;" cellpadding="10">
             <tr>
                 <td align="right">用户名</td>
@@ -147,7 +148,33 @@
                 </td>
             </tr>
         </table>
-    </form>
-</div>
+</form>
+<script>
+    function check(){
+        let username = document.getElementsByName('username')[0].value.trim();
+        let usernameReg = /^[a-zA-Z0-9]{3,10}$/;
+        if(!usernameReg.test(username)){
+            alert("用户名只能是由大小写字母、数字构成，且长度为3-10");
+            return false;
+        }
+        let pw = document.getElementsByName('pw')[0].value.trim();
+        let pwReg = /^[a-zA-Z0-9_\-*]{6,10}$/;
+        if(!pwReg.test(pw)){
+            alert("密码只能是由大小写字母、数字、下划线、-和*构成，且长度为6-10");
+            return false;
+        }
+
+
+        let email = document.getElementsByName('email')[0].value.trim();
+        let emailReg = /^[a-zA-Z0-9_\-]+@([a-zA-Z0-9]+\.)+(com|cn|net|org)$/;
+        if(email){
+            if(!emailReg.test(email)){
+            alert("邮箱格式不对！");
+            return false;
+            }
+        }
+        
+</script>
 </body>
 </html>
+
