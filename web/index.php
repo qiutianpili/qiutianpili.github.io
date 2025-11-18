@@ -70,11 +70,11 @@
 <div class="main">
     <h1>会员注册管理系统</h1>
     <h2>
-        <a href="index.php">回到首页<small class="en">Home</small></a>
-        <a href="reg.php">会员注册<small class="en">Register</small></a>
-        <a href="#">会员登录<small class="en">Login</small></a>
-        <a href="#">资料修改<small class="en">Edit Profile</small></a>
-        <a href="#">后台管理<small class="en">Admin</small></a>
+        <a href="index.php">回到首页</a>
+        <a href="reg.php">会员注册</a>
+        <a href="#">会员登录</a>
+        <a href="#">资料修改</a>
+        <a href="#">后台管理</a>
     </h2>
 </div>
 </body>

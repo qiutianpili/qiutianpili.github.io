@@ -64,6 +64,9 @@
         .main h2 a:hover{
             color:white;
         }
+        .red{
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -82,7 +85,7 @@
                 <td align="right">用户名</td>
                 <td align="left">
                     <label>
-                        <input style="padding: 5px" name="username" placeholder="请输入用户名">
+                        <input style="padding: 5px" name="username" placeholder="请输入用户名"><spawn class="red">*</spawn>
                     </label>
                 </td>
             </tr>
@@ -90,7 +93,7 @@
                 <td align="right">密码</td>
                 <td align="left">
                     <label>
-                        <input style="padding: 5px" type="password" name="pw" placeholder="请用数字和字母构成">
+                        <input style="padding: 5px" type="password" name="pw" placeholder="请用数字和字母构成"><spawn class="red">*</spawn>
                     </label>
                 </td>
             </tr>
@@ -98,7 +101,7 @@
                 <td align="right">再次输入密码</td>
                 <td align="left">
                     <label>
-                        <input style="padding: 5px" type="password" name="rpw" placeholder="再次确认您的密码">
+                        <input style="padding: 5px" type="password" name="rpw" placeholder="再次确认您的密码"><spawn class="red">*</spawn>
                     </label>
                 </td>
             </tr>
