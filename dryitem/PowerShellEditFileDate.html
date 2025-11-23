@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>PowerShell 修改文件日期方法</title>
+<style>
+body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+code { background: #f0f0f0; padding: 4px; display: inline-block; }
+pre { background: #f0f0f0; padding: 10px; border-radius: 6px; }
+h1 { color: #333; }
+h2 { color: #444; }
+</style>
+</head>
+<body>
+
+<h1>PowerShell 修改文件日期方法</h1>
+
+<h2>方法 1：使用 Set-ItemProperty（最简单）</h2>
+<p>修改最后修改时间（LastWriteTime）：</p>
+<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastWriteTime -Value "2024-01-01 10:00:00"</code></pre>
+
+<p>修改创建时间（CreationTime）：</p>
+<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name CreationTime -Value "2024-01-01 10:00:00"</code></pre>
+
+<p>修改访问时间（LastAccessTime）：</p>
+<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastAccessTime -Value "2024-01-01 10:00:00"</code></pre>
+
+<h2>方法 2：使用 .NET 方法（最全面）</h2>
+<pre><code>$file = Get-Item "C:\test\file.txt"
+$file.CreationTime = "2024-01-01 09:00:00"
+$file.LastWriteTime = "2024-01-02 12:00:00"
+$file.LastAccessTime = "2024-01-03 15:00:00"</code></pre>
+
+<h2>方法 3：一行命令同时改三个时间</h2>
+<pre><code>(Get-Item "C:\test\file.txt").CreationTime = "2024-01-01 08:00:00"
+(Get-Item "C:\test\file.txt").LastWriteTime = "2024-01-01 08:00:00"
+(Get-Item "C:\test\file.txt").LastAccessTime = "2024-01-01 08:00:00"</code></pre>
+
+<h2>日期格式注意事项</h2>
+<ul>
+<li>"2024-01-01 12:00"</li>
+<li>"2024/01/01 12:00"</li>
+<li>[datetime]::Parse("2024-01-01T12:00:00")</li>
+</ul>
+
+<h2>批量修改文件夹内所有文件日期</h2>
+<pre><code>Get-ChildItem "C:\test" | ForEach-Object {
+    $_.LastWriteTime = "2024-01-01 00:00:00"
+}</code></pre>
+
+</body>
+</html>
