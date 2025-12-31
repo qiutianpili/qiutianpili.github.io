@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>新年快乐</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* 新年红渐变背景 */
+            background: linear-gradient(135deg, #d31027 0%, #ea384d 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景装饰（可选：增加一点氛围感） */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 50% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* 容器样式 */
+        .container {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #ffd700; /* 金色文字 */
+            font-size: 2rem;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        /* 按钮核心样式 */
+        .copy-btn {
+            background: linear-gradient(to bottom, #fce38a 0%, #f38181 100%); /* 金色到淡红渐变 */
+            border: 2px solid #fff;
+            color: #b71540; /* 深红色文字 */
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 6px 6px rgba(0,0,0,0.23);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+            outline: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 200px;
+            max-width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 鼠标悬停效果 (电脑端) */
+        .copy-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+
+        /* 点击按压效果 */
+        .copy-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            background: #eebb11;
+        }
+
+        /* 复制成功后的样式状态 */
+        .copy-btn.success {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+
+        /* 提示文字 */
+        .toast {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            bottom: -60px; /* 位于按钮下方 */
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .copy-btn {
+                width: 80%; /* 手机上按钮更宽 */
+                padding: 16px 20px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✨ 新年快乐 ✨</h1>
+        
+        <div style="position: relative; display: inline-block;">
+            <button class="copy-btn" id="copyBtn" onclick="copyLink()">
+                点击复制链接
+            </button>
+            <div class="toast" id="toast">已复制到剪贴板！</div>
+        </div>
+    </div>
+
+    <script>
+        //在这里修改你要复制的内容
+        const LINK_TO_COPY = "哈哈哈嘻嘻嘻"; 
+
+        function copyLink() {
+            const btn = document.getElementById('copyBtn');
+            const toast = document.getElementById('toast');
+            const originalText = btn.innerText;
+
+            // 尝试使用现代 API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(LINK_TO_COPY).then(() => {
+                    handleSuccess(btn, toast, originalText);
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(LINK_TO_COPY, btn, toast, originalText);
+                });
+            } else {
+                // 回退方案（用于不支持现代API的浏览器或非HTTPS环境）
+                fallbackCopyTextToClipboard(LINK_TO_COPY, btn, toast, originalText);
+            }
+        }
+
+        // 回退复制方案（创建一个隐藏的输入框来复制）
+        function fallbackCopyTextToClipboard(text, btn, toast, originalText) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // 将 textarea 移出屏幕
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                if (successful) {
+                    handleSuccess(btn, toast, originalText);
+                } else {
+                    alert('复制失败，请手动复制');
+                }
+            } catch (err) {
+                alert('无法复制，请手动复制');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        // 处理复制成功的UI反馈
+        function handleSuccess(btn, toast, originalText) {
+            // 按钮变绿并更改文字
+            btn.classList.add('success');
+            btn.innerText = "复制成功！";
+            
+            // 显示提示气泡
+            toast.classList.add('show');
+
+            // 2秒后恢复原状
+            setTimeout(() => {
+                btn.classList.remove('success');
+                btn.innerText = originalText;
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
