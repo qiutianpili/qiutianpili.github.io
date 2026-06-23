@@ -1,344 +1,94 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>帮助中心</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        body.night-mode {
-            background-color: #23272f;
-            color: #e0e0e0;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            padding: 30px 0;
-        }
-        
-        header h1 {
-            font-size: 2.5rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        header p {
-            font-size: 1.1rem;
-            color: #7f8c8d;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .search-box {
-            max-width: 600px;
-            margin: 30px auto;
-            position: relative;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            font-size: 1rem;
-            outline: none;
-        }
-        
-        .search-box button {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .search-box button:hover {
-            background: #2980b9;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
-        }
-        
-        .feature-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-img {
-            height: 180px;
-            overflow: hidden;
-        }
-        
-
-        .feature-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* 保证图片完整显示 */
-            background: #fff;    /* 可选：防止透明图片出现底色 */
-            transition: transform 0.5s;
-        }
-
-        .feature-card:hover .feature-img img {
-            transform: scale(1.05);
-        }
-        
-        .feature-content {
-            padding: 20px;
-        }
-        
-        .feature-content h3 {
-            font-size: 1.3rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        .feature-content p {
-            color: #7f8c8d;
-            margin-bottom: 15px;
-        }
-        
-        .learn-more {
-            color: #3498db;
-            font-weight: 600;
-            display: inline-block;
-            text-decoration: none;
-        }
-        
-        .learn-more:hover {
-            text-decoration: underline;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 40px 0;
-            margin-top: 50px;
-            color: #7f8c8d;
-            border-top: 1px solid #eaeaea;
-        }
-
-        /* 夜间模式切换按钮样式 */
-        .night-toggle {
-            position: fixed;
-            top: 24px;
-            right: 32px;
-            z-index: 999;
-            background: #fff;
-            color: #23272f;
-            border: none;
-            border-radius: 50px;
-            padding: 8px 18px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: background 0.3s, color 0.3s;
-        }
-        .night-toggle.night {
-            background: #23272f;
-            color: #fff;
-        }
-        @media (max-width: 768px) {
-            .features {
-                grid-template-columns: 1fr;
-            }
-            
-            header h1 {
-                font-size: 2rem;
-            }
-            
-            header p {
-                font-size: 1rem;
-            }
-
-            .night-toggle {
-                top: 12px;
-                right: 12px;
-                padding: 6px 12px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="秋天霹雳的资源与帮助中心。">
+  <title>资源中心 | 秋天霹雳</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-    <!-- 夜间模式切换按钮 -->
-    <button class="night-toggle" id="nightToggle" title="切换夜间模式">🌙</button>
-    <div class="container">
-        <header>
-            <h1>帮助中心</h1>
-            <p>在这里您可以找到所有功能的详细说明和使用指南，点击相应功能卡片查看详情</p>
-        </header>
-        
-        <div class="search-box">
-            <input type="text" placeholder="搜索您需要的帮助...">
-            <button>搜索</button>
-        </div>
-        
-        <div class="features">
-            <!-- 功能1 -->
-            <div class="feature-card">
-                <div class="feature-img">
-                    <img src="Images/v2ray.png" alt="v2rayNG">
-                </div>
-                <div class="feature-content">
-                    <h3>v2rayNG</h3>
-                    <p>v2rayNG是Android平台上的一款代理翻墙应用,V2rayNG基于V2Ray内核,提供代理配置和管理功能.</p>
-                    <a href="https://github.com/2dust/v2rayN/releases" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Windows)</a>
-                    <a href="https://github.com/2dust/v2rayNG/releases" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Android)</a>
-                </div>
-            </div>
-            
-            <!-- 功能2 -->
-            <div class="feature-card">
-                <div class="feature-img">
-                    <img src="Images/Neko.png" alt="NekoBox" >
-                </div>
-                <div class="feature-content">
-                    <h3>NekoBox</h3>
-                    <p>NekoBox是一款基于sing-box的开发的多平台通用代理工具.</p>
-                    <a href="https://getnekobox.com/" class="learn-more" target="_blank" rel="noopener noreferrer">官网</a> &nbsp; 
-                    <a href="https://github.com/MatsuriDayo/NekoBoxForAndroid/releases" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Android)</a>
-                </div>
-            </div>
-            
-            <!-- 功能3 -->
-            <div class="feature-card">
-                <div class="feature-img">
-                    <img src="Images/1airport.png" alt="一分机场">
-                </div>
-                <div class="feature-content">
-                    <h3>None</h3>
-                    <p>测试</p>
-                    <a href="https://cn.bing.com" class="learn-more" target="_blank" rel="noopener noreferrer">了解更多</a>
-                </div>
-            </div>
-            <!-- 功能4 -->
-            <div class="feature-card">
-                <div class="feature-img">
-                    <img src="Images/lxmusic.png" alt="lx-music">
-                </div>
-                <div class="feature-content">
-                    <h3>Lx Music</h3>
-                    <p>一个免费&开源的音乐查找工具，支持在 Linux、macOS、Windows 及 Android 平台上运行.</p>
-                    <a href="https://lxmusic.toside.cn/" class="learn-more" target="_blank" rel="noopener noreferrer">官网</a> &nbsp; <a href="https://github.com/lyswhut/lx-music-mobile" class="learn-more" target="_blank" rel="noopener noreferrer">Github(Android)</a>
-                    <br>
-                    <a href="javascript:void(0);" id="copy-link" data-clipboard-text="https://login.yfjc.xyz/api/v1/client/subscribe?token=fd71ef5afcfb2bd531fc4b31601cd2ee"  class="learn-more">点击复制付费音源链接</a>
-                    <span id="copy-tip" style="color:green;display:none;margin-left:10px;font-size:1em;">已复制！</span>
-                </div>
-            </div>
-        </div>
+  <div class="page-shell">
+    <header class="site-header" data-elevate>
+      <a class="brand" href="index.html">
+        <span class="brand-mark">Q</span>
+        <span><strong>秋天霹雳</strong><small>Resources</small></span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="posts.html">文章</a>
+        <a href="friends.html">友链</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色" data-theme-toggle>
+        <span aria-hidden="true">日/夜</span>
+      </button>
+    </header>
 
-        <footer text-align: center>
-            <p>
-                © 2025 帮助中心 | 如果您需要更多帮助,请联系我们:
-                <a href="javascript:void(0);" id="copy-email" data-clipboard-text="qiutianpili@foxmail.com" class="learn-more">点击复制邮箱</a>
-                <span id="email-copy-tip" style="color:green;display:none;margin-left:10px;font-size:1em;">已复制！</span>
-            </p>
-        </footer>
-    </div>
+    <main class="content-page">
+      <section class="page-title">
+        <p class="eyebrow">Resources</p>
+        <h1>资源中心</h1>
+        <p>把原先散落在页面里的常用软件、站点和说明集中起来，后续新增内容只需要复制一张卡片。</p>
+      </section>
 
-    <script>
-        // 夜间模式切换功能
-        const nightToggle = document.getElementById('nightToggle');
-        function setNightMode(isNight) {
-            if (isNight) {
-                document.body.classList.add('night-mode');
-                nightToggle.classList.add('night');
-                nightToggle.textContent = '☀️';
-                localStorage.setItem('nightMode', '1');
-            } else {
-                document.body.classList.remove('night-mode');
-                nightToggle.classList.remove('night');
-                nightToggle.textContent = '🌙';
-                localStorage.setItem('nightMode', '0');
-            }
-        }
-        // 初始化
-        setNightMode(localStorage.getItem('nightMode') === '1');
-        nightToggle.onclick = function() {
-            setNightMode(!document.body.classList.contains('night-mode'));
-        };
+      <section class="resource-grid" aria-label="常用资源">
+        <article class="resource-card">
+          <img src="Images/v2ray.png" alt="v2rayNG 图标" loading="lazy">
+          <div>
+            <p class="tag">代理工具</p>
+            <h2>v2rayN / v2rayNG</h2>
+            <p>Windows 与 Android 常用客户端。</p>
+            <div class="inline-links">
+              <a href="https://github.com/2dust/v2rayN/releases" target="_blank" rel="noopener noreferrer">Windows</a>
+              <a href="https://github.com/2dust/v2rayNG/releases" target="_blank" rel="noopener noreferrer">Android</a>
+            </div>
+          </div>
+        </article>
 
-        // 简单的搜索功能
-        document.querySelector('.search-box button').addEventListener('click', function() {
-            const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
-            const featureCards = document.querySelectorAll('.feature-card');
-            
-            featureCards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('p').textContent.toLowerCase();
-                
-                if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-        
-        // 允许按回车键搜索
-        document.querySelector('.search-box input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.querySelector('.search-box button').click();
-            }
-        });
-        
-        // 复制功能
-        document.getElementById('copy-link').addEventListener('click', function() {
-            const text = this.getAttribute('data-clipboard-text');
-            navigator.clipboard.writeText(text).then(function() {
-                document.getElementById('copy-tip').style.display = 'inline';
-                setTimeout(() => {
-                    document.getElementById('copy-tip').style.display = 'none';
-                }, 1500);
-            });
-        });
+        <article class="resource-card">
+          <img src="Images/Neko.png" alt="NekoBox 图标" loading="lazy">
+          <div>
+            <p class="tag">代理工具</p>
+            <h2>NekoBox</h2>
+            <p>跨平台代理客户端，适合作为备用方案。</p>
+            <div class="inline-links">
+              <a href="https://github.com/MatsuriDayo/NekoBoxForAndroid/releases" target="_blank" rel="noopener noreferrer">Android</a>
+            </div>
+          </div>
+        </article>
 
-        // 邮箱复制功能
-        document.getElementById('copy-email').addEventListener('click', function() {
-            const text = this.getAttribute('data-clipboard-text');
-            navigator.clipboard.writeText(text).then(function() {
-                document.getElementById('email-copy-tip').style.display = 'inline';
-                setTimeout(() => {
-                    document.getElementById('email-copy-tip').style.display = 'none';
-                }, 1500);
-            });
-        });
-    </script>
+        <article class="resource-card">
+          <img src="Images/7ziplogo.png" alt="7-Zip 图标" loading="lazy">
+          <div>
+            <p class="tag">效率工具</p>
+            <h2>7-Zip</h2>
+            <p>轻量压缩解压工具。</p>
+            <div class="inline-links">
+              <a href="https://www.7-zip.org/" target="_blank" rel="noopener noreferrer">官网</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="resource-card">
+          <img src="Images/snipastelogo.svg" alt="Snipaste 图标" loading="lazy">
+          <div>
+            <p class="tag">效率工具</p>
+            <h2>Snipaste</h2>
+            <p>截图、贴图和标注工具。</p>
+            <div class="inline-links">
+              <a href="https://www.snipaste.com/" target="_blank" rel="noopener noreferrer">官网</a>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>© 2026 秋天霹雳</span>
+      <a href="index.html">首页</a>
+    </footer>
+  </div>
+  <script src="assets/site.js" defer></script>
 </body>
 </html>
