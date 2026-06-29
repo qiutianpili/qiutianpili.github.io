@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语口试双人选题对话 - 护眼绿洲交互版</title>
+    <style>
+        :root {
+            /* 经典专业级护眼调色盘 */
+            --bg-main: #f4f8f4;        /* 极浅护眼豆沙绿背景 */
+            --bg-chat: #e2ece2;        /* 聊天区域背景底色 */
+            --nav-bg: #2d5a2d;         /* 深正绿导航条 */
+            --nav-active: #3d7a3d;     /* 激活态高亮绿 */
+            --bubble-left: #ffffff;    /* 接收方白色气泡 */
+            --bubble-right: #e3f5d7;   /* 发送方淡绿气泡 */
+            --text-main: #1f2d1f;      /* 主文本深墨绿/黑 */
+            --text-zh: #556b55;        /* 中文对照暗绿 */
+            --accent-blue: #1e6bb8;    /* A同学标识蓝 */
+            --accent-green: #2e7d32;   /* B同学标识绿 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* 响应式导航栏 */
+        .navbar {
+            background-color: var(--nav-bg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 16px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .nav-btn:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-btn.active {
+            color: #ffffff;
+            background-color: var(--nav-active);
+            border-bottom: 3px solid #ffffff;
+            font-weight: bold;
+        }
+
+        /* 主体容器 */
+        .container {
+            max-width: 750px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        /* 顶部提示卡片 */
+        .header-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            border-left: 4px solid var(--nav-bg);
+        }
+
+        .header-card h1 {
+            font-size: 1.3rem;
+            color: var(--nav-bg);
+            margin-bottom: 6px;
+        }
+
+        .header-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* 对话内容面板控制 */
+        .dialogue-panel {
+            display: none;
+            background-color: var(--bg-chat);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .dialogue-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 聊天气泡流布局 */
+        .chat-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .chat-row.left {
+            justify-content: flex-start;
+        }
+
+        .chat-row.right {
+            justify-content: flex-end;
+        }
+
+        /* 气泡核心样式 */
+        .bubble {
+            max-width: 75%;
+            padding: 10px 14px 8px 14px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+            word-wrap: break-word;
+        }
+
+        .chat-row.left .bubble {
+            background-color: var(--bubble-left);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-row.right .bubble {
+            background-color: var(--bubble-right);
+            border-bottom-right-radius: 4px;
+        }
+
+        /* 说话者昵称 */
+        .sender-tag {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .chat-row.left .sender-tag {
+            color: var(--accent-blue);
+        }
+
+        .chat-row.right .sender-tag {
+            color: var(--accent-green);
+        }
+
+        /* 英文与中文排版（符合中文字体稍小、置于英文下方的要求） */
+        .text-en {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+
+        .text-zh {
+            font-size: 0.88rem;
+            color: var(--text-zh);
+            border-top: 1px dashed rgba(0,0,0,0.08);
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .chat-row.right .text-zh {
+            border-top: 1px dashed rgba(0,0,0,0.06);
+        }
+
+        /* 气泡元信息（仿真模拟时间） */
+        .bubble-meta {
+            display: block;
+            text-align: right;
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .chat-row.right .bubble-meta {
+            color: #7ba37b;
+        }
+
+        /* 移动端响应式优化 */
+        @media (max-width: 600px) {
+            .navbar {
+                justify-content: flex-start;
+            }
+            .nav-btn {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+            }
+            .bubble {
+                max-width: 88%;
+            }
+            .text-en {
+                font-size: 0.98rem;
+            }
+            .text-zh {
+                font-size: 0.84rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶层导航栏 -->
+    <nav class="navbar">
+        <button class="nav-btn active" id="btn-1" onclick="switchTab(1)">话题 1: 酒店退房</button>
+        <button class="nav-btn" id="btn-2" onclick="switchTab(2)">话题 2: 挑选礼物</button>
+        <button class="nav-btn" id="btn-3" onclick="switchTab(3)">话题 3: 校园社团</button>
+        <button class="nav-btn" id="btn-4" onclick="switchTab(4)">话题 4: 网购售后</button>
+    </nav>
+
+    <div class="container">
+        
+        <!-- 导言说明卡片 -->
+        <div class="header-card">
+            <h1>期末考试《大学英语》口试选题备考</h1>
+            <p>点击上方导航栏快速切换对话场景。中英双语对照，浅绿护眼风格，方便日常屏幕背诵与双人对练。</p>
+        </div>
+
+        <!-- ==================== TOPIC 1 ==================== -->
+        <div class="dialogue-panel active" id="panel-1">
+            <div class="chat-stream">
+                <!-- Turn 1: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Hotel Assistant)</span>
+                        <div class="text-en">Good morning! Welcome to the front desk. How can I help you today?</div>
+                        <div class="text-zh">早上好！欢迎来到前台。请问今天有什么可以帮您的？</div>
+                        <span class="bubble-meta">08:30 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 1: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Foreign Guest)</span>
+                        <div class="text-en">Good morning. I need to check out early because my flight is in a few hours. Can I also get a taxi to the airport?</div>
+                        <div class="text-zh">早上好。我需要提前退房，因为我的航班还有几个小时就要起飞了。可以顺便帮我叫辆去机场的出租车吗？</div>
+                        <span class="bubble-meta">08:31 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 2: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Hotel Assistant)</span>
+                        <div class="text-en">Certainly. May I have your room number, please?</div>
+                        <div class="text-zh">好的。请问您的房间号是多少？</div>
+                        <span class="bubble-meta">08:31 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 2: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Foreign Guest)</span>
+                        <div class="text-en">Yes, it's room 808.</div>
+                        <div class="text-zh">好的，是808房间。</div>
+                        <span class="bubble-meta">08:32 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 3: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Hotel Assistant)</span>
+                        <div class="text-en">Thank you. How would you like to pay for the room? Also, I can call a taxi for you right now.</div>
+                        <div class="text-zh">谢谢。请问您怎么支付房费？另外，我现在就可以帮您叫车。</div>
+                        <span class="bubble-meta">08:32 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 3: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Foreign Guest)</span>
+                        <div class="text-en">I'll pay by credit card. By the way, how much is the taxi fare to the airport?</div>
+                        <div class="text-zh">我用信用卡支付。顺便问一下，去机场的出租车费大概是多少？</div>
+                        <span class="bubble-meta">08:33 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 4: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Hotel Assistant)</span>
+                        <div class="text-en">It's about 60 yuan, and the taxi will arrive in five minutes.</div>
+                        <div class="text-zh">大约60元，出租车五分钟内就会到。</div>
+                        <span class="bubble-meta">08:33 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 4: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Foreign Guest)</span>
+                        <div class="text-en">Great! Thank you so much for your help. Goodbye!</div>
+                        <div class="text-zh">太棒了！非常感谢您的帮助。再见！</div>
+                        <span class="bubble-meta">08:34 AM ✓✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TOPIC 2 ==================== -->
+        <div class="dialogue-panel" id="panel-2">
+            <div class="chat-stream">
+                <!-- Turn 1: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Chinese Student)</span>
+                        <div class="text-en">Hello! I'm looking for a birthday gift for my American friend, Mike. He really loves Chinese culture and tea. Any suggestions?</div>
+                        <div class="text-zh">你好！我想给我的一位美国朋友迈克挑一份生日礼物。他非常喜欢中国文化和茶。有什么推荐吗？</div>
+                        <span class="bubble-meta">02:15 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 1: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Shop Assistant)</span>
+                        <div class="text-en">Welcome! We have a beautiful traditional tea set and a cute panda toy. Both are very popular.</div>
+                        <div class="text-zh">欢迎光临！我们有一套精美的传统茶具和一个可爱的熊猫公仔。这两款都很受欢迎。</div>
+                        <span class="bubble-meta">02:16 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 2: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Chinese Student)</span>
+                        <div class="text-en">They sound interesting! Why are they special?</div>
+                        <div class="text-zh">听起来很有意思！它们有什么特别之处吗？</div>
+                        <span class="bubble-meta">02:16 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 2: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Shop Assistant)</span>
+                        <div class="text-en">The tea set represents Chinese tea culture, and the panda toy represents Chengdu's unique charm.</div>
+                        <div class="text-zh">茶具代表了中国的茶文化，而熊猫公仔则展现了成都的独特魅力。</div>
+                        <span class="bubble-meta">02:17 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 3: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Chinese Student)</span>
+                        <div class="text-en">Mike would love the tea set. Which one do you recommend?</div>
+                        <div class="text-zh">迈克肯定会喜欢茶具的。您推荐哪一款呢？</div>
+                        <span class="bubble-meta">02:17 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 2: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Shop Assistant)</span>
+                        <div class="text-en">This classic ceramic one is perfect for beginners. I can help you pack it nicely.</div>
+                        <div class="text-zh">这款经典的陶瓷茶具非常适合初学者。我可以帮您精美包装一下。</div>
+                        <span class="bubble-meta">02:18 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 4: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Chinese Student)</span>
+                        <div class="text-en">Great! I'll buy this tea set. Thank you for your help.</div>
+                        <div class="text-zh">太好了！那我就买这套茶具了。谢谢您的帮助。</div>
+                        <span class="bubble-meta">02:18 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 4: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Shop Assistant)</span>
+                        <div class="text-en">You're welcome! Have a wonderful day.</div>
+                        <div class="text-zh">不客气！祝您度过愉快的一天。</div>
+                        <span class="bubble-meta">02:19 PM ✓✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TOPIC 3 ==================== -->
+        <div class="dialogue-panel" id="panel-3">
+            <div class="chat-stream">
+                <!-- Turn 1: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Applicant)</span>
+                        <div class="text-en">Hi! I'm interested in joining the English Club. Are you recruiting new members?</div>
+                        <div class="text-zh">嗨！我对加入英语社团很感兴趣。你们现在在招新成员吗？</div>
+                        <span class="bubble-meta">04:00 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 1: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Club Recruiter)</span>
+                        <div class="text-en">Yes, we are! Welcome. It's a wonderful club to improve your speaking skills.</div>
+                        <div class="text-zh">是的，我们在招新！欢迎你。这是一个提升英语口语能力的绝佳社团。</div>
+                        <span class="bubble-meta">04:01 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 2: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Applicant)</span>
+                        <div class="text-en">Sounds great! What activities do you usually have, and when do you meet?</div>
+                        <div class="text-zh">听起来太棒了！你们平时通常有哪些活动？一般什么时候聚会？</div>
+                        <span class="bubble-meta">04:02 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 2: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Club Recruiter)</span>
+                        <div class="text-en">We host English corners and movie nights every Friday evening. It's really fun and useful.</div>
+                        <div class="text-zh">我们每周五晚上都会举办英语角和电影之夜，既有趣又实用。</div>
+                        <span class="bubble-meta">04:03 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 3: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Applicant)</span>
+                        <div class="text-en">That sounds amazing! Are there any special requirements to join?</div>
+                        <div class="text-zh">听起来很吸引人！加入有什么特殊要求吗？</div>
+                        <span class="bubble-meta">04:03 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 3: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Club Recruiter)</span>
+                        <div class="text-en">No special requirements at all! As long as you love English, you are welcome.</div>
+                        <div class="text-zh">完全没有特殊要求！只要你热爱英语，我们都热烈欢迎。</div>
+                        <span class="bubble-meta">04:04 PM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 4: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Applicant)</span>
+                        <div class="text-en">Perfect! I definitely want to join right now.</div>
+                        <div class="text-zh">太好了！我现在就想报名加入。</div>
+                        <span class="bubble-meta">04:04 PM</span>
+                    </div>
+                </div>
+                <!-- Turn 4: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Club Recruiter)</span>
+                        <div class="text-en">Great! Please fill out this form, and welcome to our club!</div>
+                        <div class="text-zh">太棒了！请填写一下这张表格，欢迎加入我们的社团！</div>
+                        <span class="bubble-meta">04:05 PM ✓✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TOPIC 4 ==================== -->
+        <div class="dialogue-panel" id="panel-4">
+            <div class="chat-stream">
+                <!-- Turn 1: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Customer Service)</span>
+                        <div class="text-en">Hello, this is Customer Service. How can I help you today?</div>
+                        <div class="text-zh">您好，这里是客户服务中心。请问今天有什么可以帮您的？</div>
+                        <span class="bubble-meta">11:10 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 1: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Customer)</span>
+                        <div class="text-en">Hi, I ordered a sweater from your store, but I received a size L instead of a size S.</div>
+                        <div class="text-zh">你好，我在你们店订了一件毛衣，但我收到的是L码，而不是我买的S码。</div>
+                        <span class="bubble-meta">11:11 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 2: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Customer Service)</span>
+                        <div class="text-en">I'm very sorry for the mistake. Could you please provide your order number and the item name?</div>
+                        <div class="text-zh">非常抱歉给您带来了不便。能请您提供一下订单号和商品名称吗？</div>
+                        <span class="bubble-meta">11:12 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 2: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Customer)</span>
+                        <div class="text-en">Sure, the order number is 12345, and it's the blue wool sweater.</div>
+                        <div class="text-zh">好的，订单号是12345，商品是那件蓝色的羊毛衫。</div>
+                        <span class="bubble-meta">11:12 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 3: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Customer Service)</span>
+                        <div class="text-en">Thank you. We can offer a free shipping exchange for the correct size or a full refund. Which do you prefer?</div>
+                        <div class="text-zh">谢谢。我们可以为您免费包邮调换正确的尺码，或者办理全额退款。您看哪种方式更方便？</div>
+                        <span class="bubble-meta">11:13 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 3: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Customer)</span>
+                        <div class="text-en">I really like the sweater, so I would like to exchange it for the correct size, please.</div>
+                        <div class="text-zh">我很喜欢这件毛衣，所以麻烦帮我换成正确的尺码吧。</div>
+                        <span class="bubble-meta">11:14 AM ✓✓</span>
+                    </div>
+                </div>
+                <!-- Turn 4: A -->
+                <div class="chat-row left">
+                    <div class="bubble">
+                        <span class="sender-tag">Student A (Customer Service)</span>
+                        <div class="text-en">No problem. We will ship the size S sweater today, and return shipping is completely free.</div>
+                        <div class="text-zh">没问题。我们今天就会为您寄出S码的毛衣，而且退回的运费全免。</div>
+                        <span class="bubble-meta">11:15 AM</span>
+                    </div>
+                </div>
+                <!-- Turn 4: B -->
+                <div class="chat-row right">
+                    <div class="bubble">
+                        <span class="sender-tag">Student B (Customer)</span>
+                        <div class="text-en">That's perfect. Thank you so much for your quick help!</div>
+                        <div class="text-zh">太完美了。非常感谢您如此高效的帮助！</div>
+                        <span class="bubble-meta">11:16 AM ✓✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 交互脚本 -->
+    <script>
+        function switchTab(tabIndex) {
+            // 移除所有按钮的激活状态
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 隐藏所有面板
+            document.querySelectorAll('.dialogue-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            // 激活当前点击的按钮与面板
+            document.getElementById('btn-' + tabIndex).classList.add('active');
+            document.getElementById('panel-' + tabIndex).classList.add('active');
+        }
+    </script>
+</body>
+</html>
