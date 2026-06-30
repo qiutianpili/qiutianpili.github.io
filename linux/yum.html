@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux yum 命令核心指南</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+            --code-bg: #f1f3f5;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 50px 60px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+        h2 {
+            color: var(--secondary-color);
+            border-bottom: 2px solid #ebf5fb;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: var(--primary-color);
+            margin-top: 25px;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        code {
+            background-color: var(--code-bg);
+            color: var(--accent-color);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.9em;
+        }
+        .feature-section {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature-card {
+            flex: 1;
+            background: #fdfefe;
+            border: 1px solid #e5e8e8;
+            border-top: 4px solid var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .feature-card h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        th, td {
+            border: 1px solid #e1e8ed;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8fbfe;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 0.95em;
+            color: #856404;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Linux yum 命令核心指南</h1>
+            <div class="subtitle">CentOS/RHEL 等红帽系发行版的高效包管理工具</div>
+        </header>
+
+        <p><strong>yum (Yellow dog Updater, Modified)</strong> 是在 Fedora、RedHat 以及 CentOS 中的 Shell 前端软件包管理器。它基于 RPM 包管理，能够从指定的服务器自动下载 RPM 包并且安装。其最强大的特性在于能够<strong>自动处理依赖性关系</strong>，一次安装所有依赖的软件包，无须繁琐地一次次下载和安装。</p>
+
+        <h2>一、 yum 的核心优势</h2>
+        
+        <div class="feature-section">
+            <div class="feature-card">
+                <h4>🔗 自动解决依赖</h4>
+                <p>在安装软件时，自动计算并下载该软件运行所需的其他依赖包，完美解决传统 RPM 安装时的 "依赖地狱" 问题。</p>
+            </div>
+            <div class="feature-card">
+                <h4>📦 软件源 (Repo) 管理</h4>
+                <p>支持配置多个资源库 (Repository)，通过修改配置文件可以轻松切换国内镜像源（如阿里云、清华源）以提升下载速度。</p>
+            </div>
+            <div class="feature-card">
+                <h4>🛠️ 简洁的命令设计</h4>
+                <p>语法直观，提供搜索、安装、更新、卸载一站式服务，极大地简化了 Linux 系统管理员的日常运维工作。</p>
+            </div>
+        </div>
+
+        <h2>二、 核心命令速查表</h2>
+
+        <h3>1. 软件安装与更新</h3>
+        <table>
+            <tr><th>命令</th><th>功能说明</th></tr>
+            <tr><td><code>yum install &lt;package&gt;</code></td><td>安装指定的软件包（追加 <code>-y</code> 参数自动回答 yes）</td></tr>
+            <tr><td><code>yum update</code></td><td>更新系统中所有已安装的软件包</td></tr>
+            <tr><td><code>yum update &lt;package&gt;</code></td><td>仅更新指定的软件包</td></tr>
+            <tr><td><code>yum check-update</code></td><td>列出所有可更新的软件清单</td></tr>
+            <tr><td><code>yum upgrade</code></td><td>大规模的版本升级（连同废弃的包一起升级）</td></tr>
+        </table>
+
+        <h3>2. 查找与显示信息</h3>
+        <table>
+            <tr><th>命令</th><th>功能说明</th></tr>
+            <tr><td><code>yum list</code></td><td>列出所有可安裝的软件清单</td></tr>
+            <tr><td><code>yum list installed</code></td><td>仅列出系统中已经安装的软件包</td></tr>
+            <tr><td><code>yum search &lt;keyword&gt;</code></td><td>在软件源中搜索包含指定关键字的软件包</td></tr>
+            <tr><td><code>yum info &lt;package&gt;</code></td><td>显示指定软件包的详细信息（版本、大小、描述等）</td></tr>
+            <tr><td><code>yum provides &lt;command&gt;</code></td><td>查找提供指定命令（或文件）的软件包（例如：<code>yum provides ifconfig</code>）</td></tr>
+        </table>
+
+        <h3>3. 卸载与缓存清理</h3>
+        <table>
+            <tr><th>命令</th><th>功能说明</th></tr>
+            <tr><td><code>yum remove &lt;package&gt;</code></td><td>卸载指定的软件包（也会同时卸载依赖该包的其他软件，需谨慎）</td></tr>
+            <tr><td><code>yum clean all</code></td><td>清除所有的缓存目录下的软件包及旧的 headers</td></tr>
+            <tr><td><code>yum makecache</code></td><td>将服务器上的软件包信息缓存到本地，以提高搜索和安装速度</td></tr>
+        </table>
+
+        <h3>4. 软件组管理 (Group)</h3>
+        <table>
+            <tr><th>命令</th><th>功能说明</th></tr>
+            <tr><td><code>yum grouplist</code></td><td>列出所有可用的软件组（如 "Development Tools"）</td></tr>
+            <tr><td><code>yum groupinstall "&lt;group&gt;"</code></td><td>安装指定的软件组（包含一组相关的软件，适合一键配置环境）</td></tr>
+            <tr><td><code>yum groupremove "&lt;group&gt;"</code></td><td>卸载指定的软件组</td></tr>
+        </table>
+
+        <div class="note">
+            <strong>💡 运维提示：</strong> 
+            在配置新的 yum 软件源（修改 <code>/etc/yum.repos.d/</code> 目录下的 .repo 文件）之后，务必依次执行 <code>yum clean all</code> 和 <code>yum makecache</code> 命令，以确保包管理器使用的是最新的元数据。另外，在 CentOS 8 及更新版本中，虽然底层已替换为更快的 <code>dnf</code>，但 <code>yum</code> 命令仍作为别名被保留并完全兼容。
+        </div>
+
+        <footer>
+            文档生成时间: 2026年7月1日 | 整理分析自 Runoob Linux yum 教程
+        </footer>
+    </div>
+</body>
+</html>
