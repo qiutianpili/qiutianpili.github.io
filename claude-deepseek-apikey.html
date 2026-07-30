@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Claude Desktop 对接第三方 Deepseek API Key 的图文教程。">
+  <title>Claude Desktop 对接第三方 Deepseek API Key | 秋天霹雳</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/site.css">
+  <style>
+    .doc-article {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: clamp(24px, 4vw, 48px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .doc-article .doc-title {
+      margin-bottom: 8px;
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      text-align: center;
+    }
+    .doc-article .doc-lead {
+      margin: 0 auto 8px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .doc-article h2 {
+      margin: 44px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary);
+      color: var(--primary-strong);
+    }
+    .doc-article h2:first-of-type {
+      margin-top: 24px;
+    }
+    .doc-article h3 {
+      margin: 26px 0 12px;
+      font-size: 1.15rem;
+      color: var(--text);
+    }
+    .doc-article h3 .step-index {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      margin-right: 10px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 800;
+      vertical-align: middle;
+    }
+    .doc-article p {
+      margin: 12px 0;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+    .doc-article .prep-list {
+      margin: 12px 0;
+      padding: 0;
+      list-style: none;
+    }
+    .doc-article .prep-list li {
+      position: relative;
+      margin: 8px 0;
+      padding: 12px 16px 12px 44px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-strong);
+      font-weight: 600;
+    }
+    .doc-article .prep-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 16px;
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .doc-figure {
+      margin: 18px 0;
+      text-align: center;
+    }
+    .doc-figure img {
+      display: inline-block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(41, 57, 67, 0.12);
+    }
+    .doc-figure.icon img {
+      max-width: 157px;
+      box-shadow: none;
+    }
+    .doc-figure.portrait img {
+      max-width: 466px;
+    }
+    .doc-figure.shot img {
+      max-width: 554px;
+    }
+    .doc-note {
+      margin: 12px 0;
+      padding: 12px 16px;
+      border-left: 4px solid var(--amber);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: rgba(177, 132, 46, 0.1);
+    }
+    .doc-note p {
+      margin: 0;
+      color: var(--text);
+    }
+    .doc-success {
+      margin: 20px 0;
+      padding: 14px 18px;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius);
+      background: rgba(47, 127, 111, 0.12);
+      color: var(--primary-strong);
+      font-weight: 700;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header" data-elevate>
+      <a class="brand" href="index.html">
+        <span class="brand-mark">Q</span>
+        <span><strong>秋天霹雳</strong><small>Resources</small></span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="posts.html">文章</a>
+        <a href="friends.html">友链</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色" data-theme-toggle>
+        <span aria-hidden="true">日/夜</span>
+      </button>
+    </header>
+
+    <main class="content-page">
+      <article class="doc-article">
+        <h1 class="doc-title">Claude Desktop 对接第三方 Deepseek API Key</h1>
+
+        <h2>一、准备工作</h2>
+        <p>开始前请先准备好以下内容：</p>
+        <ul class="prep-list">
+          <li>已安装 Claude Desktop</li>
+          <li>已安装 CC-Switch</li>
+          <li>一个 OpenOX 账号</li>
+        </ul>
+        <figure class="doc-figure icon">
+          <img src="Images/claude-deepseek-apikey/image01.png" alt="准备工作示意" loading="lazy">
+        </figure>
+
+        <h2>二、在 OpenOX 生成 Deepseek 的 API Key</h2>
+        <h3><span class="step-index">1</span>进入控制台 点击令牌管理</h3>
+        <figure class="doc-figure portrait">
+          <img src="Images/claude-deepseek-apikey/image02.png" alt="进入控制台，点击令牌管理" loading="lazy">
+        </figure>
+        <h3><span class="step-index">2</span>下滑 选择 Deepseek 创建令牌</h3>
+        <figure class="doc-figure portrait">
+          <img src="Images/claude-deepseek-apikey/image03.png" alt="下滑，选择 Deepseek 创建令牌" loading="lazy">
+        </figure>
+        <h3><span class="step-index">3</span>下滑 复制 API Key</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image04.png" alt="下滑，复制 API Key" loading="lazy">
+        </figure>
+
+        <h2>三、配置 CC-Switch</h2>
+        <h3><span class="step-index">1</span>选择对应平台</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image05.png" alt="选择对应平台" loading="lazy">
+        </figure>
+        <h3><span class="step-index">2</span>找到 Deepseek，点击后下拉进行配置</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image06.png" alt="找到 Deepseek，点击后下拉进行配置" loading="lazy">
+        </figure>
+        <h3><span class="step-index">3</span>填写关键信息（注意图中第 ③ 点）</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image07.png" alt="填写关键信息，注意图中第三点" loading="lazy">
+        </figure>
+        <h3><span class="step-index">4</span>测试连通性</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image08.png" alt="测试连通性" loading="lazy">
+        </figure>
+        <h3><span class="step-index">5</span>打开 CC-Switch 本地路由功能</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image09.png" alt="打开 CC-Switch 本地路由功能" loading="lazy">
+        </figure>
+        <div class="doc-note">
+          <p>（可选）主页面无路由开关时</p>
+        </div>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image10.png" alt="主页面无路由开关时的处理" loading="lazy">
+        </figure>
+        <h3><span class="step-index">6</span>将刚刚创建的配置启用</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image11.png" alt="将刚刚创建的配置启用" loading="lazy">
+        </figure>
+        <h3><span class="step-index">7</span>启动 Claude Desktop app</h3>
+        <div class="doc-note">
+          <p>（如果在配置 CC-Switch 时已经打开，请重启 Claude）</p>
+        </div>
+        <p>如果提示这个就点击 Open Setup 进行对 Claude 进行配置</p>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image12.png" alt="点击 Open Setup 配置 Claude" loading="lazy">
+        </figure>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image13.png" alt="配置 Claude 步骤" loading="lazy">
+        </figure>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image14.png" alt="配置 Claude 步骤" loading="lazy">
+        </figure>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image15.png" alt="配置 Claude 步骤" loading="lazy">
+        </figure>
+        <h3><span class="step-index">8</span>Claude 配置展示</h3>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image16.png" alt="Claude 配置展示" loading="lazy">
+        </figure>
+        <div class="doc-success">自动重启后，Claude Desktop 对接第三方 Deepseek API Key 成功！</div>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image17.png" alt="对接成功展示" loading="lazy">
+        </figure>
+        <figure class="doc-figure shot">
+          <img src="Images/claude-deepseek-apikey/image18.png" alt="对接成功展示" loading="lazy">
+        </figure>
+        <p>如果仍有其他问题，请联系管理员。</p>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <span>© 2026 秋天霹雳</span>
+      <a href="index.html">首页</a>
+    </footer>
+  </div>
+  <script src="assets/site.js" defer></script>
+</body>
+</html>
