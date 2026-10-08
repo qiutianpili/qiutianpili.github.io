@@ -15,38 +15,104 @@
     <link rel="stylesheet" href="hark.css" />
     <link rel="stylesheet" href="hark-hero.css" />
     <style>
-      /* Header: brand + site links, built on .nav / .seg */
-      .x-nav { gap: 6px; }
+      /* Floating header: three separate glass pills with gaps between them */
+      .x-bar {
+        position: sticky;
+        top: calc(env(safe-area-inset-top, 0px) + 12px);
+        z-index: 20;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        pointer-events: none;
+      }
+      .x-pill {
+        pointer-events: auto;
+        min-width: 0;
+        padding: 4px;
+        border-radius: var(--r-pill);
+        background: var(--mat-agent);
+        -webkit-backdrop-filter: var(--hark-blur);
+        backdrop-filter: var(--hark-blur);
+        border: 1px solid var(--stroke-primary);
+        box-shadow: var(--hark-shadow);
+        color: var(--text-primary);
+      }
       .x-brand {
-        flex: none;
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 0 12px 0 2px;
-        min-height: 36px;
-        border-radius: var(--r-pill);
-        background: var(--fill-primary);
-        color: var(--text-primary-on);
+        padding-right: 16px;
         text-decoration: none;
       }
       .x-brand__mark {
-        width: 32px; height: 32px;
+        flex: none;
+        width: 40px; height: 40px;
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: var(--fill-primary-on);
-        color: var(--text-primary);
+        background: var(--fill-primary);
+        color: var(--text-primary-on);
         font: var(--weight-bold) var(--size-body)/1 var(--sans);
         transition: transform var(--dur-quick) var(--ease-out);
       }
       .x-brand:hover .x-brand__mark { transform: rotate(-12deg) scale(1.06); }
-      .x-brand__text { display: grid; line-height: 1.1; }
-      .x-brand__text b { font: var(--type-label); line-height: 1.1; }
-      .x-brand__text small { font: var(--type-caption); line-height: 1.1; color: var(--text-secondary-on); }
+      .x-brand__text { display: grid; }
+      .x-brand__text b { font: var(--type-label); line-height: 1.15; }
+      .x-brand__text small { font: var(--type-caption); line-height: 1.15; color: var(--text-secondary); }
+      .x-links {
+        justify-self: center;
+        max-width: 100%;
+        display: flex;
+        gap: 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        overscroll-behavior-x: contain;
+      }
+      .x-links::-webkit-scrollbar { display: none; }
+      .x-links a {
+        flex: none;
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: var(--r-pill);
+        font: var(--type-label);
+        color: var(--text-secondary);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color var(--dur-quick) ease, color var(--dur-quick) ease;
+      }
+      .x-links a:hover { color: var(--text-primary); background: var(--hover-wash); }
+      .x-links a[aria-current="true"] { background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-theme {
+        flex: none;
+        width: 50px; height: 50px;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        font: inherit;
+      }
+      .x-theme:hover { box-shadow: var(--hark-shadow), inset 0 0 0 100px var(--hover-wash); }
+      .x-theme::before {
+        content: "";
+        width: 16px; height: 16px;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1.5px currentColor;
+        background: linear-gradient(to right, light-dark(currentColor, transparent) 50%, light-dark(transparent, currentColor) 50%);
+      }
+      .section, .hero, .x-strip { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }
       @media (max-width: 760px) {
-        .x-brand { padding-right: 2px; }
+        .x-bar { gap: 6px; }
+        .x-brand { padding-right: 4px; }
         .x-brand__text { display: none; }
-        .x-brand__mark { width: var(--tap); height: var(--tap); }
+        .x-brand__mark, .x-theme { width: var(--tap); height: var(--tap); }
+        .x-theme { width: 54px; height: 54px; }
+        .x-links { justify-self: stretch; }
+        .x-links a { min-height: var(--tap); padding: 0 13px; }
+      }
+      @media (max-width: 360px) {
+        .x-links a { padding: 0 10px; }
       }
 
       /* Hero buttons */
@@ -175,19 +241,19 @@
   </head>
   <body>
     <div class="page" id="top">
-      <header class="nav glass x-nav">
-        <a class="x-brand" href="index.html" aria-label="秋天霹雳 首页">
-          <span class="x-brand__mark">Q</span>
+      <header class="x-bar">
+        <a class="x-pill x-brand" href="index.html" aria-label="秋天霹雳 首页">
+          <span class="x-brand__mark" aria-hidden="true">Q</span>
           <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
         </a>
-        <nav class="seg" aria-label="站点导航">
+        <nav class="x-pill x-links" id="x-links" aria-label="站点导航">
           <a href="#posts">文章</a>
           <a href="#tools">工具</a>
           <a href="#works">小作品</a>
           <a href="assist.html">资源</a>
           <a href="friends.html">友链</a>
         </nav>
-        <button class="theme-btn" id="theme-btn" type="button" aria-label="切换深浅色"></button>
+        <button class="x-pill x-theme" id="theme-btn" type="button" aria-label="切换深浅色"></button>
       </header>
 
       <main class="main">
@@ -307,6 +373,35 @@
         }
         if (themeBtn) themeBtn.addEventListener("click", function () { setTimeout(zhLabel, 0); });
         zhLabel();
+
+        var bar = document.getElementById("x-links");
+        if (bar) {
+          var navLinks = [].slice.call(bar.querySelectorAll('a[href^="#"]'));
+          var navActive = null;
+          var syncNav = function () {
+            var line = window.innerHeight * 0.32, best = null, bestTop = -Infinity;
+            navLinks.forEach(function (a) {
+              var t = document.getElementById(a.getAttribute("href").slice(1));
+              if (!t) return;
+              var r = t.getBoundingClientRect();
+              if (r.top <= line && r.bottom > 80 && r.top > bestTop) { bestTop = r.top; best = a; }
+            });
+            if (best === navActive) return;
+            navActive = best;
+            navLinks.forEach(function (a) { if (a === best) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+            if (best) {
+              var l = best.offsetLeft - 8, r = best.offsetLeft + best.offsetWidth + 8;
+              if (l < bar.scrollLeft || r > bar.scrollLeft + bar.clientWidth) bar.scrollTo({ left: l, behavior: reduce ? "auto" : "smooth" });
+            }
+          };
+          var navTick = false;
+          window.addEventListener("scroll", function () {
+            if (navTick) return; navTick = true;
+            requestAnimationFrame(function () { syncNav(); navTick = false; });
+          }, { passive: true });
+          window.addEventListener("resize", syncNav, { passive: true });
+          syncNav();
+        }
 
         var items = [].slice.call(document.querySelectorAll(".x-reveal"));
         if (reduce || !("IntersectionObserver" in window)) {
