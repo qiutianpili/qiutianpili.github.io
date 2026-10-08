@@ -314,6 +314,20 @@
         e.preventDefault();
       });
       ui();
+    
+      // ---------- preset tracks (CC BY 3.0, Kevin MacLeod / incompetech.com) ----------
+      [
+        { url: "music/gymnopedie-1.mp3", title: "Gymnopédie No. 1", artist: "Kevin MacLeod", album: "Erik Satie 作曲 · CC BY 3.0" },
+        { url: "music/gymnopedie-3.mp3", title: "Gymnopédie No. 3", artist: "Kevin MacLeod", album: "Erik Satie 作曲 · CC BY 3.0" }
+      ].forEach((p) => {
+        const t = { ...p, name: p.title, dur: NaN };
+        tracks.push(t);
+        const a = new Audio(); a.preload = "metadata";
+        a.onloadedmetadata = () => { t.dur = a.duration; a.src = ""; render(); };
+        a.src = p.url;
+      });
+      render();
+      if (cur < 0 && tracks.length) load(0, false);
     </script>
   </body>
 </html>
