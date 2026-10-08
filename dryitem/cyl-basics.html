@@ -218,9 +218,14 @@
     });opts.appendChild(b)});box.appendChild(q)
   });
   var progress=document.getElementById('progress');
-  function onScroll(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;progress.style.transform='scaleX('+(max?d.scrollTop/max:0)+')';if(lockUntil>Date.now())return;var sections=document.querySelectorAll('main section[id]');var navEl=document.querySelector('nav.sticky');var off=(navEl?navEl.getBoundingClientRect().bottom:80)+24;var cur='';sections.forEach(function(s){if(s.getBoundingClientRect().top<=off)cur=s.id});if(max&&d.scrollTop>=max-2&&sections.length)cur=sections[sections.length-1].id;setActive(cur)}
-  var lockUntil=0;function setActive(id){document.querySelectorAll('.nav a').forEach(function(a){var on=a.getAttribute('href')==='#'+id;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
-  document.querySelectorAll('.nav a').forEach(function(a){a.addEventListener('click',function(){setActive(a.getAttribute('href').slice(1));lockUntil=Date.now()+900;setTimeout(function(){lockUntil=0;onScroll()},950);a.blur()})})
+  function onScroll(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;progress.style.transform='scaleX('+(max?d.scrollTop/max:0)+')';if(pending)return;spy()}
+  var pending=null,pendTimer=0;
+  function spy(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;var sections=document.querySelectorAll('main section[id]');var navEl=document.querySelector('nav.sticky');var pad=parseFloat(getComputedStyle(d).scrollPaddingTop)||0;var off=Math.max(pad,navEl?navEl.getBoundingClientRect().bottom:0)+48;var cur='';sections.forEach(function(s){if(s.getBoundingClientRect().top<=off)cur=s.id});if(max&&d.scrollTop>=max-2&&sections.length)cur=sections[sections.length-1].id;setActive(cur)}
+  function setActive(id){document.querySelectorAll('.nav a').forEach(function(a){var on=a.getAttribute('href')==='#'+id;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
+  function endPending(){pending=null}
+  addEventListener('scroll',function(){if(!pending)return;clearTimeout(pendTimer);pendTimer=setTimeout(endPending,200)},{passive:true});
+  addEventListener('wheel',endPending,{passive:true});addEventListener('touchstart',endPending,{passive:true});
+  document.querySelectorAll('.nav a').forEach(function(a){a.addEventListener('click',function(){pending=a.getAttribute('href').slice(1);setActive(pending);clearTimeout(pendTimer);pendTimer=setTimeout(endPending,1200);a.blur()})});
   addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
 </script>
