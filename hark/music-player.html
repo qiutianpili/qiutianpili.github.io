@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地音乐播放器</title>
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      html, body { height: 100%; }
+      .x-app { min-height: 100dvh; padding-block: 12px 16px; grid-template-rows: auto 1fr auto; }
+      .x-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .x-top h1 { font: var(--type-heading); margin: 0; flex: 1; }
+      .x-note { font: var(--type-caption); color: var(--text-secondary); margin: 0; }
+      .x-b { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); min-width: var(--tap); padding: 0 14px; border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-label); cursor: pointer; transition: box-shadow var(--dur-quick) ease; }
+      .x-b:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-b--icon { padding: 0; border-color: transparent; background: transparent; border-radius: var(--r-pill); }
+      .x-b--main { width: 56px; height: 56px; background: var(--fill-primary); color: var(--text-primary-on); border-radius: var(--r-pill); padding: 0; border: 0; }
+      .x-b svg { width: 22px; height: 22px; fill: currentColor; }
+      .x-b[disabled] { opacity: .4; cursor: default; }
+      .x-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; min-height: 0; }
+      .x-card { background: var(--fill-tertiary); border-radius: var(--r-l); padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+      .x-now { display: flex; gap: 16px; align-items: center; }
+      .x-cover { width: 120px; aspect-ratio: 1; flex: none; border-radius: var(--r-m); object-fit: cover; background: linear-gradient(135deg, var(--chart-1, #8aa), var(--chart-3, #a8c)); }
+      .x-meta { min-width: 0; }
+      .x-title { font: var(--type-title); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-sub { font: var(--type-body); color: var(--text-secondary); margin: 4px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-viz { width: 100%; height: 120px; display: block; color: var(--text-primary); }
+      .x-seek { display: flex; align-items: center; gap: 10px; font: var(--type-caption); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+      .x-seek input { flex: 1; }
+      input[type=range] { accent-color: var(--fill-primary); min-height: var(--tap); min-width: 0; cursor: pointer; }
+      .x-ctl { display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .x-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; }
+      .x-vol { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 160px; max-width: 260px; }
+      .x-vol input { flex: 1; }
+      .x-sel { min-height: var(--tap); border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-label); padding: 0 10px; }
+      .x-listhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .x-listhead h2 { font: var(--type-label); color: var(--text-secondary); margin: 0; }
+      .x-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 60dvh; display: grid; gap: 2px; }
+      .x-list li { display: flex; align-items: center; gap: 10px; border-radius: var(--r-s); padding-left: 12px; min-height: var(--tap); cursor: pointer; }
+      .x-list li:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-list li.is-on { background: var(--fill-primary-on); }
+      .x-list .x-n { flex: 1; min-width: 0; font: var(--type-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-list li.is-on .x-n { font-weight: var(--weight-medium); }
+      .x-list .x-n small { display: block; font: var(--type-caption); color: var(--text-secondary); }
+      .x-list .x-d { font: var(--type-caption); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+      .x-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; border: 2px dashed var(--stroke-primary); border-radius: var(--r-xl); min-height: 60dvh; padding: 24px; cursor: pointer; font: var(--type-heading); }
+      .x-drop svg { width: 48px; height: 48px; fill: var(--text-secondary); }
+      body.is-drag .x-drop, body.is-drag .x-grid { outline: 2px dashed var(--fill-primary); outline-offset: 6px; border-radius: var(--r-xl); }
+      [hidden] { display: none !important; }
+      @media (max-width: 760px) {
+        .x-grid { grid-template-columns: minmax(0, 1fr); }
+        .x-cover { width: 88px; }
+        .x-viz { height: 80px; }
+        .x-list { max-height: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page x-app" id="top">
+      <header class="x-top">
+        <h1>本地音乐播放器</h1>
+        <label class="x-b" for="file">＋ 添加音乐</label>
+        <input id="file" type="file" accept="audio/mpeg,.mp3" multiple hidden />
+      </header>
+
+      <main>
+        <label class="x-drop" id="drop" for="file" tabindex="0">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+          拖入 MP3 文件或点击添加
+          <span class="x-note">支持一次选择多个文件</span>
+        </label>
+
+        <div class="x-grid" id="app" hidden>
+          <section class="x-card" aria-label="正在播放">
+            <div class="x-now">
+              <div class="x-cover" id="cover" role="img" aria-label="封面"></div>
+              <div class="x-meta">
+                <p class="x-title" id="title">未在播放</p>
+                <p class="x-sub" id="artist">—</p>
+              </div>
+            </div>
+            <canvas class="x-viz" id="viz" aria-hidden="true"></canvas>
+            <div class="x-seek">
+              <span id="cur">0:00</span>
+              <input type="range" id="seek" min="0" max="0" step="0.1" value="0" aria-label="进度" />
+              <span id="dur">0:00</span>
+            </div>
+            <div class="x-ctl">
+              <button class="x-b x-b--icon" id="mode" title="列表循环" aria-label="播放模式：列表循环"></button>
+              <button class="x-b x-b--icon" id="prev" aria-label="上一首"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+              <button class="x-b x-b--main" id="play" aria-label="播放"></button>
+              <button class="x-b x-b--icon" id="next" aria-label="下一首"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+              <select class="x-sel" id="rate" aria-label="播放速度">
+                <option value="0.75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="1.75">1.75x</option><option value="2">2x</option>
+              </select>
+            </div>
+            <div class="x-row">
+              <div class="x-vol">
+                <button class="x-b x-b--icon" id="mute" aria-label="静音"></button>
+                <input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="音量" />
+              </div>
+              <span class="x-note" id="modeTxt">列表循环</span>
+            </div>
+          </section>
+
+          <section class="x-card" aria-label="播放列表">
+            <div class="x-listhead">
+              <h2 id="count">播放列表</h2>
+              <button class="x-b" id="clear">清空列表</button>
+            </div>
+            <ul class="x-list" id="list"></ul>
+          </section>
+        </div>
+      </main>
+
+      <p class="x-note">文件只在你的浏览器里播放，不会上传 · 快捷键：空格 播放/暂停，←/→ 快退/快进 5 秒，↑/↓ 音量</p>
+    </div>
+    <audio id="audio" preload="metadata"></audio>
+    <script src="hark.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const audio = $("audio"), list = $("list");
+      const I = {
+        play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+        pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+        vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>',
+        mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm18.7 1.1-1.4-1.4L18 11l-2.3-2.3-1.4 1.4L16.6 12l-2.3 2.3 1.4 1.4L18 13.4l2.3 2.3 1.4-1.4L19.4 12z"/></svg>',
+        modes: [
+          '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>',
+          '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>',
+          '<svg viewBox="0 0 24 24"><path d="M10.6 9.2 5.4 4 4 5.4l5.2 5.2 1.4-1.4zM14.5 4l2 2L4 18.6 5.4 20 17.9 7.5l2 2V4h-5.4zm.3 9.4-1.4 1.4 3.1 3.1-2 2.1H20v-5.5l-2 2-3.2-3.1z"/></svg>'
+        ]
+      };
+      const MODES = ["列表循环", "单曲循环", "随机"];
+      let tracks = [], cur = -1, mode = 0, ctx, analyser, data;
+
+      const fmt = (s) => !isFinite(s) ? "0:00" : Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+      // ---------- ID3v2 ----------
+      function txt(b, enc) {
+        let s;
+        if (enc === 1 || enc === 2) {
+          let le = enc === 1 ? !(b[0] === 0xfe && b[1] === 0xff) : false;
+          if (enc === 1 && b.length > 1 && (b[0] === 0xff || b[0] === 0xfe)) b = b.subarray(2);
+          s = new TextDecoder(le ? "utf-16le" : "utf-16be").decode(b);
+        } else if (enc === 3) s = new TextDecoder("utf-8").decode(b);
+        else s = new TextDecoder(b.some((x) => x > 127) ? "gbk" : "latin1").decode(b);
+        return s.replace(/\0+$/, "").split("\0")[0].trim();
+      }
+      async function readID3(file) {
+        const h = new Uint8Array(await file.slice(0, 10).arrayBuffer());
+        if (h[0] !== 73 || h[1] !== 68 || h[2] !== 51) return {};
+        const v = h[3], ss = (a, i) => (a[i] << 21) | (a[i + 1] << 14) | (a[i + 2] << 7) | a[i + 3];
+        const size = ss(h, 6), b = new Uint8Array(await file.slice(10, 10 + size).arrayBuffer());
+        const out = {};
+        let p = 0;
+        if (h[5] & 0x40 && v > 2) p = v === 4 ? ss(b, 0) : ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) + 4;
+        const idLen = v === 2 ? 3 : 4, hl = v === 2 ? 6 : 10;
+        while (p + hl < b.length) {
+          const id = String.fromCharCode(...b.subarray(p, p + idLen));
+          if (!/^[A-Z0-9]+$/.test(id)) break;
+          const n = v === 2 ? (b[p + 3] << 16) | (b[p + 4] << 8) | b[p + 5] : v === 4 ? ss(b, p + 4) : ((b[p + 4] << 24) | (b[p + 5] << 16) | (b[p + 6] << 8) | b[p + 7]) >>> 0;
+          const f = b.subarray(p + hl, p + hl + n);
+          p += hl + n;
+          if (!n) continue;
+          if (id === "TIT2" || id === "TT2") out.title = txt(f.subarray(1), f[0]);
+          else if (id === "TPE1" || id === "TP1") out.artist = txt(f.subarray(1), f[0]);
+          else if (id === "TALB" || id === "TAL") out.album = txt(f.subarray(1), f[0]);
+          else if ((id === "APIC" || id === "PIC") && !out.cover) {
+            const enc = f[0];
+            let i = 1, mime;
+            if (v === 2) { mime = "image/" + String.fromCharCode(...f.subarray(1, 4)).toLowerCase().replace("jpg", "jpeg"); i = 4; }
+            else { while (f[i]) i++; mime = new TextDecoder("latin1").decode(f.subarray(1, i)) || "image/jpeg"; i++; }
+            i++; // picture type
+            if (enc === 1 || enc === 2) { while (i + 1 < f.length && (f[i] || f[i + 1])) i += 2; i += 2; }
+            else { while (i < f.length && f[i]) i++; i++; }
+            out.cover = URL.createObjectURL(new Blob([f.subarray(i)], { type: mime }));
+          }
+        }
+        return out;
+      }
+
+      // ---------- playlist ----------
+      async function addFiles(files) {
+        const mp3 = [...files].filter((f) => /\.mp3$/i.test(f.name) || f.type === "audio/mpeg");
+        for (const file of mp3) {
+          const t = { file, url: URL.createObjectURL(file), name: file.name.replace(/\.mp3$/i, ""), dur: NaN };
+          tracks.push(t);
+          try { Object.assign(t, await readID3(file)); } catch (e) {}
+          const a = new Audio();
+          a.preload = "metadata";
+          a.onloadedmetadata = () => { t.dur = a.duration; a.src = ""; render(); };
+          a.src = t.url;
+        }
+        render();
+        if (cur < 0 && tracks.length) load(0, false);
+      }
+      function render() {
+        $("drop").hidden = !!tracks.length;
+        $("app").hidden = !tracks.length;
+        $("count").textContent = `播放列表 · ${tracks.length} 首`;
+        list.innerHTML = "";
+        tracks.forEach((t, i) => {
+          const li = document.createElement("li");
+          li.className = i === cur ? "is-on" : "";
+          li.innerHTML = `<span class="x-n"></span><span class="x-d">${fmt(t.dur)}</span><button class="x-b x-b--icon" aria-label="移除">×</button>`;
+          const n = li.firstChild;
+          n.textContent = t.title || t.name;
+          if (t.artist) { const s = document.createElement("small"); s.textContent = t.artist; n.append(s); }
+          li.onclick = (e) => e.target.closest("button") ? remove(i) : load(i, true);
+          list.append(li);
+        });
+      }
+      function remove(i) {
+        const t = tracks.splice(i, 1)[0];
+        URL.revokeObjectURL(t.url); if (t.cover) URL.revokeObjectURL(t.cover);
+        if (i === cur) { audio.pause(); tracks.length ? load(Math.min(i, tracks.length - 1), false) : reset(); }
+        else if (i < cur) cur--;
+        render();
+      }
+      function reset() {
+        audio.pause(); audio.removeAttribute("src"); audio.load(); cur = -1;
+        $("title").textContent = "未在播放"; $("artist").textContent = "—";
+        $("cover").style.background = ""; ui();
+      }
+      $("clear").onclick = () => { tracks.forEach((t) => { URL.revokeObjectURL(t.url); t.cover && URL.revokeObjectURL(t.cover); }); tracks = []; reset(); render(); };
+
+      // ---------- playback ----------
+      function load(i, play) {
+        cur = i; const t = tracks[i];
+        audio.src = t.url; audio.playbackRate = +$("rate").value;
+        $("title").textContent = t.title || t.name;
+        $("artist").textContent = [t.artist, t.album].filter(Boolean).join(" · ") || "未知艺术家";
+        $("cover").style.background = t.cover ? `center / cover url("${t.cover}")` : "";
+        $("cover").setAttribute("aria-label", (t.album || t.title || t.name) + " 封面");
+        document.title = (t.title || t.name) + " · 本地音乐播放器";
+        render();
+        if (play) start();
+      }
+      function start() {
+        if (cur < 0) return;
+        if (!ctx) {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+          analyser = ctx.createAnalyser(); analyser.fftSize = 128;
+          ctx.createMediaElementSource(audio).connect(analyser); analyser.connect(ctx.destination);
+          data = new Uint8Array(analyser.frequencyBinCount); draw();
+        }
+        ctx.resume(); audio.play().catch(() => {});
+      }
+      const toggle = () => (audio.paused ? start() : audio.pause());
+      function step(d, auto) {
+        if (!tracks.length) return;
+        if (auto && mode === 1) { audio.currentTime = 0; return start(); }
+        let n = mode === 2 && tracks.length > 1 ? (cur + 1 + Math.floor(Math.random() * (tracks.length - 1))) % tracks.length : (cur + d + tracks.length) % tracks.length;
+        load(n, true);
+      }
+      function ui() {
+        $("play").innerHTML = audio.paused ? I.play : I.pause;
+        $("play").setAttribute("aria-label", audio.paused ? "播放" : "暂停");
+        $("mute").innerHTML = audio.muted || !audio.volume ? I.mute : I.vol;
+        $("mute").setAttribute("aria-label", audio.muted ? "取消静音" : "静音");
+        $("mode").innerHTML = I.modes[mode];
+        $("mode").title = $("modeTxt").textContent = MODES[mode];
+        $("mode").setAttribute("aria-label", "播放模式：" + MODES[mode]);
+      }
+      $("play").onclick = toggle;
+      $("prev").onclick = () => (audio.currentTime > 3 ? (audio.currentTime = 0) : step(-1));
+      $("next").onclick = () => step(1);
+      $("mode").onclick = () => { mode = (mode + 1) % 3; ui(); };
+      $("rate").onchange = (e) => (audio.playbackRate = +e.target.value);
+      $("vol").oninput = (e) => { audio.volume = +e.target.value; audio.muted = false; };
+      $("mute").onclick = () => (audio.muted = !audio.muted);
+      $("seek").oninput = (e) => (audio.currentTime = +e.target.value);
+      audio.volume = 0.8;
+      audio.onplay = audio.onpause = audio.onvolumechange = ui;
+      audio.onvolumechange = () => { $("vol").value = audio.muted ? 0 : audio.volume; ui(); };
+      audio.onloadedmetadata = () => { $("seek").max = audio.duration; $("dur").textContent = fmt(audio.duration); };
+      audio.ontimeupdate = () => { $("seek").value = audio.currentTime; $("cur").textContent = fmt(audio.currentTime); };
+      audio.onended = () => step(1, true);
+
+      // ---------- visualizer ----------
+      function draw() {
+        requestAnimationFrame(draw);
+        const c = $("viz"), r = devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight;
+        if (!w) return;
+        if (c.width !== w * r) { c.width = w * r; c.height = h * r; }
+        const g = c.getContext("2d");
+        g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, w, h);
+        analyser.getByteFrequencyData(data);
+        const n = 48, bw = w / n;
+        g.fillStyle = getComputedStyle(c).color;
+        for (let i = 0; i < n; i++) {
+          const bh = Math.max(2, (data[i] / 255) * h);
+          g.beginPath(); g.roundRect(i * bw + 1.5, h - bh, bw - 3, bh, 2); g.fill();
+        }
+      }
+
+      // ---------- input ----------
+      $("file").onchange = (e) => { addFiles(e.target.files); e.target.value = ""; };
+      $("drop").onkeydown = (e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), $("file").click());
+      addEventListener("dragover", (e) => { e.preventDefault(); document.body.classList.add("is-drag"); });
+      addEventListener("dragleave", (e) => { if (!e.relatedTarget) document.body.classList.remove("is-drag"); });
+      addEventListener("drop", (e) => { e.preventDefault(); document.body.classList.remove("is-drag"); addFiles(e.dataTransfer.files); });
+      addEventListener("keydown", (e) => {
+        if (e.target.tagName === "SELECT" || cur < 0 || e.ctrlKey || e.metaKey || e.altKey) return;
+        const k = e.key;
+        if (k === " ") toggle();
+        else if (k === "ArrowLeft") audio.currentTime = Math.max(0, audio.currentTime - 5);
+        else if (k === "ArrowRight") audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5);
+        else if (k === "ArrowUp") { audio.muted = false; audio.volume = Math.min(1, +(audio.volume + 0.05).toFixed(2)); }
+        else if (k === "ArrowDown") audio.volume = Math.max(0, +(audio.volume - 0.05).toFixed(2));
+        else return;
+        e.preventDefault();
+      });
+      ui();
+    </script>
+  </body>
+</html>
