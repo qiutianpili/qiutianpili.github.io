@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>太阳出逃 · 互动引力</title>
+    <link rel="stylesheet" href="hark.css" />
+    <style>
+      :root { --x-glass: rgb(18 18 24 / 0.58); --x-stroke: rgb(245 245 247 / 0.16); }
+      html, body { height: 100%; overflow: hidden; background: #05060a; }
+      body { color: #f5f5f7; font: var(--type-body); touch-action: none; overscroll-behavior: none; }
+      #sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+      #sky.is-drag { cursor: grabbing; }
+      .x-panel {
+        position: fixed; top: 12px; left: 12px; z-index: 5; width: 268px; max-width: calc(100vw - 24px);
+        background: var(--x-glass); backdrop-filter: var(--hark-blur); -webkit-backdrop-filter: var(--hark-blur);
+        border: 1px solid var(--x-stroke); border-radius: var(--r-m); box-shadow: var(--hark-shadow);
+        padding: 10px 12px 12px; display: grid; gap: 10px;
+      }
+      .x-panel__bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .x-title { font: var(--type-body-strong); letter-spacing: 0.04em; }
+      .x-title small { display: block; font: var(--type-caption); color: #a1a1a6; letter-spacing: 0; margin-top: 2px; }
+      .x-body { display: grid; gap: 10px; }
+      .x-panel.is-closed .x-body { display: none; }
+      .x-row { display: grid; gap: 4px; }
+      .x-row label { font: var(--type-caption); color: #c9c9ce; display: flex; justify-content: space-between; }
+      .x-row label b { font: var(--weight-medium) 12px/1.3 var(--sans); color: #f5f5f7; }
+      input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 0; }
+      input[type="range"]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: rgb(245 245 247 / 0.22); }
+      input[type="range"]::-moz-range-track { height: 3px; border-radius: 2px; background: rgb(245 245 247 / 0.22); }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; margin-top: -6px; border-radius: 50%; background: #f5f5f7; border: none; }
+      input[type="range"]::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: #f5f5f7; border: none; }
+      .x-toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+      .x-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+      .x-btn {
+        appearance: none; min-height: 32px; padding: 6px 11px; border-radius: var(--r-s);
+        background-color: #26262c; color: #f5f5f7; border: 1px solid var(--x-stroke);
+        font: var(--type-tag); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        min-width: 44px;
+      }
+      .x-btn:hover { background-color: #34343b; }
+      .x-btn[aria-pressed="true"] { background: #f5f5f7; color: #16161a; border-color: #f5f5f7; }
+      .x-btn--go { background-color: #4a2414; border-color: rgb(255 77 0 / 0.5); }
+      .x-status {
+        position: fixed; top: 12px; right: 12px; z-index: 5; min-width: 168px;
+        background: var(--x-glass); backdrop-filter: var(--hark-blur); -webkit-backdrop-filter: var(--hark-blur);
+        border: 1px solid var(--x-stroke); border-radius: var(--r-m); padding: 9px 12px; display: grid; gap: 5px;
+      }
+      .x-status div { display: flex; justify-content: space-between; gap: 12px; font: var(--type-caption); color: #a1a1a6; }
+      .x-status b { font: var(--weight-medium) 13px/1.3 var(--sans); color: #f5f5f7; font-variant-numeric: tabular-nums; }
+      .x-hint {
+        position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 4;
+        padding: 8px 14px; border-radius: var(--r-pill); background: rgb(18 18 24 / 0.5);
+        border: 1px solid var(--x-stroke); font: var(--type-caption); color: #d7d7db; text-align: center;
+        max-width: calc(100vw - 32px); transition: opacity 900ms var(--ease-out); pointer-events: none;
+      }
+      .x-hint.is-gone { opacity: 0; }
+      .x-end {
+        position: fixed; inset: 0; z-index: 6; display: none; place-content: center; justify-items: center; gap: 14px;
+        text-align: center; padding: 24px; background: radial-gradient(60% 60% at 50% 50%, rgb(5 6 10 / 0.72), rgb(5 6 10 / 0.3));
+        backdrop-filter: blur(2px);
+      }
+      .x-end.is-on { display: grid; animation: xfade 1200ms var(--ease-out) both; }
+      @keyframes xfade { from { opacity: 0 } to { opacity: 1 } }
+      .x-end h2 { font: var(--type-title); color: #f5f5f7; }
+      .x-end p { font: var(--type-small); color: #a1a1a6; max-width: 34ch; }
+      @media (max-width: 600px) {
+        .x-panel { width: calc(100vw - 24px); }
+        .x-status { top: auto; bottom: 64px; right: 12px; }
+        .x-btn { min-height: var(--tap); }
+      }
+      @media (prefers-reduced-motion: reduce) { .x-hint { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <canvas id="sky"></canvas>
+
+    <section class="x-panel" id="panel" aria-label="控制面板">
+      <div class="x-panel__bar">
+        <p class="x-title">太阳出逃<small>互动引力沙盒</small></p>
+        <button class="x-btn" id="fold" aria-expanded="true">收起</button>
+      </div>
+      <div class="x-body">
+        <div class="x-row">
+          <label for="g">引力强度 <b id="gv">1.0×</b></label>
+          <input type="range" id="g" min="0.2" max="3" step="0.05" value="1" />
+        </div>
+        <div class="x-row">
+          <label for="t">时间流速 <b id="tv">1.0×</b></label>
+          <input type="range" id="t" min="0.25" max="4" step="0.05" value="1" />
+        </div>
+        <div class="x-row">
+          <label for="m">太阳质量 <b id="mv">1.0×</b></label>
+          <input type="range" id="m" min="0.3" max="3" step="0.05" value="1" />
+        </div>
+        <div class="x-toggles">
+          <button class="x-btn" id="tTrail" aria-pressed="true">显示轨迹</button>
+          <button class="x-btn" id="tLabel" aria-pressed="true">显示标签</button>
+          <button class="x-btn" id="tFollow" aria-pressed="false">跟随太阳</button>
+          <button class="x-btn" id="tBelt" aria-pressed="true">小行星带</button>
+          <button class="x-btn" id="tSound" aria-pressed="false">声音</button>
+        </div>
+        <div class="x-btns">
+          <button class="x-btn" id="pause" aria-pressed="false">暂停</button>
+          <button class="x-btn" id="reset">重置太阳系</button>
+          <button class="x-btn x-btn--go" id="kick">一键出逃</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="x-status" aria-live="polite">
+      <div><span>太阳速度</span><b id="sSpeed">0.0</b></div>
+      <div><span>仍被束缚的行星</span><b id="sBound">8 / 8</b></div>
+      <div><span>缩放</span><b id="sZoom">1.00×</b></div>
+    </aside>
+
+    <p class="x-hint" id="hint">拖动太阳把它甩出去 · 长按空白处制造引力井 · 滚轮/双指缩放</p>
+
+    <div class="x-end" id="end">
+      <h2>太阳已离开。地球正在变冷……</h2>
+      <p>行星失去了束缚，正沿着直线飘进黑暗里。</p>
+      <button class="x-btn" id="again">重新开始</button>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var cv = document.getElementById("sky");
+        var ctx = cv.getContext("2d", { alpha: false });
+        var W = 0, H = 0, DPR = 1;
+        var FONT = getComputedStyle(document.body).fontFamily || "sans-serif";
+        var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* ---------- settings ---------- */
+        var S = { g: 1, time: 1, mass: 1, trails: true, labels: true, follow: false, belt: true, sound: false, paused: false };
+
+        /* ---------- world ---------- */
+        var G = 1400;           // base gravity constant (world units)
+        var SUN_M = 3000;       // base sun mass
+        var SOFT = 24;          // softening
+        var sun, planets = [], rocks = [], sparks = [], well = null;
+        var cam = { x: 0, y: 0, z: 1, tz: 1 };
+        var shake = 0, flare = 0, escaped = false;
+
+        var DEF = [
+          { n: "水星", r: 3.0, a: 78,  c: "#b9a48c", m: 0.3 },
+          { n: "金星", r: 5.0, a: 112, c: "#e6b96b", m: 0.9 },
+          { n: "地球", r: 5.4, a: 152, c: "#4a90d9", m: 1.0, moon: true },
+          { n: "火星", r: 4.0, a: 198, c: "#d2603a", m: 0.5 },
+          { n: "木星", r: 12,  a: 300, c: "#d9a878", m: 6 },
+          { n: "土星", r: 10,  a: 390, c: "#e2cf9a", m: 5, ring: true },
+          { n: "天王星", r: 7.5, a: 470, c: "#8fd3dd", m: 3 },
+          { n: "海王星", r: 7.2, a: 548, c: "#5b73d6", m: 3 }
+        ];
+
+        function orbitSpeed(a) { return Math.sqrt(G * SUN_M / a); }
+
+        function reset() {
+          sun = { x: 0, y: 0, vx: 0, vy: 0, r: 30, free: false, held: false };
+          planets = DEF.map(function (d, i) {
+            var th = (i * 2.399) % (Math.PI * 2);
+            var v = orbitSpeed(d.a);
+            return {
+              n: d.n, r: d.r, c: d.c, m: d.m, ring: !!d.ring, moon: !!d.moon,
+              x: Math.cos(th) * d.a, y: Math.sin(th) * d.a,
+              vx: -Math.sin(th) * v, vy: Math.cos(th) * v,
+              alive: true, trail: [], mph: th * 3
+            };
+          });
+          // cancel net momentum so the system does not drift
+          var px = 0, py = 0;
+          planets.forEach(function (p) { px += p.m * 18 * p.vx; py += p.m * 18 * p.vy; });
+          sun.vx = -px / SUN_M; sun.vy = -py / SUN_M;
+          sun.r = 30 * Math.pow(S.mass, 0.4);
+          cam.tz = cam.z = clampZ(Math.min(innerWidth, innerHeight) / 2 / 600);
+          rocks = [];
+          makeRocks();
+          sparks = []; well = null; escaped = false; flare = 0; shake = 0;
+          cam.x = 0; cam.y = 0;
+          end.classList.remove("is-on");
+        }
+
+        function makeRocks() {
+          var n = (innerWidth < 760 ? 90 : 150);
+          for (var i = 0; i < n; i++) {
+            var a = 225 + Math.random() * 50, th = Math.random() * Math.PI * 2;
+            var v = orbitSpeed(a) * (0.97 + Math.random() * 0.06);
+            rocks.push({ x: Math.cos(th) * a, y: Math.sin(th) * a, vx: -Math.sin(th) * v, vy: Math.cos(th) * v, s: 0.7 + Math.random() * 1.1, icy: false, alive: true });
+          }
+          var m = (innerWidth < 760 ? 40 : 70);
+          for (var j = 0; j < m; j++) {
+            var a2 = 640 + Math.random() * 220, t2 = Math.random() * Math.PI * 2;
+            var v2 = orbitSpeed(a2) * (0.95 + Math.random() * 0.1);
+            rocks.push({ x: Math.cos(t2) * a2, y: Math.sin(t2) * a2, vx: -Math.sin(t2) * v2, vy: Math.cos(t2) * v2, s: 0.6 + Math.random() * 0.9, icy: true, alive: true });
+          }
+        }
+
+        /* ---------- starfield ---------- */
+        var stars = [];
+        function makeStars() {
+          stars = [];
+          var n = Math.min(360, Math.round((innerWidth * innerHeight) / 5200));
+          for (var i = 0; i < n; i++) {
+            stars.push({ x: Math.random(), y: Math.random(), z: 0.25 + Math.random() * 0.9, s: Math.random() * 1.4 + 0.3, p: Math.random() * 6.28 });
+          }
+        }
+
+        function resize() {
+          DPR = Math.min(devicePixelRatio || 1, 2);
+          W = innerWidth; H = innerHeight;
+          cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+          cv.style.width = W + "px"; cv.style.height = H + "px";
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          makeStars();
+        }
+
+        /* ---------- physics ---------- */
+        function gravityAt(bx, by, out) {
+          var fx = 0, fy = 0, dx, dy, d2, inv;
+          var gm = G * S.g;
+          dx = sun.x - bx; dy = sun.y - by;
+          d2 = dx * dx + dy * dy + SOFT * SOFT;
+          inv = gm * SUN_M * S.mass / (d2 * Math.sqrt(d2));
+          fx += dx * inv; fy += dy * inv;
+          if (well) {
+            dx = well.x - bx; dy = well.y - by;
+            d2 = dx * dx + dy * dy + 900;
+            inv = gm * well.m / (d2 * Math.sqrt(d2));
+            fx += dx * inv; fy += dy * inv;
+          }
+          out[0] = fx; out[1] = fy;
+        }
+
+        var acc = [0, 0];
+        function step(dt) {
+          var i, p, d, dx, dy;
+          // sun
+          if (!sun.held) {
+            var sfx = 0, sfy = 0;
+            if (well) {
+              dx = well.x - sun.x; dy = well.y - sun.y;
+              var d2 = dx * dx + dy * dy + 900;
+              var inv = G * S.g * well.m / (d2 * Math.sqrt(d2));
+              sfx = dx * inv; sfy = dy * inv;
+            }
+            for (i = 0; i < planets.length; i++) {
+              p = planets[i]; if (!p.alive) continue;
+              dx = p.x - sun.x; dy = p.y - sun.y;
+              var dd = dx * dx + dy * dy + SOFT * SOFT;
+              var iv = G * S.g * p.m * 18 / (dd * Math.sqrt(dd));
+              sfx += dx * iv; sfy += dy * iv;
+            }
+            sun.vx += sfx * dt; sun.vy += sfy * dt;
+            sun.x += sun.vx * dt; sun.y += sun.vy * dt;
+          }
+          // planets
+          for (i = 0; i < planets.length; i++) {
+            p = planets[i]; if (!p.alive) continue;
+            gravityAt(p.x, p.y, acc);
+            p.vx += acc[0] * dt; p.vy += acc[1] * dt;
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            p.mph += dt * 3;
+            dx = p.x - sun.x; dy = p.y - sun.y;
+            d = Math.sqrt(dx * dx + dy * dy);
+            if (d < sun.r * 0.82 + p.r) { p.alive = false; burst(p.x, p.y, 36, p.c); flare = Math.max(flare, 1); }
+          }
+          // rocks
+          for (i = 0; i < rocks.length; i++) {
+            var k = rocks[i]; if (!k.alive) continue;
+            gravityAt(k.x, k.y, acc);
+            k.vx += acc[0] * dt; k.vy += acc[1] * dt;
+            k.x += k.vx * dt; k.y += k.vy * dt;
+            dx = k.x - sun.x; dy = k.y - sun.y;
+            if (dx * dx + dy * dy < sun.r * sun.r * 0.7) { k.alive = false; burst(k.x, k.y, 4, "#ffcc88"); }
+          }
+        }
+
+        function burst(x, y, n, c) {
+          if (sparks.length > 700) return;
+          for (var i = 0; i < n; i++) {
+            var a = Math.random() * 6.283, s = 20 + Math.random() * 160;
+            sparks.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, c: c || "#ffb066", r: 1 + Math.random() * 2 });
+          }
+        }
+
+        /* ---------- drawing ---------- */
+        function toScreen(x, y) { return [(x - cam.x) * cam.z + W / 2, (y - cam.y) * cam.z + H / 2]; }
+        function toWorld(sx, sy) { return [(sx - W / 2) / cam.z + cam.x, (sy - H / 2) / cam.z + cam.y]; }
+
+        var t0 = performance.now(), tAcc = 0, clock = 0;
+
+        function frame(now) {
+          var raw = Math.min((now - t0) / 1000, 0.05); t0 = now;
+          clock += raw;
+          if (!S.paused) {
+            var dt = raw * S.time;
+            var sub = 4;
+            if (well) well.m = Math.min(well.m + raw * 9000, 26000);
+            for (var s = 0; s < sub; s++) step(dt / sub);
+            for (var i = sparks.length - 1; i >= 0; i--) {
+              var sp = sparks[i];
+              sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.vx *= 0.985; sp.vy *= 0.985;
+              sp.life -= dt * 0.9; if (sp.life <= 0) sparks.splice(i, 1);
+            }
+            if (S.trails) {
+              for (var j = 0; j < planets.length; j++) {
+                var p = planets[j]; if (!p.alive) continue;
+                p.trail.push(p.x, p.y);
+                if (p.trail.length > 240) p.trail.splice(0, 2);
+              }
+            }
+            var sunSpeed = Math.hypot(sun.vx, sun.vy);
+            if (sunSpeed > 10 && sparks.length < 500 && Math.random() < 0.9) {
+              var ang = Math.atan2(sun.vy, sun.vx) + Math.PI + (Math.random() - 0.5) * 0.7;
+              sparks.push({ x: sun.x, y: sun.y, vx: Math.cos(ang) * (30 + Math.random() * 60) + sun.vx * 0.3, vy: Math.sin(ang) * (30 + Math.random() * 60) + sun.vy * 0.3, life: 1, c: Math.random() < 0.5 ? "#ffd27a" : "#ff8a3d", r: 2 + Math.random() * 3 });
+            }
+          }
+          flare *= 0.94; shake *= 0.9;
+          if (S.follow) { cam.x += (sun.x - cam.x) * Math.min(1, raw * 3); cam.y += (sun.y - cam.y) * Math.min(1, raw * 3); }
+          cam.z += (cam.tz - cam.z) * Math.min(1, raw * 8);
+          draw();
+          updateStatus();
+          tone();
+          requestAnimationFrame(frame);
+        }
+
+        function draw() {
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          ctx.fillStyle = "#05060a"; ctx.fillRect(0, 0, W, H);
+          if (shake > 0.2) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+
+          // milky way band
+          var mg = ctx.createLinearGradient(0, H * 0.18, W, H * 0.82);
+          mg.addColorStop(0, "rgba(90,110,190,0)");
+          mg.addColorStop(0.45, "rgba(120,130,210,0.10)");
+          mg.addColorStop(0.55, "rgba(180,150,220,0.09)");
+          mg.addColorStop(1, "rgba(90,110,190,0)");
+          ctx.fillStyle = mg; ctx.fillRect(0, 0, W, H);
+
+          // stars with parallax
+          for (var i = 0; i < stars.length; i++) {
+            var st = stars[i];
+            var px = (st.x * W - cam.x * st.z * 0.35 * cam.z) % W; if (px < 0) px += W;
+            var py = (st.y * H - cam.y * st.z * 0.35 * cam.z) % H; if (py < 0) py += H;
+            var tw = 0.55 + 0.45 * Math.sin(clock * 2 + st.p);
+            ctx.globalAlpha = tw * (0.25 + st.z * 0.6);
+            ctx.fillStyle = "#dfe6ff";
+            ctx.fillRect(px, py, st.s, st.s);
+          }
+          ctx.globalAlpha = 1;
+
+          // gravity well
+          if (well) {
+            var w = toScreen(well.x, well.y);
+            var rr = (26 + well.m / 700) * cam.z;
+            var wg = ctx.createRadialGradient(w[0], w[1], 0, w[0], w[1], rr);
+            wg.addColorStop(0, "rgba(220,170,255,0.85)");
+            wg.addColorStop(0.4, "rgba(150,90,230,0.35)");
+            wg.addColorStop(1, "rgba(90,40,160,0)");
+            ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(w[0], w[1], rr, 0, 6.283); ctx.fill();
+            ctx.strokeStyle = "rgba(205,160,255,0.5)"; ctx.lineWidth = 1;
+            for (var k = 0; k < 3; k++) {
+              var ra = rr * (0.3 + k * 0.25) * (1 + 0.08 * Math.sin(clock * 3 + k));
+              ctx.beginPath(); ctx.ellipse(w[0], w[1], ra, ra * 0.45, clock * (1 + k * 0.4), 0, 6.283); ctx.stroke();
+            }
+          }
+
+          // rocks
+          if (S.belt) {
+            ctx.fillStyle = "rgba(190,185,175,0.75)";
+            for (var r = 0; r < rocks.length; r++) {
+              var k2 = rocks[r]; if (!k2.alive) continue;
+              var sp = toScreen(k2.x, k2.y);
+              if (sp[0] < -20 || sp[0] > W + 20 || sp[1] < -20 || sp[1] > H + 20) continue;
+              ctx.fillStyle = k2.icy ? "rgba(170,210,235,0.7)" : "rgba(190,180,165,0.8)";
+              ctx.fillRect(sp[0], sp[1], Math.max(1, k2.s * cam.z), Math.max(1, k2.s * cam.z));
+            }
+          }
+
+          // trails
+          if (S.trails) {
+            for (var t = 0; t < planets.length; t++) {
+              var p = planets[t]; if (!p.alive || p.trail.length < 4) continue;
+              ctx.lineWidth = Math.max(0.6, 1.1 * cam.z);
+              ctx.strokeStyle = p.c;
+              ctx.beginPath();
+              var n = p.trail.length / 2;
+              for (var q = 0; q < n; q++) {
+                var s2 = toScreen(p.trail[q * 2], p.trail[q * 2 + 1]);
+                if (q === 0) ctx.moveTo(s2[0], s2[1]); else ctx.lineTo(s2[0], s2[1]);
+              }
+              ctx.globalAlpha = 0.28; ctx.stroke(); ctx.globalAlpha = 1;
+            }
+          }
+
+          // sparks
+          for (var m = 0; m < sparks.length; m++) {
+            var sk = sparks[m]; var ss = toScreen(sk.x, sk.y);
+            ctx.globalAlpha = Math.max(0, sk.life) * 0.85;
+            ctx.fillStyle = sk.c;
+            ctx.beginPath(); ctx.arc(ss[0], ss[1], Math.max(0.6, sk.r * cam.z * sk.life), 0, 6.283); ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+
+          drawSun();
+          for (var pi = 0; pi < planets.length; pi++) drawPlanet(planets[pi]);
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        }
+
+        function drawSun() {
+          var s = toScreen(sun.x, sun.y);
+          var fl = 1 + 0.05 * Math.sin(clock * 7) + 0.03 * Math.sin(clock * 11.3) + flare * 0.5;
+          var R = sun.r * cam.z * fl;
+          var g1 = ctx.createRadialGradient(s[0], s[1], 0, s[0], s[1], R * 6);
+          g1.addColorStop(0, "rgba(255,230,160,0.55)");
+          g1.addColorStop(0.18, "rgba(255,160,60,0.22)");
+          g1.addColorStop(1, "rgba(255,120,30,0)");
+          ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(s[0], s[1], R * 6, 0, 6.283); ctx.fill();
+          var g2 = ctx.createRadialGradient(s[0] - R * 0.2, s[1] - R * 0.2, R * 0.1, s[0], s[1], R);
+          g2.addColorStop(0, "#fffdf2"); g2.addColorStop(0.5, "#ffd25e"); g2.addColorStop(1, "#ff7a1e");
+          ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(s[0], s[1], R, 0, 6.283); ctx.fill();
+          if (sun.held) {
+            ctx.strokeStyle = "rgba(255,255,255,0.6)"; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(s[0], s[1], R * 1.5, 0, 6.283); ctx.stroke();
+          }
+          if (S.labels) {
+            ctx.font = "500 12px " + FONT;
+            ctx.fillStyle = "rgba(255,225,180,0.9)";
+            ctx.fillText("太阳", s[0] + R + 6, s[1] + 4);
+          }
+        }
+
+        function drawPlanet(p) {
+          if (!p.alive) return;
+          var s = toScreen(p.x, p.y);
+          var R = Math.max(1.4, p.r * cam.z);
+          if (s[0] < -80 || s[0] > W + 80 || s[1] < -80 || s[1] > H + 80) return;
+          if (p.ring) {
+            ctx.strokeStyle = "rgba(226,207,154,0.65)";
+            ctx.lineWidth = Math.max(1, R * 0.3);
+            ctx.beginPath(); ctx.ellipse(s[0], s[1], R * 2, R * 0.75, -0.45, 0, 6.283); ctx.stroke();
+          }
+          var g = ctx.createRadialGradient(s[0] - R * 0.35, s[1] - R * 0.35, R * 0.1, s[0], s[1], R);
+          g.addColorStop(0, "#ffffff"); g.addColorStop(0.35, p.c); g.addColorStop(1, shade(p.c));
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s[0], s[1], R, 0, 6.283); ctx.fill();
+          if (p.moon) {
+            var mx = s[0] + Math.cos(p.mph) * R * 2.6, my = s[1] + Math.sin(p.mph) * R * 2.6;
+            ctx.fillStyle = "#cfd3da"; ctx.beginPath(); ctx.arc(mx, my, Math.max(1, R * 0.28), 0, 6.283); ctx.fill();
+          }
+          if (S.labels) {
+            ctx.font = "400 12px " + FONT;
+            ctx.fillStyle = "rgba(245,245,247,0.72)";
+            ctx.fillText(p.n, s[0] + R + 5, s[1] + 4);
+          }
+        }
+
+        function shade(hex) {
+          var n = parseInt(hex.slice(1), 16);
+          var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+          return "rgb(" + Math.round(r * 0.35) + "," + Math.round(g * 0.35) + "," + Math.round(b * 0.4) + ")";
+        }
+
+        /* ---------- status ---------- */
+        var elSpeed = document.getElementById("sSpeed"), elBound = document.getElementById("sBound"), elZoom = document.getElementById("sZoom");
+        var end = document.getElementById("end");
+        function boundCount() {
+          var n = 0, mu = G * S.g * SUN_M * S.mass;
+          for (var i = 0; i < planets.length; i++) {
+            var p = planets[i]; if (!p.alive) continue;
+            var dx = p.x - sun.x, dy = p.y - sun.y;
+            var d = Math.hypot(dx, dy) + 1e-6;
+            var vx = p.vx - sun.vx, vy = p.vy - sun.vy;
+            var e = (vx * vx + vy * vy) / 2 - mu / d;
+            if (e < 0) n++;
+          }
+          return n;
+        }
+        var statTick = 0;
+        function updateStatus() {
+          if (clock - statTick < 0.2) return; statTick = clock;
+          var sp = Math.hypot(sun.vx, sun.vy);
+          elSpeed.textContent = (sp / 10).toFixed(1);
+          var b = boundCount();
+          elBound.textContent = b + " / 8";
+          elZoom.textContent = cam.z.toFixed(2) + "×";
+          var far = Math.hypot(sun.x, sun.y) > 2600;
+          if (!escaped && (b === 0 || far) && sp > 20) { escaped = true; end.classList.add("is-on"); }
+        }
+
+        /* ---------- pointer ---------- */
+        var pointers = new Map();
+        var dragging = false, holdTimer = null, hist = [], pinchD = 0;
+
+        function pos(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+
+        cv.addEventListener("pointerdown", function (e) {
+          cv.setPointerCapture(e.pointerId);
+          pointers.set(e.pointerId, pos(e));
+          hideHint();
+          if (pointers.size === 2) {
+            var v = Array.from(pointers.values());
+            pinchD = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]);
+            clearHold(); dragging = false; sun.held = false; well = null;
+            return;
+          }
+          var p = pos(e), w = toWorld(p[0], p[1]);
+          var d = Math.hypot(w[0] - sun.x, w[1] - sun.y);
+          if (d < Math.max(sun.r * 1.6, 34 / cam.z)) {
+            dragging = true; sun.held = true; cv.classList.add("is-drag");
+            hist = [{ x: w[0], y: w[1], t: performance.now() }];
+          } else {
+            holdTimer = setTimeout(function () { well = { x: w[0], y: w[1], m: 2000 }; }, 160);
+          }
+        });
+
+        cv.addEventListener("pointermove", function (e) {
+          if (!pointers.has(e.pointerId)) return;
+          pointers.set(e.pointerId, pos(e));
+          if (pointers.size === 2) {
+            var v = Array.from(pointers.values());
+            var nd = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]);
+            if (pinchD > 0) cam.tz = clampZ(cam.tz * (nd / pinchD));
+            pinchD = nd; return;
+          }
+          var p = pos(e), w = toWorld(p[0], p[1]);
+          if (dragging) {
+            sun.x = w[0]; sun.y = w[1];
+            hist.push({ x: w[0], y: w[1], t: performance.now() });
+            if (hist.length > 8) hist.shift();
+          } else if (well) { well.x = w[0]; well.y = w[1]; }
+        });
+
+        function release(e) {
+          pointers.delete(e.pointerId);
+          clearHold();
+          if (dragging) {
+            dragging = false; sun.held = false; cv.classList.remove("is-drag");
+            var now = performance.now(), v0 = null;
+            for (var i = 0; i < hist.length; i++) { if (now - hist[i].t < 140) { v0 = hist[i]; break; } }
+            if (v0 && hist.length) {
+              var last = hist[hist.length - 1];
+              var dt = Math.max(0.016, (last.t - v0.t) / 1000);
+              sun.vx = (last.x - v0.x) / dt; sun.vy = (last.y - v0.y) / dt;
+              var sp = Math.hypot(sun.vx, sun.vy);
+              if (sp > 300) { shake = Math.min(18, sp / 60); flare = 1; burst(sun.x, sun.y, 50, "#ffc46a"); }
+            }
+            hist = [];
+          }
+          if (pointers.size === 0) { well = null; pinchD = 0; }
+        }
+        cv.addEventListener("pointerup", release);
+        cv.addEventListener("pointercancel", release);
+        function clearHold() { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } }
+
+        function clampZ(z) { return Math.max(0.12, Math.min(3.2, z)); }
+        cv.addEventListener("wheel", function (e) {
+          e.preventDefault();
+          cam.tz = clampZ(cam.tz * (e.deltaY < 0 ? 1.12 : 0.89));
+        }, { passive: false });
+
+        /* ---------- UI ---------- */
+        function bindRange(id, out, set, fmt) {
+          var el = document.getElementById(id), o = document.getElementById(out);
+          function sync() { set(parseFloat(el.value)); o.textContent = fmt(parseFloat(el.value)); }
+          el.addEventListener("input", sync); sync();
+        }
+        var x1 = function (v) { return v.toFixed(1) + "×"; };
+        bindRange("g", "gv", function (v) { S.g = v; }, x1);
+        bindRange("t", "tv", function (v) { S.time = v; }, x1);
+        bindRange("m", "mv", function (v) { S.mass = v; if (sun) sun.r = 30 * Math.pow(v, 0.4); }, x1);
+
+        function toggle(id, key, after) {
+          var el = document.getElementById(id);
+          el.addEventListener("click", function () {
+            S[key] = !S[key];
+            el.setAttribute("aria-pressed", String(S[key]));
+            if (after) after(S[key]);
+          });
+        }
+        toggle("tTrail", "trails", function (on) { if (!on) planets.forEach(function (p) { p.trail.length = 0; }); });
+        toggle("tLabel", "labels");
+        toggle("tFollow", "follow");
+        toggle("tBelt", "belt");
+        toggle("tSound", "sound", function (on) { if (on) audioOn(); else audioOff(); });
+
+        var bPause = document.getElementById("pause");
+        bPause.addEventListener("click", function () {
+          S.paused = !S.paused;
+          bPause.setAttribute("aria-pressed", String(S.paused));
+          bPause.textContent = S.paused ? "继续" : "暂停";
+        });
+        document.getElementById("reset").addEventListener("click", reset);
+        document.getElementById("again").addEventListener("click", reset);
+        document.getElementById("kick").addEventListener("click", function () {
+          var a = Math.random() * 6.283, v = 420 + Math.random() * 260;
+          sun.vx = Math.cos(a) * v; sun.vy = Math.sin(a) * v;
+          shake = 16; flare = 1.4; burst(sun.x, sun.y, 90, "#ffcf7a");
+          hideHint();
+        });
+        var panel = document.getElementById("panel"), fold = document.getElementById("fold");
+        fold.addEventListener("click", function () {
+          var closed = panel.classList.toggle("is-closed");
+          fold.textContent = closed ? "展开" : "收起";
+          fold.setAttribute("aria-expanded", String(!closed));
+        });
+
+        var hint = document.getElementById("hint"), hintTimer = setTimeout(hideHint, 7000);
+        function hideHint() { clearTimeout(hintTimer); hint.classList.add("is-gone"); }
+
+        /* ---------- audio ---------- */
+        var ac = null, osc = null, gain = null;
+        function audioOn() {
+          try {
+            ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+            if (ac.state === "suspended") ac.resume();
+            if (!osc) {
+              osc = ac.createOscillator(); gain = ac.createGain();
+              var o2 = ac.createOscillator(); o2.type = "sine"; o2.detune.value = 7;
+              osc.type = "sine"; osc.frequency.value = 70;
+              o2.frequency.value = 70.5;
+              gain.gain.value = 0.0001;
+              osc.connect(gain); o2.connect(gain); gain.connect(ac.destination);
+              osc.start(); o2.start(); osc._b = o2;
+            }
+            gain.gain.setTargetAtTime(0.05, ac.currentTime, 0.4);
+          } catch (e) { /* audio unavailable */ }
+        }
+        function audioOff() { if (gain && ac) gain.gain.setTargetAtTime(0.0001, ac.currentTime, 0.2); }
+        function tone() {
+          if (!S.sound || !osc || !ac) return;
+          var sp = Math.hypot(sun.vx, sun.vy);
+          var f = 62 + Math.min(300, sp * 0.45);
+          osc.frequency.setTargetAtTime(f, ac.currentTime, 0.25);
+          osc._b.frequency.setTargetAtTime(f * 1.01, ac.currentTime, 0.25);
+        }
+
+        addEventListener("resize", resize);
+        document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+        resize();
+        reset();
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  </body>
+</html>
