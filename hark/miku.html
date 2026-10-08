@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Miku 甩葱舞</title>
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      .x-app{position:fixed;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:linear-gradient(160deg,#39c5bb 0%,#8fd6e0 45%,#f7a8c8 100%);font-family:var(--sans)}
+      .x-title{margin:max(16px,env(safe-area-inset-top)) 0 0;font:var(--type-title);color:#0b3b38;text-shadow:0 1px 10px rgba(255,255,255,.6);z-index:2}
+      .x-stage{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+      .x-miku{height:min(100%,120vw);max-height:620px;aspect-ratio:380/430;cursor:pointer;-webkit-tap-highlight-color:transparent}
+      .x-miku svg{width:100%;height:100%;overflow:visible;display:block}
+      .x-miku.is-jump{animation:x-jump .8s var(--ease-out)}
+      @keyframes x-jump{0%{transform:none}45%{transform:translateY(-22%) rotate(200deg)}100%{transform:translateY(0) rotate(360deg)}}
+      #eyes{transform-box:fill-box;transform-origin:center;animation:x-blink 4s infinite}
+      @keyframes x-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+      .x-note{position:absolute;bottom:-40px;color:#0b3b38;opacity:0;font-size:28px;pointer-events:none;animation:x-float linear infinite;z-index:0}
+      @keyframes x-float{0%{transform:translateY(0) rotate(-10deg);opacity:0}15%{opacity:.8}100%{transform:translateY(-110vh) rotate(20deg);opacity:0}}
+      .x-paused .x-note{animation-play-state:paused}
+      .x-start{position:absolute;inset:0;margin:auto;width:max-content;height:max-content;min-height:var(--tap);padding:18px 36px;border:0;border-radius:var(--r-pill);background:var(--fill-primary);color:var(--text-primary-on);font:var(--type-heading);box-shadow:var(--hark-shadow);cursor:pointer;z-index:3}
+      .x-bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:center;margin:0 12px max(14px,env(safe-area-inset-bottom));padding:8px 14px;border-radius:var(--r-l);background:var(--mat-regular);backdrop-filter:var(--hark-blur);-webkit-backdrop-filter:var(--hark-blur);box-shadow:var(--hark-shadow);color:var(--text-primary);z-index:2}
+      .x-bar .btn{min-height:var(--tap);min-width:80px;justify-content:center}
+      .x-speed{display:flex;align-items:center;gap:8px;font:var(--type-label);min-height:var(--tap)}
+      .x-speed input{width:130px;height:var(--tap);accent-color:#39c5bb}
+      .x-speed output{min-width:3.2em;font-variant-numeric:tabular-nums}
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <div class="x-app" id="app">
+        <h1 class="x-title">Miku 甩葱舞</h1>
+        <div class="x-stage">
+          <div class="x-miku" id="miku" role="button" tabindex="0" aria-label="点一下 Miku，让她跳起来转圈">
+            <svg viewBox="-40 -10 380 430" aria-hidden="true">
+              <g id="body">
+                <g id="tl"><path d="M96 90C44 140 30 250 52 345C66 305 76 225 110 118Z" fill="#39c5bb"/><path d="M90 110C60 160 52 240 58 300C68 250 78 190 100 125Z" fill="#2a9d95"/></g>
+                <g id="tr"><path d="M204 90C256 140 270 250 248 345C234 305 224 225 190 118Z" fill="#39c5bb"/><path d="M210 110C240 160 248 240 242 300C232 250 222 190 200 125Z" fill="#2a9d95"/></g>
+                <rect x="130" y="282" width="13" height="40" fill="#ffe8d9"/><rect x="157" y="282" width="13" height="40" fill="#ffe8d9"/>
+                <path d="M126 315h22v53h-30a5 5 0 0 1 0-10h8z" fill="#2b2b33"/><path d="M152 315h22v43h8a5 5 0 0 1 0 10h-30z" fill="#2b2b33"/>
+                <path d="M126 318h22M152 318h22" stroke="#39c5bb" stroke-width="3"/>
+                <path d="M118 252h64l15 40h-94z" fill="#2b2b33"/><path d="M104 288h92" stroke="#39c5bb" stroke-width="3"/>
+                <path d="M122 196h56l6 60h-68z" fill="#c9ccd1"/>
+                <path d="M138 196l12 11 12-11" fill="none" stroke="#fff" stroke-width="3"/>
+                <path d="M146 204h8l3 32-7 8-7-8z" fill="#39c5bb"/>
+                <path d="M123 200l-18 42 11 4 14-32z" fill="#2b2b33"/><circle cx="110" cy="249" r="7" fill="#ffe8d9"/>
+                <ellipse cx="150" cy="118" rx="80" ry="78" fill="#2fb3a9"/>
+                <ellipse cx="150" cy="134" rx="62" ry="58" fill="#ffe8d9"/>
+                <path d="M80 125C80 60 118 42 150 42S220 60 220 125C210 100 200 96 190 116C185 90 170 86 160 106C150 86 136 88 128 108C118 92 102 98 94 122Z" fill="#39c5bb"/>
+                <g id="eyes" fill="#1f7f86"><ellipse cx="126" cy="142" rx="11" ry="15"/><ellipse cx="174" cy="142" rx="11" ry="15"/><circle cx="122" cy="136" r="4" fill="#fff"/><circle cx="170" cy="136" r="4" fill="#fff"/></g>
+                <ellipse cx="110" cy="162" rx="9" ry="5" fill="#ff8fab" opacity=".5"/><ellipse cx="190" cy="162" rx="9" ry="5" fill="#ff8fab" opacity=".5"/>
+                <path d="M142 164q8 11 16 0z" fill="#d9475d"/>
+                <path d="M84 122A66 74 0 0 1 216 122" fill="none" stroke="#2b2b33" stroke-width="5"/>
+                <rect x="76" y="118" width="16" height="36" rx="7" fill="#2b2b33"/><rect x="208" y="118" width="16" height="36" rx="7" fill="#2b2b33"/>
+                <circle cx="84" cy="136" r="4" fill="#39c5bb"/><circle cx="216" cy="136" r="4" fill="#39c5bb"/>
+                <path d="M86 152Q94 178 124 174" fill="none" stroke="#2b2b33" stroke-width="3"/><circle cx="126" cy="174" r="4" fill="#2b2b33"/>
+                <rect x="86" y="80" width="14" height="14" rx="3" fill="#2b2b33" transform="rotate(-20 93 87)"/><rect x="200" y="80" width="14" height="14" rx="3" fill="#2b2b33" transform="rotate(20 207 87)"/>
+                <circle cx="93" cy="87" r="3" fill="#ff5c8a"/><circle cx="207" cy="87" r="3" fill="#ff5c8a"/>
+                <g id="arm" transform="translate(177 204)">
+                  <path d="M0-7L36-6V6L0 7Z" fill="#2b2b33"/>
+                  <path d="M30 0h-6M30-3l-6-3M30 3l-6 3" stroke="#e8e2c8" stroke-width="2"/>
+                  <rect x="30" y="-5" width="52" height="10" rx="5" fill="#f4f7ee"/>
+                  <path d="M66-4H80L134-16L127-4L138 3L80 5H66Z" fill="#4caf50"/><path d="M80-1L126-8L120 0Z" fill="#2e7d32"/>
+                  <circle cx="42" cy="0" r="8" fill="#ffe8d9"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <button class="x-start" id="start" type="button">▶ 开始甩葱</button>
+        </div>
+        <div class="x-bar" role="group" aria-label="控制">
+          <button class="btn" id="pause" type="button" disabled>暂停</button>
+          <button class="btn" id="mute" type="button" aria-pressed="false">静音</button>
+          <label class="x-speed">速度 <input id="speed" type="range" min="0.5" max="2" step="0.1" value="1" /><output id="sv">1.0x</output></label>
+        </div>
+      </div>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id), app = $("app");
+        for (let i = 0; i < 10; i++) {
+          const n = document.createElement("span");
+          n.className = "x-note"; n.textContent = "♪♫♩♬"[i % 4];
+          n.style.cssText = `left:${5 + i * 9.5}%;animation-duration:${6 + (i % 4) * 1.5}s;animation-delay:${-i * 1.3}s;font-size:${22 + (i % 3) * 8}px`;
+          app.prepend(n);
+        }
+        // Ievan Polkka (public domain), A minor; one token per eighth, "-" holds
+        const MEL = ["E4 A4 A4 B4 C5 A4 A4 -", "G4 G4 E4 E4 G4 G4 E4 -", "E4 A4 A4 B4 C5 A4 A4 C5", "B4 G4 E4 G4 A4 A4 A4 -",
+                     "E5 E5 D5 C5 D5 D5 C5 B4", "C5 C5 B4 A4 G4 G4 E4 -", "E5 E5 D5 C5 D5 D5 C5 B4", "C5 A4 B4 G4 A4 A4 A4 -"].join(" ").split(" ");
+        const CH = { Am: [45, 57, 60, 64], G: [43, 55, 59, 62], E: [40, 56, 59, 64], C: [48, 55, 60, 64] };
+        const PROG = ["Am", "G", "Am", "E", "C", "G", "Am", "Am"];
+        const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+        const midi = (t) => 12 * (+t[1] + 1) + SEMI[t[0]], hz = (m) => 440 * 2 ** ((m - 69) / 12);
+        let ctx, master, step = 0, next = 0, speed = 1, started = false, paused = false, marks = [];
+        const SD = () => 30 / (148 * speed);
+        function tone(m, t, d, type, v) {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = type; o.frequency.value = hz(m);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + d);
+          o.connect(g).connect(master); o.start(t); o.stop(t + d + 0.02);
+        }
+        function play(s, t) {
+          const i = s % MEL.length, tok = MEL[i], c = CH[PROG[Math.floor(i / 8)]];
+          if (tok !== "-") { let k = 1; while (MEL[(i + k) % MEL.length] === "-") k++; tone(midi(tok), t, SD() * k * 0.9, "square", 0.09); }
+          if (s % 2 === 0) tone(c[0] + (s % 4 ? 7 : 0) - 12, t, SD() * 1.6, "triangle", 0.35);
+          else c.slice(1).forEach((m) => tone(m - 12, t, SD() * 0.7, "triangle", 0.06));
+        }
+        function tick() {
+          if (!ctx || paused) return;
+          while (next < ctx.currentTime + 0.12) { play(step, next); marks.push([next, step]); next += SD(); step++; }
+          if (marks.length > 64) marks.splice(0, 32);
+        }
+        function beats() {
+          if (!started) return performance.now() / 1000 * 148 / 120;
+          const now = ctx.currentTime; let m = marks[0] || [now, 0];
+          for (const k of marks) if (k[0] <= now) m = k;
+          return (m[1] + Math.max(0, now - m[0]) / SD()) / 2;
+        }
+        const body = $("body"), arm = $("arm"), tl = $("tl"), tr = $("tr");
+        (function frame() {
+          const b = beats(), s = Math.sin(Math.PI * b);
+          body.setAttribute("transform", `translate(0 ${(-Math.abs(s) * 8).toFixed(2)})`);
+          arm.setAttribute("transform", `translate(177 204) rotate(${((b * 180) % 360).toFixed(1)})`);
+          tl.setAttribute("transform", `rotate(${(s * 9).toFixed(2)} 96 90)`);
+          tr.setAttribute("transform", `rotate(${(s * 9).toFixed(2)} 204 90)`);
+          requestAnimationFrame(frame);
+        })();
+        $("start").onclick = () => {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+          master = ctx.createGain(); master.gain.value = 0.6; master.connect(ctx.destination);
+          next = ctx.currentTime + 0.05; started = true; tick(); setInterval(tick, 25);
+          $("start").remove(); $("pause").disabled = false;
+        };
+        $("pause").onclick = (e) => {
+          paused = !paused; e.target.textContent = paused ? "继续" : "暂停"; app.classList.toggle("x-paused", paused);
+          if (paused) ctx.suspend(); else ctx.resume().then(() => { next = Math.max(next, ctx.currentTime + 0.02); tick(); });
+        };
+        $("mute").onclick = (e) => {
+          const on = e.target.getAttribute("aria-pressed") !== "true";
+          e.target.setAttribute("aria-pressed", on); e.target.textContent = on ? "取消静音" : "静音";
+          if (master) master.gain.value = on ? 0 : 0.6;
+          window.__muted = on;
+        };
+        $("speed").oninput = (e) => { speed = +e.target.value; $("sv").textContent = speed.toFixed(1) + "x"; };
+        const miku = $("miku");
+        const jump = () => {
+          miku.classList.remove("is-jump"); void miku.offsetWidth; miku.classList.add("is-jump");
+          if (ctx && !paused && !window.__muted) { const t = ctx.currentTime; tone(76, t, 0.12, "square", 0.08); tone(83, t + 0.08, 0.15, "square", 0.08); }
+        };
+        miku.onclick = jump;
+        miku.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); jump(); } };
+        miku.onanimationend = () => miku.classList.remove("is-jump");
+      })();
+    </script>
+  </body>
+</html>
