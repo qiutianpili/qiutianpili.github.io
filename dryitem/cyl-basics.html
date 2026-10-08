@@ -38,7 +38,7 @@
     .hero-fact span{font-size:13px;color:var(--muted)}
     .sticky{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-block:1px solid var(--line)}
     .nav{display:flex;align-items:center;gap:6px;padding:10px 0;overflow-x:auto;scrollbar-width:none}
-    .nav::-webkit-scrollbar{display:none}.nav a{white-space:nowrap;text-decoration:none;padding:7px 11px;border-radius:6px;color:var(--muted);font-size:13px;font-weight:700}.nav a:hover,.nav a.active{background:var(--red-soft);color:var(--red-deep)}
+    .nav::-webkit-scrollbar{display:none}.nav a{white-space:nowrap;text-decoration:none;padding:7px 11px;border-radius:6px;color:var(--muted);font-size:13px;font-weight:700}.nav a{-webkit-tap-highlight-color:transparent}.nav a.active{background:var(--red-soft);color:var(--red-deep)}@media(hover:hover){.nav a:not(.active):hover{background:var(--line);color:var(--ink)}}.nav a:focus{outline:none}.nav a:focus-visible{outline:2px solid var(--red);outline-offset:1px}
     main{padding:38px 0 70px}.section{margin:0 0 64px}.section-head{display:grid;grid-template-columns:70px 1fr;gap:18px;align-items:start;margin-bottom:24px}.num{font-family:"Noto Serif SC",serif;font-size:48px;line-height:1;color:var(--red);border-bottom:5px solid var(--gold);padding-bottom:8px}.section h2{font-family:"Noto Serif SC",serif;font-size:clamp(25px,4vw,38px);line-height:1.2;margin:0 0 7px}.section-head p{margin:0;color:var(--muted)}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:var(--paper);padding:22px;border:1px solid var(--line);box-shadow:0 6px 24px rgba(60,35,25,.035)}
     .card h3{font-size:18px;margin:0 0 10px}.card p{margin:0;color:var(--muted)}
@@ -218,7 +218,9 @@
     });opts.appendChild(b)});box.appendChild(q)
   });
   var progress=document.getElementById('progress');
-  function onScroll(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;progress.style.transform='scaleX('+(max?d.scrollTop/max:0)+')';var sections=document.querySelectorAll('main section[id]');var cur='';sections.forEach(function(s){if(s.getBoundingClientRect().top<110)cur=s.id});document.querySelectorAll('.nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur)})}
+  function onScroll(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;progress.style.transform='scaleX('+(max?d.scrollTop/max:0)+')';if(lockUntil>Date.now())return;var sections=document.querySelectorAll('main section[id]');var navEl=document.querySelector('nav.sticky');var off=(navEl?navEl.getBoundingClientRect().bottom:80)+24;var cur='';sections.forEach(function(s){if(s.getBoundingClientRect().top<=off)cur=s.id});if(max&&d.scrollTop>=max-2&&sections.length)cur=sections[sections.length-1].id;setActive(cur)}
+  var lockUntil=0;function setActive(id){document.querySelectorAll('.nav a').forEach(function(a){var on=a.getAttribute('href')==='#'+id;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
+  document.querySelectorAll('.nav a').forEach(function(a){a.addEventListener('click',function(){setActive(a.getAttribute('href').slice(1));lockUntil=Date.now()+900;setTimeout(function(){lockUntil=0;onScroll()},950);a.blur()})})
   addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
 </script>
