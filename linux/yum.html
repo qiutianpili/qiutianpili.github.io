@@ -1,133 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux yum 命令核心指南</title>
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --bg-color: #f8f9fa;
-            --text-color: #333333;
-            --code-bg: #f1f3f5;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.7;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 850px;
-            margin: 40px auto;
-            background: #ffffff;
-            padding: 50px 60px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-        }
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        h1 {
-            color: var(--primary-color);
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 1.1em;
-            font-style: italic;
-        }
-        h2 {
-            color: var(--secondary-color);
-            border-bottom: 2px solid #ebf5fb;
-            padding-bottom: 10px;
-            margin-top: 40px;
-        }
-        h3 {
-            color: var(--primary-color);
-            margin-top: 25px;
-        }
-        p {
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-        code {
-            background-color: var(--code-bg);
-            color: var(--accent-color);
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            font-size: 0.9em;
-        }
-        .feature-section {
-            display: flex;
-            gap: 20px;
-            margin: 30px 0;
-        }
-        .feature-card {
-            flex: 1;
-            background: #fdfefe;
-            border: 1px solid #e5e8e8;
-            border-top: 4px solid var(--secondary-color);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        }
-        .feature-card h4 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1.1em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 15px;
-        }
-        th, td {
-            border: 1px solid #e1e8ed;
-            padding: 12px 15px;
-            text-align: left;
-        }
-        th {
-            background-color: #f8fbfe;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: #fafbfc;
-        }
-        tr:hover {
-            background-color: #f1f5f9;
-        }
-        .note {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-            font-size: 0.95em;
-            color: #856404;
-        }
-        footer {
-            margin-top: 50px;
-            text-align: center;
-            color: #95a5a6;
-            font-size: 0.9em;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linux yum 命令核心指南 | 秋天霹雳</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/hark-doc.css">
+  <script src="/assets/hark-sub.js"></script>
+  <style>
+    .container > header { margin: 0 0 clamp(20px, 3vw, 32px); }
+    .container > p:first-of-type { font-size: var(--size-prose); }
+    .feature-section, .mode-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+      gap: 12px;
+      margin: 22px 0 28px;
+    }
+    .feature-card, .mode-card { padding: 20px 22px; border-radius: var(--r-m); background: var(--fill-tertiary); }
+    .feature-card h4, .mode-card h4 { margin: 0 0 8px; font: var(--type-body-strong); font-size: var(--size-prose); }
+    .feature-card p, .mode-card p { margin: 0; color: var(--text-secondary); font-size: var(--size-body); line-height: 1.6; }
+    .doc td:first-child { white-space: nowrap; }
+    @media (max-width: 599px) { .doc td:first-child { white-space: normal; } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/assist.html">资源</a>
+        <a href="/download.html">下载</a>
+        <a href="/friends.html">友链</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+    <main class="container doc">
+        <header class="doc-head">
+            <p class="doc-eyebrow">Linux 笔记</p>
             <h1>Linux yum 命令核心指南</h1>
             <div class="subtitle">CentOS/RHEL 等红帽系发行版的高效包管理工具</div>
         </header>
@@ -197,6 +114,6 @@
         <footer>
             文档生成时间: 2026年7月1日 | 整理分析自 Runoob Linux yum 教程
         </footer>
-    </div>
+    </main>
 </body>
 </html>

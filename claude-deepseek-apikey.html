@@ -5,142 +5,94 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Claude Desktop 对接第三方 Deepseek API Key 的图文教程。">
   <title>Claude Desktop 对接第三方 Deepseek API Key | 秋天霹雳</title>
-  <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script src="/assets/hark-sub.js"></script>
   <style>
-    .doc-article {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: clamp(24px, 4vw, 48px);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-    .doc-article .doc-title {
-      margin-bottom: 8px;
-      font-size: clamp(1.9rem, 4vw, 2.8rem);
-      line-height: 1.2;
-      text-align: center;
-    }
-    .doc-article .doc-lead {
-      margin: 0 auto 8px;
-      color: var(--muted);
-      text-align: center;
-    }
+    .doc-article { max-width: 820px; margin: clamp(28px, 5vw, 56px) auto 0; }
+    .doc-article .doc-title { font: var(--type-display); margin-bottom: 10px; text-align: left; }
+    .doc-article .doc-lead { color: var(--text-secondary); margin: 0 0 8px; }
     .doc-article h2 {
-      margin: 44px 0 16px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--primary);
-      color: var(--primary-strong);
+      margin: clamp(40px, 6vw, 64px) 0 18px;
+      padding-top: clamp(24px, 3vw, 32px);
+      border-top: 1px solid var(--stroke-secondary);
+      font: var(--type-title);
     }
-    .doc-article h2:first-of-type {
-      margin-top: 24px;
-    }
-    .doc-article h3 {
-      margin: 26px 0 12px;
-      font-size: 1.15rem;
-      color: var(--text);
-    }
+    .doc-article h2:first-of-type { margin-top: 28px; }
+    .doc-article h3 { display: flex; align-items: center; gap: 12px; margin: 30px 0 12px; font: var(--type-heading); }
     .doc-article h3 .step-index {
+      flex: none;
       display: inline-grid;
       place-items: center;
-      width: 26px;
-      height: 26px;
-      margin-right: 10px;
+      width: 30px; height: 30px;
       border-radius: 50%;
-      color: #fff;
-      background: var(--primary);
-      font-size: 0.85rem;
-      font-weight: 800;
-      vertical-align: middle;
+      color: var(--text-primary-on);
+      background: var(--fill-primary);
+      font: var(--type-label);
     }
-    .doc-article p {
-      margin: 12px 0;
-      color: var(--muted);
-      line-height: 1.85;
-    }
-    .doc-article .prep-list {
-      margin: 12px 0;
-      padding: 0;
-      list-style: none;
-    }
+    .doc-article p { margin: 12px 0; color: var(--text-secondary); font-size: var(--size-prose); line-height: 1.75; }
+    .doc-article .prep-list { display: grid; gap: 8px; margin: 14px 0; padding: 0; list-style: none; }
     .doc-article .prep-list li {
       position: relative;
-      margin: 8px 0;
-      padding: 12px 16px 12px 44px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface-strong);
-      font-weight: 600;
+      padding: 14px 18px 14px 48px;
+      border-radius: var(--r-m);
+      background: var(--fill-tertiary);
+      font: var(--type-body-strong);
     }
     .doc-article .prep-list li::before {
-      content: "✓";
-      position: absolute;
-      left: 16px;
-      color: var(--primary);
-      font-weight: 800;
+      content: "";
+      position: absolute; left: 18px; top: 50%;
+      width: 16px; height: 16px; margin-top: -8px;
+      border-radius: 50%;
+      background: var(--fill-system-green);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--fill-system-green) 18%, transparent);
     }
-    .doc-figure {
-      margin: 18px 0;
-      text-align: center;
-    }
+    .doc-figure { margin: 18px 0; }
     .doc-figure img {
-      display: inline-block;
-      width: 100%;
-      height: auto;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: 0 8px 24px rgba(41, 57, 67, 0.12);
+      display: block;
+      width: 100%; height: auto;
+      margin: 0 auto;
+      border-radius: var(--r-m);
+      border: 1px solid var(--stroke-secondary);
+      background: var(--fill-tertiary);
     }
-    .doc-figure.icon img {
-      max-width: 157px;
-      box-shadow: none;
-    }
-    .doc-figure.portrait img {
-      max-width: 466px;
-    }
-    .doc-figure.shot img {
-      max-width: 554px;
-    }
-    .doc-note {
-      margin: 12px 0;
-      padding: 12px 16px;
-      border-left: 4px solid var(--amber);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      background: rgba(177, 132, 46, 0.1);
-    }
-    .doc-note p {
-      margin: 0;
-      color: var(--text);
-    }
+    .doc-figure.icon img { max-width: 157px; border: 0; background: none; }
+    .doc-figure.portrait img { max-width: 466px; }
+    .doc-figure.shot img { max-width: 600px; }
+    .doc-note { margin: 14px 0; padding: 14px 18px; border-radius: var(--r-m); background: var(--fill-tertiary); border-left: 3px solid var(--fill-system-orange); }
+    .doc-note p { margin: 0; color: var(--text-primary); }
     .doc-success {
-      margin: 20px 0;
-      padding: 14px 18px;
-      border: 1px solid var(--primary);
-      border-radius: var(--radius);
-      background: rgba(47, 127, 111, 0.12);
-      color: var(--primary-strong);
-      font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin: 24px 0; padding: 16px 20px;
+      border-radius: var(--r-pill);
+      background: var(--fill-primary);
+      color: var(--text-primary-on);
+      font: var(--type-body-strong);
       text-align: center;
     }
+    .doc-success::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--fill-system-green); }
+    @media (max-width: 599px) { .doc-success { border-radius: var(--r-m); } }
   </style>
 </head>
 <body>
   <div class="page-shell">
-    <header class="site-header" data-elevate>
-      <a class="brand" href="index.html">
-        <span class="brand-mark">Q</span>
-        <span><strong>秋天霹雳</strong><small>Resources</small></span>
+    <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
       </a>
-      <nav class="nav-links" aria-label="主导航">
-        <a href="index.html">首页</a>
-        <a href="posts.html">文章</a>
-        <a href="friends.html">友链</a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/assist.html">资源</a>
+        <a href="/download.html">下载</a>
+        <a href="/friends.html">友链</a>
       </nav>
-      <button class="theme-toggle" type="button" aria-label="切换深浅色" data-theme-toggle>
-        <span aria-hidden="true">日/夜</span>
-      </button>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
     </header>
 
     <main class="content-page">
@@ -237,9 +189,8 @@
 
     <footer class="site-footer">
       <span>© 2026 秋天霹雳</span>
-      <a href="index.html">首页</a>
+      <a href="/">首页</a>
     </footer>
   </div>
-  <script src="assets/site.js" defer></script>
 </body>
 </html>

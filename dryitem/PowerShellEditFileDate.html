@@ -1,52 +1,71 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>PowerShell 修改文件日期方法</title>
-<style>
-body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-code { background: #f0f0f0; padding: 4px; display: inline-block; }
-pre { background: #f0f0f0; padding: 10px; border-radius: 6px; }
-h1 { color: #333; }
-h2 { color: #444; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PowerShell 修改文件日期方法 | 秋天霹雳</title>
+  <meta name="description" content="用 PowerShell 修改文件的创建、修改、访问时间。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/hark-doc.css">
+  <script src="/assets/hark-sub.js"></script>
 </head>
 <body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/assist.html">资源</a>
+        <a href="/download.html">下载</a>
+        <a href="/friends.html">友链</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · PowerShell</p>
+      <h1>PowerShell 修改文件日期方法</h1>
+    </header>
 
-<h1>PowerShell 修改文件日期方法</h1>
+    <h2>方法 1：使用 Set-ItemProperty（最简单）</h2>
+    <p>修改最后修改时间（LastWriteTime）：</p>
+    <pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastWriteTime -Value "2024-01-01 10:00:00"</code></pre>
 
-<h2>方法 1：使用 Set-ItemProperty（最简单）</h2>
-<p>修改最后修改时间（LastWriteTime）：</p>
-<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastWriteTime -Value "2024-01-01 10:00:00"</code></pre>
+    <p>修改创建时间（CreationTime）：</p>
+    <pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name CreationTime -Value "2024-01-01 10:00:00"</code></pre>
 
-<p>修改创建时间（CreationTime）：</p>
-<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name CreationTime -Value "2024-01-01 10:00:00"</code></pre>
+    <p>修改访问时间（LastAccessTime）：</p>
+    <pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastAccessTime -Value "2024-01-01 10:00:00"</code></pre>
 
-<p>修改访问时间（LastAccessTime）：</p>
-<pre><code>Set-ItemProperty -Path "C:\test\file.txt" -Name LastAccessTime -Value "2024-01-01 10:00:00"</code></pre>
-
-<h2>方法 2：使用 .NET 方法（最全面）</h2>
-<pre><code>$file = Get-Item "C:\test\file.txt"
+    <h2>方法 2：使用 .NET 方法（最全面）</h2>
+    <pre><code>$file = Get-Item "C:\test\file.txt"
 $file.CreationTime = "2024-01-01 09:00:00"
 $file.LastWriteTime = "2024-01-02 12:00:00"
 $file.LastAccessTime = "2024-01-03 15:00:00"</code></pre>
 
-<h2>方法 3：一行命令同时改三个时间</h2>
-<pre><code>(Get-Item "C:\test\file.txt").CreationTime = "2024-01-01 08:00:00"
+    <h2>方法 3：一行命令同时改三个时间</h2>
+    <pre><code>(Get-Item "C:\test\file.txt").CreationTime = "2024-01-01 08:00:00"
 (Get-Item "C:\test\file.txt").LastWriteTime = "2024-01-01 08:00:00"
 (Get-Item "C:\test\file.txt").LastAccessTime = "2024-01-01 08:00:00"</code></pre>
 
-<h2>日期格式注意事项</h2>
-<ul>
-<li>"2024-01-01 12:00"</li>
-<li>"2024/01/01 12:00"</li>
-<li>[datetime]::Parse("2024-01-01T12:00:00")</li>
-</ul>
+    <h2>日期格式注意事项</h2>
+    <ul>
+      <li><code>"2024-01-01 12:00"</code></li>
+      <li><code>"2024/01/01 12:00"</code></li>
+      <li><code>[datetime]::Parse("2024-01-01T12:00:00")</code></li>
+    </ul>
 
-<h2>批量修改文件夹内所有文件日期</h2>
-<pre><code>Get-ChildItem "C:\test" | ForEach-Object {
+    <h2>批量修改文件夹内所有文件日期</h2>
+    <pre><code>Get-ChildItem "C:\test" | ForEach-Object {
     $_.LastWriteTime = "2024-01-01 00:00:00"
 }</code></pre>
-
+  </main>
 </body>
 </html>

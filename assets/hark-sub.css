@@ -1,0 +1,223 @@
+/* Shared sub-page chrome for 20610728.xyz: Hark design tokens, the floating header (.hark-bar) and the home button (.home-fab). */
+:root {
+
+  --text-primary: light-dark(#1d1d1f, #f5f5f7);         /* body text */
+  --text-secondary: light-dark(#636366, #a1a1a6);       /* supporting grey text */
+  --text-tertiary: light-dark(#1d1d1f4d, #f5f5f74d);    /* hollow dots, faint marks; never body text */
+  --text-primary-on: light-dark(#f5f5f7, #1d1d1f);      /* text on --fill-primary */
+  --text-secondary-on: light-dark(#aeaeb2, #5c5c60);    /* grey text on --fill-primary */
+  --fill-primary: light-dark(#1d1d1f, #f5f5f7);         /* the strong fill: solid chips, the nav, the badge */
+  --fill-primary-on: light-dark(#f5f5f7, #1d1d1f);      /* the page background */
+  --fill-secondary: light-dark(#1d1d1f80, #f5f5f780);
+  --fill-tertiary: light-dark(#e8e8ea, #2a2a2d);        /* the grey card, panel and row tint */
+  --fill-segment: light-dark(#3a3a3c, #e2e2e4);         /* the nav's tab track */
+  --fill-system-green: #00a665;                         /* status: done, ready */
+  --fill-system-orange: #ff4d00;                        /* status: now, current */
+  --fill-system-red: light-dark(#da2f35, #f1555b);      /* status: blocked, error */
+  --transparent-primary: light-dark(#1d1d1f4d, #f5f5f74d);
+  --stroke-primary: light-dark(#1d1d1f24, #f5f5f724);   /* strong hairline */
+  --stroke-secondary: light-dark(#1d1d1f12, #f5f5f712); /* faint hairline between rows */
+  --stroke-primary-on: light-dark(#f5f5f71a, #1d1d1f1a);
+  --stroke-composer: light-dark(#f5f5f780, #1d1d1f80);  /* the callout's glass edge */
+  --stroke-system-orange: #ff4d0026;
+  --hover-wash: light-dark(#1d1d1f0d, #f5f5f70d);
+  --hover-wash-primary-on: light-dark(#f9f9fa26, #1d1d1f14);
+
+  /* The hero is light text over a dark photo in both themes. */
+  --hero-surface: #161f39;
+  --hero-text: #f5f5f7;
+  --hero-text-muted: #f5f5f7cc;
+  --hero-scrim-strong: rgb(22 31 57 / 0.78);
+  --hero-scrim-soft: rgb(22 31 57 / 0.3);
+  --hero-scrim-side: rgb(22 31 57 / 0.45);
+  --hero-glass: rgb(22 31 57 / 0.42);
+  --hero-glass-faint: rgb(22 31 57 / 0.35);
+  --hero-glass-stroke: rgb(245 245 247 / 0.28);
+
+  --mat-regular: light-dark(rgb(255 255 255 / 0.56), rgb(29 29 31 / 0.55));
+  --mat-thin: light-dark(rgb(255 255 255 / 0.22), rgb(29 29 31 / 0.4));
+  --mat-agent: light-dark(rgb(255 255 255 / 0.84), rgb(29 29 31 / 0.66));
+  --mat-inverse: color-mix(in srgb, var(--fill-primary) 86%, transparent);  /* the nav: dark on light, light on dark */
+  --hark-blur: blur(50px) saturate(1.6);
+  --hark-shadow: 0 8px 40px #1d1d1f1f;
+
+  --sans: "GT Standard", "GT Standard L", "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
+  --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --lh: 1.3;                                            /* every text style is 130% */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 600;
+  --size-caption: 12px;                                 /* the smallest text allowed */
+  --size-meta: 13px;
+  --size-small: 14px;
+  --size-body: 15px;
+  --size-prose: 16px;
+  --size-heading: 20px;
+  --size-figure: clamp(24px, 3vw, 32px);
+  --size-title: clamp(26px, 3vw, 32px);
+  --size-display: clamp(34px, 5vw, 48px);
+  --size-lede: clamp(16px, 1.7vw, 20px);
+
+  --type-caption: var(--weight-regular) var(--size-caption)/var(--lh) var(--sans);
+  --type-tag: var(--weight-medium) var(--size-caption)/var(--lh) var(--sans);
+  --type-small: var(--weight-regular) var(--size-small)/var(--lh) var(--sans);
+  --type-label: var(--weight-medium) var(--size-small)/var(--lh) var(--sans);
+  --type-body: var(--weight-regular) var(--size-body)/var(--lh) var(--sans);
+  --type-body-strong: var(--weight-medium) var(--size-body)/var(--lh) var(--sans);
+  --type-heading: var(--weight-medium) var(--size-heading)/var(--lh) var(--sans);
+  --type-lede: var(--weight-medium) var(--size-lede)/var(--lh) var(--sans);
+  --type-figure: var(--weight-regular) var(--size-figure)/var(--lh) var(--sans);
+  --type-title: var(--weight-regular) var(--size-title)/var(--lh) var(--sans);
+  --type-display: var(--weight-medium) var(--size-display)/var(--lh) var(--sans);
+  --type-numeral: var(--weight-regular) 48px/1 var(--sans);
+
+  --r-s: 12px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 32px;
+  --r-pill: 100px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --dur-quick: 160ms;
+  --dur-draw: 1400ms;
+
+  --page-max: 1120px;
+  --gutter: clamp(16px, 3vw, 32px);                     /* the page's side padding */
+  --tap: 44px;                                          /* the smallest touch target */
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* ---------- Floating "back to homepage" button ---------- */
+.home-fab {
+  color-scheme: light dark;
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  z-index: 2147483000;
+  width: 48px; height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fill-primary);
+  color: var(--text-primary-on);
+  border: 1px solid var(--stroke-primary-on);
+  box-shadow: var(--hark-shadow), 0 2px 8px rgb(0 0 0 / 0.12);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease;
+}
+:root[data-theme="light"] .home-fab { color-scheme: light; }
+:root[data-theme="dark"] .home-fab { color-scheme: dark; }
+.home-fab svg { width: 22px; height: 22px; display: block; }
+.home-fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: var(--hark-shadow), 0 6px 16px rgb(0 0 0 / 0.18); }
+.home-fab:active { transform: scale(0.96); }
+.home-fab:focus-visible { outline: 2px solid var(--fill-primary); outline-offset: 3px; }
+.home-fab--top { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 14px); }
+@media (max-width: 599px) {
+  .home-fab { right: calc(env(safe-area-inset-right, 0px) + 14px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+  .home-fab--top { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 10px); }
+}
+@media print { .home-fab, .hark-bar { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .home-fab { transition: none; } }
+
+/* ---------- Shared floating header: three glass pills (same as the homepage) ---------- */
+.hark-bar {
+  color-scheme: light dark;
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  z-index: 40;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  pointer-events: none;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-theme="light"] .hark-bar { color-scheme: light; }
+:root[data-theme="dark"] .hark-bar { color-scheme: dark; }
+.hark-bar *, .hark-bar *::before { box-sizing: border-box; }
+.hark-bar .x-pill {
+  pointer-events: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--mat-agent);
+  -webkit-backdrop-filter: var(--hark-blur);
+  backdrop-filter: var(--hark-blur);
+  border: 1px solid var(--stroke-primary);
+  box-shadow: var(--hark-shadow);
+  color: var(--text-primary);
+}
+.hark-bar .x-brand { display: flex; align-items: center; gap: 10px; padding-right: 16px; text-decoration: none; }
+.hark-bar .x-brand__mark {
+  flex: none;
+  width: 40px; height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fill-primary);
+  color: var(--text-primary-on);
+  font: var(--weight-bold) var(--size-body)/1 var(--sans);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.hark-bar .x-brand:hover .x-brand__mark { transform: rotate(-12deg) scale(1.06); }
+.hark-bar .x-brand__text { display: grid; }
+.hark-bar .x-brand__text b { font: var(--type-label); line-height: 1.15; }
+.hark-bar .x-brand__text small { font: var(--type-caption); line-height: 1.15; color: var(--text-secondary); }
+.hark-bar .x-links {
+  justify-self: center;
+  max-width: 100%;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.hark-bar .x-links::-webkit-scrollbar { display: none; }
+.hark-bar .x-links a {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  font: var(--type-label);
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--dur-quick) ease, color var(--dur-quick) ease;
+}
+.hark-bar .x-links a:hover { color: var(--text-primary); background: var(--hover-wash); }
+.hark-bar .x-links a[aria-current="page"], .hark-bar .x-links a[aria-current="true"] { background: var(--fill-primary); color: var(--text-primary-on); }
+.hark-bar .x-theme {
+  flex: none;
+  width: 50px; height: 50px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font: inherit;
+}
+.hark-bar .x-theme:hover { box-shadow: var(--hark-shadow), inset 0 0 0 100px var(--hover-wash); }
+.hark-bar .x-theme::before {
+  content: "";
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  background: linear-gradient(to right, light-dark(currentColor, transparent) 50%, light-dark(transparent, currentColor) 50%);
+}
+.hark-bar :focus-visible { outline: 2px solid var(--fill-primary); outline-offset: 3px; }
+@media (max-width: 760px) {
+  .hark-bar { gap: 6px; }
+  .hark-bar .x-brand { padding-right: 4px; }
+  .hark-bar .x-brand__text { display: none; }
+  .hark-bar .x-brand__mark { width: var(--tap); height: var(--tap); }
+  .hark-bar .x-theme { width: 54px; height: 54px; }
+  .hark-bar .x-links { justify-self: stretch; justify-content: flex-start; justify-content: safe center; }
+  .hark-bar .x-links a { min-height: var(--tap); padding: 0 14px; }
+}
+@media (max-width: 360px) { .hark-bar .x-links a { padding: 0 10px; } }

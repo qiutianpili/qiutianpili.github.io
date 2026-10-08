@@ -1,325 +1,165 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- ...existing code... -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>帮助中心 | 秋天霹雳</title>
+  <meta name="description" content="常用软件与站点的快捷链接。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/hark-doc.css">
+  <script src="/assets/hark-sub.js"></script>
   <style>
-    :root {
-      --bg-color: #f5f7fa;
-      --card-bg: #fff;
-      --card-text: #333;
-      --card-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      --link-color: #3498db;
-      --button-bg: #3498db;
-      --button-hover: #2980b9;
-    }
-    body {
-      background: var(--bg-color);
-      color: var(--card-text);
-      transition: background 0.3s, color 0.3s;
-    }
-    .dark-mode {
-      --bg-color: #181a20;
-      --card-bg: #23262f;
-      --card-text: #e4e6eb;
-      --card-shadow: 0 5px 15px rgba(0,0,0,0.32);
-      --link-color: #4aa3ff;
-      --button-bg: #23262f;
-      --button-hover: #181a20;
-    }
-    .search-box {
-        max-width: 600px;
-        margin: 30px auto;
-        position: relative;
-        width: 95%;
-    }
+    .search-box { position: relative; display: flex; gap: 8px; margin: 0 0 28px; }
     .search-box input {
-        width: 100%;
-        padding: 15px 20px;
-        border: none;
-        border-radius: 50px;
-        box-shadow: var(--card-shadow);
-        font-size: 1rem;
-        outline: none;
-        background: var(--card-bg);
-        color: var(--card-text);
-        transition: background 0.3s, color 0.3s;
-        min-width: 0;
+      flex: 1; min-width: 0; min-height: var(--tap); padding: 0 20px;
+      border: 1px solid var(--stroke-primary); border-radius: var(--r-pill);
+      background: var(--fill-tertiary); color: var(--text-primary);
+      font: var(--type-body); font-size: 16px;
     }
+    .search-box input:focus { outline: 2px solid var(--fill-primary); outline-offset: 2px; }
     .search-box button {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        background: var(--button-bg);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background 0.3s;
+      flex: none; min-height: var(--tap); padding: 0 22px; border: 0; border-radius: var(--r-pill);
+      background: var(--fill-primary); color: var(--text-primary-on); font: var(--type-label); cursor: pointer;
     }
-    .search-box button:hover {
-        background: var(--button-hover);
-    }
-    .theme-toggle-btn {
-        position: fixed;
-        top: 20px;
-        right: 30px;
-        z-index: 999;
-        background: var(--button-bg);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 24px;
-        font-size: 1rem;
-        cursor: pointer;
-        box-shadow: var(--card-shadow);
-        transition: background 0.3s;
-    }
-    .theme-toggle-btn:hover {
-        background: var(--button-hover);
-    }
-    .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
-        margin-top: 40px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .feature-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-        transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
-        cursor: pointer;
-        color: var(--card-text);
-        min-width: 0;
-    }
-    .feature-img {
-        height: 180px;
-        background: var(--bg-color);
-        transition: background 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 0;
-    }
-    .feature-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-        background: transparent;
-    }
-    .feature-content {
-        padding: 20px;
-        text-align: center;
-        min-width: 0;
-    }
-    .learn-more {
-        color: var(--link-color);
-        font-weight: 600;
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-    @media (max-width: 1024px) {
-        .features {
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 18px;
-        }
-        .feature-img {
-            height: 140px;
-        }
-    }
-    @media (max-width: 768px) {
-        .search-box input {
-            font-size: 1rem;
-        }
-        .theme-toggle-btn {
-            top: 10px;
-            right: 10px;
-            padding: 8px 16px;
-            font-size: 0.95rem;
-        }
-        .features {
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
-        .feature-img {
-            height: 100px;
-        }
-    }
-    @media (max-width: 480px) {
-        .search-box {
-            margin: 16px auto;
-            padding: 0 4px;
-        }
-        .features {
-            gap: 8px;
-        }
-        .feature-card {
-            border-radius: 8px;
-        }
-        .feature-img {
-            height: 60px;
-        }
-        .feature-content {
-            padding: 12px;
-        }
-    }
-    /* ...原有样式... */
-    .feature-img.wechat-bg {
-        background: #1AAD19 !important; /* 微信绿色 */
-    }
-    .feature-img.steam-bg {
-        background: #000 !important; /* Steam纯黑色 */
-    }
+    .search-box button:hover { box-shadow: inset 0 0 0 100px var(--hover-wash-primary-on); }
+    .features { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+    .feature-card { display: flex; flex-direction: column; border-radius: var(--r-l); background: var(--fill-tertiary); overflow: hidden; min-width: 0; transition: box-shadow 300ms var(--ease-out); }
+    .feature-card:hover { box-shadow: var(--hark-shadow); }
+    .feature-img { display: grid; place-items: center; height: 140px; margin: 10px 10px 0; padding: 20px; border-radius: var(--r-m); background: var(--fill-primary-on); }
+    .feature-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .feature-content { display: flex; flex-direction: column; gap: 6px; flex: 1; padding: 16px 20px 20px; }
+    .feature-content h3 { margin: 0; font: var(--type-heading); }
+    .feature-content p { margin: 0; color: var(--text-secondary); font-size: var(--size-body); line-height: 1.55; }
+    .feature-content .links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: auto; padding-top: 10px; }
+    .copy-tip { font: var(--type-tag); color: var(--fill-system-green); }
+    .empty-hint { display: none; color: var(--text-secondary); margin-top: 8px; }
+    @media (max-width: 420px) { .search-box button { padding: 0 16px; } }
   </style>
 </head>
 <body>
-<!-- 日夜切换按钮 -->
-<button class="theme-toggle-btn" id="theme-toggle-btn">🌙 夜间模式</button>
-<main>
-    <!-- 搜索框插入位置 -->
-    <div class="search-box">
-        <input type="text" placeholder="搜索您需要的帮助...">
-        <button>搜索</button>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/assist.html">资源</a>
+        <a href="/download.html">下载</a>
+        <a href="/friends.html">友链</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">帮助中心</p>
+      <h1>快捷链接</h1>
+      <p class="lead">以下是一些可能会用到的链接</p>
+    </header>
+    <div class="search-box" role="search">
+      <input type="text" placeholder="搜索您需要的帮助..." aria-label="搜索">
+      <button type="button">搜索</button>
     </div>
-    <section>
-        <h2 style="text-align:center">快捷链接</h2>
-        <p style="text-align:center">以下是一些可能会用到的链接</p>
-    </section>
-    <div class="features" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 40px;">
-        <!-- 卡片1 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <img src="../Images\7ziplogo.png" alt="7-zip logo">
-            </div>
-            <div class="feature-content">
-                <h3>7-zip</h3>
-                <p>数据压缩软件</p>
-                <a href="https://www.7-zip.org/a/7z2408-x64.exe" class="learn-more" target="_blank" rel="noopener noreferrer">下载</a>
-            </div>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/7ziplogo.png" alt="7-zip logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>7-zip</h3>
+          <p>数据压缩软件</p>
+          <div class="links"><a class="btn learn-more" href="https://www.7-zip.org/a/7z2408-x64.exe" target="_blank" rel="noopener noreferrer">下载</a></div>
         </div>
-        <!-- 卡片2 -->
-        <div class="feature-card">
-            <div class="feature-img steam-bg">
-                <img src="../Images/steam.png" alt="Steam logo">
-            </div>
-            <div class="feature-content">
-                <h3>Steam</h3>
-                <p>官方首页</p>
-                <a href="https://store.steampowered.com/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/steam.png" alt="Steam logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>Steam</h3>
+          <p>官方首页</p>
+          <div class="links"><a class="btn learn-more" href="https://store.steampowered.com/" target="_blank" rel="noopener noreferrer">访问</a></div>
         </div>
-        <!-- 卡片3 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <img src="../Images\steam++logo.png" alt="Steam++ logo">
-            </div>
-            <div class="feature-content">
-                <h3>Steam++</h3>
-                <p>加速steam服务</p>
-                <a href="https://steampp.net/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/steam++logo.png" alt="Steam++ logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>Steam++</h3>
+          <p>加速steam服务</p>
+          <div class="links"><a class="btn learn-more" href="https://steampp.net/" target="_blank" rel="noopener noreferrer">访问</a></div>
         </div>
-        <!-- 卡片4 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <img src="../Images\icon_geek_32.png" alt="Geek logo">
-            </div>
-            <div class="feature-content">
-                <h3>Geek</h3>
-                <p>卸载程序</p>
-                <a href="https://geekuninstaller.com/geek.7z" class="learn-more" target="_blank" rel="noopener noreferrer">下载</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/icon_geek_32.png" alt="Geek logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>Geek</h3>
+          <p>卸载程序</p>
+          <div class="links"><a class="btn learn-more" href="https://geekuninstaller.com/geek.7z" target="_blank" rel="noopener noreferrer">下载</a></div>
         </div>
-        <!-- 卡片5 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <img src="../Images\qq.png" alt="QQ9 logo">
-            </div>
-            <div class="feature-content">
-                <h3>QQ9</h3>
-                <p>Windows下载页</p>
-                <a href="https://im.qq.com/pcqq/index.shtml" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/qq.png" alt="QQ9 logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>QQ9</h3>
+          <p>Windows下载页</p>
+          <div class="links"><a class="btn learn-more" href="https://im.qq.com/pcqq/index.shtml" target="_blank" rel="noopener noreferrer">访问</a></div>
         </div>
-        <!-- 卡片6 -->
-        <div class="feature-card">
-            <div class="feature-img wechat-bg">
-                <img src="../Images/weixin.png" alt="微信 logo">
-            </div>
-            <div class="feature-content">
-                <h3>微信</h3>
-                <p>官方首页</p>
-                <a href="https://weixin.qq.com/" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/weixin.png" alt="微信 logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>微信</h3>
+          <p>官方首页</p>
+          <div class="links"><a class="btn learn-more" href="https://weixin.qq.com/" target="_blank" rel="noopener noreferrer">访问</a></div>
         </div>
-        <!-- 卡片8 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <img src="https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/logos/Global-Header_MCCB-Logo_300x51.svg" alt="Minecraft logo with stylized block letters on a transparent background, conveying a playful and creative tone.">
-            </div>
-            <div class="feature-content">
-                <h3>Minecraft</h3>
-                <p>官方登录页</p>
-                <a href="https://www.minecraft.net/zh-hans/login.html" class="learn-more" target="_blank" rel="noopener noreferrer">访问</a>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/logos/Global-Header_MCCB-Logo_300x51.svg" alt="Minecraft logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>Minecraft</h3>
+          <p>官方登录页</p>
+          <div class="links"><a class="btn learn-more" href="https://www.minecraft.net/zh-hans/login.html" target="_blank" rel="noopener noreferrer">访问</a></div>
         </div>
-        <!-- 卡片9 -->
-        <div class="feature-card">
-            <div class="feature-img">
-                <!-- 可替换为合适的图片链接 -->
-                <img src="../Images/snipastelogo.svg" alt="Snipaste logo">
-            </div>
-            <div class="feature-content">
-                <h3>Snipaste</h3>
-                <p>Snipaste 是一个简单但强大的截图工具，也可以让你将截图贴回到屏幕上！</p>
-                <a href="https://zh.snipaste.com/" class="learn-more" target="_blank" rel="noopener noreferrer">官网(Chinese)</a> &nbsp;
-                <a style="font-size: 0.5em;" href="javascript:void(0);" id="copy-link" data-clipboard-text="输入您要复制的内容！"  class="learn-more">key</a>
-                <span id="copy-tip" style="color:green;display:none;margin-left:10px;font-size:0.5em;">已复制！</span>
-            </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-img"><img src="/Images/snipastelogo.svg" alt="Snipaste logo" loading="lazy"></div>
+        <div class="feature-content">
+          <h3>Snipaste</h3>
+          <p>Snipaste 是一个简单但强大的截图工具，也可以让你将截图贴回到屏幕上！</p>
+          <div class="links"><a class="btn learn-more" href="https://zh.snipaste.com/" target="_blank" rel="noopener noreferrer">官网(Chinese)</a><a class="btn learn-more" href="javascript:void(0);" id="copy-link" data-clipboard-text="输入您要复制的内容！">key</a><span id="copy-tip" class="copy-tip" style="display:none">已复制！</span></div>
         </div>
+      </div>
     </div>
-</main>
-<!-- ...existing code... -->
-<script>
-    // 搜索功能（与assist.html一致）
-    document.querySelector('.search-box button').addEventListener('click', function() {
-        const searchTerm = document.querySelector('.search-box input').value.toLowerCase();
-        const featureCards = document.querySelectorAll('.feature-card');
-        
-        featureCards.forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const description = card.querySelector('p').textContent.toLowerCase();
-            
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
+    <p class="empty-hint" id="empty-hint">没有找到匹配的内容。</p>
+  </main>
+  <script>
+    (function () {
+      var input = document.querySelector('.search-box input');
+      var button = document.querySelector('.search-box button');
+      var hint = document.getElementById('empty-hint');
+      function search() {
+        var term = input.value.trim().toLowerCase(), shown = 0;
+        document.querySelectorAll('.feature-card').forEach(function (card) {
+          var title = card.querySelector('h3').textContent.toLowerCase();
+          var desc = card.querySelector('p').textContent.toLowerCase();
+          var hit = !term || title.indexOf(term) > -1 || desc.indexOf(term) > -1;
+          card.style.display = hit ? '' : 'none';
+          if (hit) shown++;
         });
-    });
-
-    // 允许按回车键搜索
-    document.querySelector('.search-box input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.querySelector('.search-box button').click();
-        }
-    });
-
-    // 日夜切换功能
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    let darkMode = false;
-    themeBtn.addEventListener('click', function() {
-        darkMode = !darkMode;
-        document.body.classList.toggle('dark-mode', darkMode);
-        themeBtn.textContent = darkMode ? '☀️ 日间模式' : '🌙 夜间模式';
-    });
-</script>
+        hint.style.display = shown ? 'none' : 'block';
+      }
+      button.addEventListener('click', search);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') search(); });
+      input.addEventListener('input', function () { if (!input.value) search(); });
+      var copy = document.getElementById('copy-link'), tip = document.getElementById('copy-tip');
+      if (copy) copy.addEventListener('click', function () {
+        var text = copy.getAttribute('data-clipboard-text') || '';
+        function done() { tip.style.display = 'inline'; setTimeout(function () { tip.style.display = 'none'; }, 1600); }
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () {});
+        else { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); }
+      });
+    })();
+  </script>
 </body>
 </html>
