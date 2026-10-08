@@ -1,132 +1,353 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="秋天霹雳的个人主页，收集文章、工具、下载和日常项目。">
-  <title>秋天霹雳 | 个人主页</title>
-  <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="assets/site.css">
-</head>
-<body>
-  <div class="page-shell">
-    <header class="site-header" data-elevate>
-      <a class="brand" href="index.html" aria-label="回到首页">
-        <span class="brand-mark">Q</span>
-        <span>
-          <strong>秋天霹雳</strong>
-          <small>20610728.xyz</small>
-        </span>
-      </a>
-      <nav class="nav-links" aria-label="主导航">
-        <a href="#posts">文章</a>
-        <a href="#tools">工具</a>
-        <a href="assist.html">资源</a>
-        <a href="friends.html">友链</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="切换深浅色" data-theme-toggle>
-        <span aria-hidden="true">日/夜</span>
-      </button>
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>秋天霹雳 | 个人主页</title>
+    <meta name="description" content="秋天霹雳的个人主页，收集文章、工具、下载和日常项目。" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      /* Header: brand + site links, built on .nav / .seg */
+      .x-nav { gap: 6px; }
+      .x-brand {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 12px 0 2px;
+        min-height: 36px;
+        border-radius: var(--r-pill);
+        background: var(--fill-primary);
+        color: var(--text-primary-on);
+        text-decoration: none;
+      }
+      .x-brand__mark {
+        width: 32px; height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--fill-primary-on);
+        color: var(--text-primary);
+        font: var(--weight-bold) var(--size-body)/1 var(--sans);
+        transition: transform var(--dur-quick) var(--ease-out);
+      }
+      .x-brand:hover .x-brand__mark { transform: rotate(-12deg) scale(1.06); }
+      .x-brand__text { display: grid; line-height: 1.1; }
+      .x-brand__text b { font: var(--type-label); line-height: 1.1; }
+      .x-brand__text small { font: var(--type-caption); line-height: 1.1; color: var(--text-secondary-on); }
+      @media (max-width: 760px) {
+        .x-brand { padding-right: 2px; }
+        .x-brand__text { display: none; }
+        .x-brand__mark { width: var(--tap); height: var(--tap); }
+      }
 
-    <main>
-      <section class="hero-section">
-        <div class="hero-copy">
-          <p class="eyebrow">Personal site</p>
-          <h1>把常用工具、记录和小作品整理到一个清爽入口。</h1>
-          <p class="hero-text">
-            这里是秋天霹雳的 GitHub Pages 主页。页面保持静态部署，打开即用，后续可以继续扩展成博客、资源库或作品集。
-          </p>
-          <div class="hero-actions" aria-label="快捷操作">
-            <a class="button primary" href="#posts">查看内容</a>
-            <a class="button secondary" href="https://space.bilibili.com/399766872" target="_blank" rel="noopener noreferrer">Bilibili</a>
-          </div>
-        </div>
+      /* Hero cover: photo over the hero's fallback surface gradient */
+      .x-hero-cover {
+        background-image: url('Images/tips.jpg'), linear-gradient(160deg, color-mix(in srgb, var(--hero-surface) 55%, white) 0%, var(--hero-surface) 100%);
+        background-size: cover;
+        background-position: center;
+      }
 
-        <aside class="profile-panel" aria-label="站点信息">
-          <img src="Images/tips.jpg" alt="站点封面图" loading="eager">
-          <div class="profile-content">
-            <p class="panel-kicker">Now</p>
-            <h2>静态站已重新整理</h2>
-            <p>参考 Firefly 的导航、卡片和轻量博客布局，保留纯 HTML/CSS/JS，方便直接部署到 GitHub Pages。</p>
-          </div>
-        </aside>
-      </section>
+      /* Hero buttons sit on the photo */
+      .hero .links { margin-top: 6px; }
 
-      <section class="stats-strip" aria-label="站点栏目">
-        <a href="assist.html">
-          <strong>资源</strong>
-          <span>常用软件与帮助入口</span>
+      /* Quick strip */
+      .x-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .x-tile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 20px;
+        border-radius: var(--r-m);
+        background: var(--fill-tertiary);
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease;
+      }
+      .x-tile b { display: block; font: var(--type-heading); }
+      .x-tile small { display: block; font: var(--type-small); color: var(--text-secondary); margin-top: 2px; }
+      .x-tile::after { content: "\2192"; font: var(--type-body); color: var(--text-secondary); transition: transform var(--dur-quick) var(--ease-out); }
+      .x-tile:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); transform: translateY(-2px); }
+      .x-tile:hover::after { transform: translateX(4px); color: var(--text-primary); }
+      .x-strip--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      @media (max-width: 900px) { .x-strip--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 760px) { .x-strip { grid-template-columns: minmax(0, 1fr); } }
+
+      /* Works: the playful grid */
+      .x-works { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .x-work {
+        --tint: var(--fill-system-orange);
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 18px;
+        min-height: 148px;
+        padding: 22px 24px;
+        border-radius: var(--r-l);
+        background: var(--fill-tertiary);
+        color: var(--text-primary);
+        text-decoration: none;
+        transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+        transition: transform var(--dur-quick) var(--ease-out), box-shadow 300ms var(--ease-out);
+      }
+      .x-work::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          radial-gradient(260px circle at var(--mx, 85%) var(--my, 20%), color-mix(in srgb, var(--tint) 26%, transparent), transparent 70%);
+        opacity: 0.7;
+        transition: opacity 300ms var(--ease-out);
+      }
+      .x-work:hover { box-shadow: var(--hark-shadow); }
+      .x-work:hover::before { opacity: 1; }
+      .x-work--sun { --tint: var(--fill-system-orange); }
+      .x-work--miku { --tint: var(--fill-system-green); }
+      .x-work--music { --tint: var(--fill-system-red); }
+      .x-work--video { --tint: var(--hero-surface); }
+      .x-work__icon {
+        width: 72px; height: 72px;
+        display: grid;
+        place-items: center;
+        border-radius: var(--r-m);
+        background: var(--fill-primary-on);
+        border: 1px solid var(--stroke-secondary);
+        font-size: 36px;
+        line-height: 1;
+      }
+      .x-work__icon span { display: block; transition: transform 400ms var(--ease-out); }
+      .x-work:hover .x-work__icon span { animation: x-bob 900ms var(--ease-out) infinite alternate; }
+      .x-work h3 { font: var(--type-heading); margin-bottom: 6px; }
+      .x-work p { font: var(--type-small); color: var(--text-secondary); }
+      .x-work__go {
+        position: absolute;
+        top: 18px; right: 18px;
+        width: 32px; height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--fill-primary);
+        color: var(--text-primary-on);
+        font: var(--type-label);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: transform var(--dur-quick) var(--ease-out), opacity var(--dur-quick) ease;
+      }
+      .x-work:hover .x-work__go, .x-work:focus-visible .x-work__go { transform: scale(1); opacity: 1; }
+      @keyframes x-bob { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-6px) rotate(6deg); } }
+      @media (max-width: 760px) {
+        .x-works { grid-template-columns: minmax(0, 1fr); }
+        .x-work { min-height: 0; padding: 18px; }
+        .x-work__icon { width: 60px; height: 60px; font-size: 30px; }
+        .x-work__go { opacity: 1; transform: scale(1); top: 14px; right: 14px; }
+        .x-work h3 { padding-right: 36px; }
+      }
+
+      /* Posts: card footer link */
+      .x-post { display: flex; flex-direction: column; gap: 10px; }
+      .x-post .x-kicker { font: var(--type-tag); color: var(--text-secondary); }
+      .x-post h3 { margin-bottom: 0; }
+      .x-post p { color: var(--text-secondary); }
+      .x-post .links { margin-top: auto; padding-top: 6px; }
+
+      /* Scroll reveal */
+      .js .x-reveal { opacity: 0; transform: translateY(18px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); }
+      .js .x-reveal.is-in { opacity: 1; transform: none; }
+      .js .hero__copy > * { animation: x-rise 800ms var(--ease-out) both; }
+      .js .hero__copy > :nth-child(2) { animation-delay: 80ms; }
+      .js .hero__copy > :nth-child(3) { animation-delay: 160ms; }
+      .js .hero__copy > :nth-child(4) { animation-delay: 240ms; }
+      .js .hero > .callout { animation: x-rise 900ms var(--ease-out) 320ms both; }
+      @keyframes x-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) {
+        .js .x-reveal { opacity: 1; transform: none; transition: none; }
+        .js .hero__copy > *, .js .hero > .callout { animation: none; }
+        .x-work, .x-tile { transform: none !important; transition: none; }
+        .x-work:hover .x-work__icon span { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass x-nav">
+        <a class="x-brand" href="index.html" aria-label="秋天霹雳 首页">
+          <span class="x-brand__mark">Q</span>
+          <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
         </a>
-        <a href="firework.html">
-          <strong>小作品</strong>
-          <span>Canvas 烟花互动</span>
-        </a>
-        <a href="download.html">
-          <strong>下载</strong>
-          <span>临时文件和说明</span>
-        </a>
-      </section>
+        <nav class="seg" aria-label="站点导航">
+          <a href="#posts">文章</a>
+          <a href="#tools">工具</a>
+          <a href="#works">小作品</a>
+          <a href="assist.html">资源</a>
+          <a href="friends.html">友链</a>
+        </nav>
+        <button class="theme-btn" id="theme-btn" type="button" aria-label="切换深浅色"></button>
+      </header>
 
-      <section class="section-grid" id="posts">
-        <div class="section-heading">
-          <p class="eyebrow">Posts</p>
-          <h2>最近整理</h2>
-        </div>
-        <article class="post-card featured">
-          <div>
-            <p class="tag">站点更新</p>
-            <h3>主页重构为静态博客入口</h3>
-            <p>替换原有损坏的首页结构，新增统一导航、响应式卡片、深浅色切换和可继续扩展的内容区域。</p>
+      <main class="main">
+        <section class="hero">
+          <div class="hero__img x-hero-cover" role="img" aria-label="站点封面图"></div>
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Personal site</p>
+            <h1>把常用工具、记录和小作品整理到一个清爽入口。</h1>
+            <p class="hero__sub">这里是秋天霹雳的 GitHub Pages 主页。页面保持静态部署，打开即用，后续可以继续扩展成博客、资源库或作品集。</p>
+            <div class="links">
+              <a class="btn" href="#posts">查看内容</a>
+              <a class="btn" href="https://space.bilibili.com/399766872" target="_blank" rel="noopener">Bilibili</a>
+            </div>
           </div>
-          <a href="posts.html" aria-label="阅读站点更新">阅读</a>
-        </article>
-        <article class="post-card">
-          <p class="tag">教程</p>
-          <h3>PowerShell 修改文件日期</h3>
-          <p>保留原有干货页面，并将其纳入新的主页导航体系。</p>
-          <a href="dryitem/PowerShellEditFileDate.html">打开</a>
-        </article>
-        <article class="post-card">
-          <p class="tag">导航</p>
-          <h3>帮助中心和常用工具</h3>
-          <p>把代理工具、压缩工具、截图工具等入口集中到一个更易维护的页面。</p>
-          <a href="assist.html">查看</a>
-        </article>
-      </section>
+          <aside class="callout" aria-label="Now">
+            <p class="callout__head"><span class="chip chip--solid">Now</span></p>
+            <p class="callout__lead"><strong>主页换上了新样式</strong> 全新设计，新增互动小作品专区。</p>
+            <a class="btn" href="#works">去看看小作品</a>
+          </aside>
+        </section>
 
-      <section class="tool-section" id="tools">
-        <div class="section-heading">
-          <p class="eyebrow">Workspace</p>
-          <h2>快捷入口</h2>
-        </div>
-        <div class="tool-grid">
-          <a class="tool-card" href="copylink.html">
-            <span>复制链接</span>
-            <strong>新年祝福页</strong>
-          </a>
-          <a class="tool-card" href="kiku/">
-            <span>页面收藏</span>
-            <strong>Kiku</strong>
-          </a>
-          <a class="tool-card" href="mchack/">
-            <span>专题页面</span>
-            <strong>MC Hack</strong>
-          </a>
-          <a class="tool-card" href="https://github.com/qiutianpili/qiutianpili.github.io" target="_blank" rel="noopener noreferrer">
-            <span>源码仓库</span>
-            <strong>GitHub</strong>
-          </a>
-        </div>
-      </section>
-    </main>
+        <nav class="x-strip x-reveal" aria-label="快速入口">
+          <a class="x-tile" href="assist.html"><span><b>资源</b><small>常用软件与帮助入口</small></span></a>
+          <a class="x-tile" href="firework.html"><span><b>烟花</b><small>Canvas 烟花互动</small></span></a>
+          <a class="x-tile" href="download.html"><span><b>下载</b><small>临时文件和说明</small></span></a>
+        </nav>
 
-    <footer class="site-footer">
-      <span>© 2026 秋天霹雳</span>
-      <a href="README.md">README</a>
-      <a href="404.html">404</a>
-    </footer>
-  </div>
-  <script src="assets/site.js" defer></script>
-</body>
+        <section class="section" id="works">
+          <div class="head x-reveal">
+            <p class="head__eyebrow">小作品</p>
+            <h2>点开就能玩的四个互动小作品。</h2>
+            <p class="head__sub">都在浏览器里运行，不用安装。</p>
+          </div>
+          <div class="x-works">
+            <a class="x-work x-work--sun x-reveal" href="hark/sun-escape.html">
+              <span class="x-work__icon" aria-hidden="true"><span>🌞</span></span>
+              <div><h3>太阳出逃</h3><p>拖动太阳甩出太阳系，长按制造引力井</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+            <a class="x-work x-work--miku x-reveal" href="hark/miku.html">
+              <span class="x-work__icon" aria-hidden="true"><span>🎵</span></span>
+              <div><h3>Miku 甩葱舞</h3><p>跟着 Ievan Polkka 甩葱</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+            <a class="x-work x-work--music x-reveal" href="hark/music-player.html">
+              <span class="x-work__icon" aria-hidden="true"><span>🎧</span></span>
+              <div><h3>本地音乐播放器</h3><p>拖入 MP3 直接播放</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+            <a class="x-work x-work--video x-reveal" href="hark/video-player.html">
+              <span class="x-work__icon" aria-hidden="true"><span>🎬</span></span>
+              <div><h3>本地视频播放器</h3><p>拖入视频，支持字幕与截图</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <div class="links x-reveal"><a class="btn" href="hark/">全部作品</a></div>
+        </section>
+
+        <section class="section" id="posts">
+          <div class="head x-reveal">
+            <p class="head__eyebrow">最近整理</p>
+            <h2>最近整理的更新、教程和导航。</h2>
+          </div>
+          <div class="cards">
+            <div class="x-post x-reveal">
+              <p class="x-kicker">站点更新 <span class="dot">精选</span></p>
+              <h3>主页重构为静态博客入口</h3>
+              <p>替换原有损坏的首页结构，新增统一导航、响应式卡片、深浅色切换和可继续扩展的内容区域。</p>
+              <div class="links"><a class="btn" href="posts.html">阅读</a></div>
+            </div>
+            <div class="x-post x-reveal">
+              <p class="x-kicker">教程</p>
+              <h3>PowerShell 修改文件日期</h3>
+              <p>保留原有干货页面，并将其纳入新的主页导航体系。</p>
+              <div class="links"><a class="btn" href="dryitem/PowerShellEditFileDate.html">阅读</a></div>
+            </div>
+            <div class="x-post x-reveal">
+              <p class="x-kicker">导航</p>
+              <h3>帮助中心和常用工具</h3>
+              <p>把代理工具、压缩工具、截图工具等入口集中到一个更易维护的页面。</p>
+              <div class="links"><a class="btn" href="assist.html">打开</a></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="tools">
+          <div class="head x-reveal">
+            <p class="head__eyebrow">快捷入口</p>
+            <h2>常用页面和源码，一步直达。</h2>
+          </div>
+          <div class="x-strip x-strip--4 x-reveal">
+            <a class="x-tile" href="copylink.html"><span><small>复制链接</small><b>新年祝福页</b></span></a>
+            <a class="x-tile" href="kiku/"><span><small>页面收藏</small><b>Kiku</b></span></a>
+            <a class="x-tile" href="mchack/"><span><small>专题页面</small><b>MC Hack</b></span></a>
+            <a class="x-tile" href="https://github.com/qiutianpili/qiutianpili.github.io" target="_blank" rel="noopener"><span><small>源码仓库</small><b>GitHub</b></span></a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        <p>© 2026 秋天霹雳</p>
+        <nav aria-label="页脚链接">
+          <a href="README.md">README</a>
+          <a href="404.html">404</a>
+        </nav>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var themeBtn = document.getElementById("theme-btn");
+        function zhLabel() {
+          if (!themeBtn) return;
+          var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+            (!document.documentElement.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          themeBtn.setAttribute("aria-label", dark ? "切换到浅色" : "切换到深色");
+        }
+        if (themeBtn) themeBtn.addEventListener("click", function () { setTimeout(zhLabel, 0); });
+        zhLabel();
+
+        var items = [].slice.call(document.querySelectorAll(".x-reveal"));
+        if (reduce || !("IntersectionObserver" in window)) {
+          items.forEach(function (el) { el.classList.add("is-in"); });
+        } else {
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              var el = e.target, sibs = [].slice.call(el.parentNode.children).filter(function (s) { return s.classList.contains("x-reveal"); });
+              el.style.transitionDelay = Math.min(sibs.indexOf(el), 4) * 70 + "ms";
+              el.classList.add("is-in");
+              io.unobserve(el);
+              setTimeout(function () { el.classList.remove("x-reveal", "is-in"); el.style.transitionDelay = ""; }, 1100);
+            });
+          }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+          items.forEach(function (el) { io.observe(el); });
+        }
+
+        if (reduce || !window.matchMedia("(hover: hover)").matches) return;
+        [].slice.call(document.querySelectorAll(".x-work")).forEach(function (card) {
+          card.addEventListener("pointermove", function (ev) {
+            var r = card.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height;
+            card.style.setProperty("--mx", x * 100 + "%");
+            card.style.setProperty("--my", y * 100 + "%");
+            card.style.setProperty("--ry", (x - 0.5) * 6 + "deg");
+            card.style.setProperty("--rx", (0.5 - y) * 6 + "deg");
+          });
+          card.addEventListener("pointerleave", function () {
+            card.style.removeProperty("--rx");
+            card.style.removeProperty("--ry");
+          });
+        });
+      })();
+    </script>
+  </body>
 </html>
