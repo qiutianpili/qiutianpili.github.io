@@ -281,6 +281,46 @@
           <a class="x-tile" href="download.html"><span><b>下载</b><small>临时文件和说明</small></span></a>
         </nav>
 
+        <section class="section" id="posts">
+          <div class="head x-reveal">
+            <p class="head__eyebrow">最近整理</p>
+            <h2>最近整理的更新、教程和导航。</h2>
+          </div>
+          <div class="cards">
+            <div class="x-post x-reveal">
+              <p class="x-kicker">站点更新 <span class="dot">精选</span></p>
+              <h3>主页重构为静态博客入口</h3>
+              <p>替换原有损坏的首页结构，新增统一导航、响应式卡片、深浅色切换和可继续扩展的内容区域。</p>
+              <div class="links"><a class="btn" href="posts.html">阅读</a></div>
+            </div>
+            <div class="x-post x-reveal">
+              <p class="x-kicker">教程</p>
+              <h3>PowerShell 修改文件日期</h3>
+              <p>保留原有干货页面，并将其纳入新的主页导航体系。</p>
+              <div class="links"><a class="btn" href="dryitem/PowerShellEditFileDate.html">阅读</a></div>
+            </div>
+            <div class="x-post x-reveal">
+              <p class="x-kicker">导航</p>
+              <h3>帮助中心和常用工具</h3>
+              <p>把代理工具、压缩工具、截图工具等入口集中到一个更易维护的页面。</p>
+              <div class="links"><a class="btn" href="assist.html">打开</a></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="tools">
+          <div class="head x-reveal">
+            <p class="head__eyebrow">快捷入口</p>
+            <h2>常用页面和源码，一步直达。</h2>
+          </div>
+          <div class="x-strip x-strip--4 x-reveal">
+            <a class="x-tile" href="copylink.html"><span><small>复制链接</small><b>新年祝福页</b></span></a>
+            <a class="x-tile" href="kiku/"><span><small>页面收藏</small><b>Kiku</b></span></a>
+            <a class="x-tile" href="mchack/"><span><small>专题页面</small><b>MC Hack</b></span></a>
+            <a class="x-tile" href="https://github.com/qiutianpili/qiutianpili.github.io" target="_blank" rel="noopener"><span><small>源码仓库</small><b>GitHub</b></span></a>
+          </div>
+        </section>
+
         <section class="section" id="more">
           <span id="works" aria-hidden="true"></span>
           <div class="head x-reveal">
@@ -322,46 +362,6 @@
           </div>
           <div class="links x-reveal"><a class="btn" href="hark/">全部作品</a></div>
         </section>
-
-        <section class="section" id="posts">
-          <div class="head x-reveal">
-            <p class="head__eyebrow">最近整理</p>
-            <h2>最近整理的更新、教程和导航。</h2>
-          </div>
-          <div class="cards">
-            <div class="x-post x-reveal">
-              <p class="x-kicker">站点更新 <span class="dot">精选</span></p>
-              <h3>主页重构为静态博客入口</h3>
-              <p>替换原有损坏的首页结构，新增统一导航、响应式卡片、深浅色切换和可继续扩展的内容区域。</p>
-              <div class="links"><a class="btn" href="posts.html">阅读</a></div>
-            </div>
-            <div class="x-post x-reveal">
-              <p class="x-kicker">教程</p>
-              <h3>PowerShell 修改文件日期</h3>
-              <p>保留原有干货页面，并将其纳入新的主页导航体系。</p>
-              <div class="links"><a class="btn" href="dryitem/PowerShellEditFileDate.html">阅读</a></div>
-            </div>
-            <div class="x-post x-reveal">
-              <p class="x-kicker">导航</p>
-              <h3>帮助中心和常用工具</h3>
-              <p>把代理工具、压缩工具、截图工具等入口集中到一个更易维护的页面。</p>
-              <div class="links"><a class="btn" href="assist.html">打开</a></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section" id="tools">
-          <div class="head x-reveal">
-            <p class="head__eyebrow">快捷入口</p>
-            <h2>常用页面和源码，一步直达。</h2>
-          </div>
-          <div class="x-strip x-strip--4 x-reveal">
-            <a class="x-tile" href="copylink.html"><span><small>复制链接</small><b>新年祝福页</b></span></a>
-            <a class="x-tile" href="kiku/"><span><small>页面收藏</small><b>Kiku</b></span></a>
-            <a class="x-tile" href="mchack/"><span><small>专题页面</small><b>MC Hack</b></span></a>
-            <a class="x-tile" href="https://github.com/qiutianpili/qiutianpili.github.io" target="_blank" rel="noopener"><span><small>源码仓库</small><b>GitHub</b></span></a>
-          </div>
-        </section>
       </main>
 
       <footer class="foot">
@@ -391,13 +391,15 @@
           var navLinks = [].slice.call(bar.querySelectorAll('a[href^="#"]'));
           var navActive = null;
           var syncNav = function () {
-            var line = window.innerHeight * 0.32, best = null, bestTop = -Infinity;
+            var line = window.innerHeight * 0.32, best = null;
+            var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
             navLinks.forEach(function (a) {
               var t = document.getElementById(a.getAttribute("href").slice(1));
               if (!t) return;
               var r = t.getBoundingClientRect();
-              if (r.top <= line && r.bottom > 80 && r.top > bestTop) { bestTop = r.top; best = a; }
+              if (r.top <= line && r.bottom > 80) best = a;
             });
+            if (atEnd && navLinks.length) best = navLinks[navLinks.length - 1];
             if (best === navActive) return;
             navActive = best;
             navLinks.forEach(function (a) { if (a === best) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
