@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>计算器 | 秋天霹雳</title>
-  <meta name="description" content="在浏览器里运行的计算器，支持科学函数、键盘输入和历史记录。">
+  <meta name="description" content="在浏览器里运行的计算器，支持科学函数、亲戚称呼计算、键盘输入和历史记录。">
   <link rel="icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,29 @@
     .hist li b { font: 500 18px/1.3 var(--sans); word-break: break-all; }
     .hist__empty { color: var(--text-secondary); font: var(--type-small); margin: 6px 0; }
     .tip { color: var(--text-secondary); font: var(--type-small); margin-top: 12px; }
+    .calc.is-kin .calc__num, .calc.is-kin #m-angle { display: none; }
+    .calc-wrap.is-kin { grid-template-columns: minmax(0, 520px); }
+    .calc-wrap.is-kin .hist { display: none; }
+    .kin[hidden] { display: none; }
+    .kin__opts { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
+    .seg { display: inline-flex; padding: 3px; border-radius: var(--r-pill); background: var(--fill-primary-on); border: 1px solid var(--stroke-secondary); }
+    .seg__b { border: 0; background: transparent; color: var(--text-secondary); font: var(--type-label); padding: 6px 14px; min-height: 34px; border-radius: var(--r-pill); cursor: pointer; }
+    .seg__b[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); }
+    .kin__screen .calc__out { font-size: clamp(28px, 8vw, 40px); }
+    .kin__screen .calc__out.is-hint { font-size: clamp(18px, 5vw, 22px); color: var(--text-secondary); }
+    .kin__keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .kk {
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      min-height: clamp(52px, 14vw, 62px); border: 0; border-radius: var(--r-pill);
+      background: var(--fill-primary-on); color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--stroke-secondary);
+      font: 500 clamp(18px, 5vw, 22px)/1 var(--sans); cursor: pointer;
+      transition: transform var(--dur-quick, .15s) var(--ease-out, ease), opacity .15s ease;
+    }
+    .kk:active { transform: scale(.94); }
+    @media (hover: hover) { .kk:hover { background: var(--hover-wash); } }
+    .kk--fn { color: var(--text-secondary); }
+    .kk[disabled] { opacity: .35; cursor: not-allowed; }
+    .kin__note { color: var(--text-secondary); font: var(--type-small); margin: 12px 2px 0; }
     @media (max-width: 760px) {
       .calc-wrap { grid-template-columns: 1fr; }
       .calc { padding: 12px; border-radius: 24px; }
@@ -93,7 +116,7 @@
     <header class="doc-head">
       <p class="doc-eyebrow">小作品</p>
       <h1>计算器</h1>
-      <p class="lead">四则运算、百分比、科学函数，点按或直接用键盘输入。</p>
+      <p class="lead">四则运算、百分比、科学函数，还能算亲戚该怎么称呼。</p>
     </header>
 
     <div class="calc-wrap">
@@ -101,8 +124,10 @@
         <div class="calc__modes" role="group" aria-label="模式">
           <button class="chip" type="button" id="m-basic" aria-pressed="true">标准</button>
           <button class="chip" type="button" id="m-sci" aria-pressed="false">科学</button>
+          <button class="chip" type="button" id="m-kin" aria-pressed="false">称呼</button>
           <button class="chip" type="button" id="m-angle" aria-pressed="false" title="角度/弧度" style="margin-left:auto">DEG</button>
         </div>
+        <div class="calc__num">
         <div class="calc__screen" aria-live="polite">
           <div class="calc__expr" id="expr"></div>
           <div class="calc__out" id="out">0</div>
@@ -145,6 +170,35 @@
           <button class="k" data-k="0">0</button>
           <button class="k" data-k=".">.</button>
           <button class="k k--eq" data-k="=">=</button>
+        </div>
+        </div>
+        <div class="kin" id="kin" hidden>
+          <div class="kin__opts">
+            <div class="seg" role="group" aria-label="我的性别">
+              <button type="button" class="seg__b" data-sex="1" aria-pressed="true">我是男生</button>
+              <button type="button" class="seg__b" data-sex="0" aria-pressed="false">我是女生</button>
+            </div>
+            <button type="button" class="chip" id="kin-rev" aria-pressed="false" title="切换：我称呼对方 / 对方称呼我">我叫 TA</button>
+          </div>
+          <div class="calc__screen kin__screen" aria-live="polite">
+            <div class="calc__expr" id="kin-chain">我</div>
+            <div class="calc__out" id="kin-out">选择关系开始</div>
+          </div>
+          <div class="kin__keys">
+            <button class="kk" data-r="爸爸">父</button>
+            <button class="kk" data-r="妈妈">母</button>
+            <button class="kk" data-r="老公">夫</button>
+            <button class="kk" data-r="老婆">妻</button>
+            <button class="kk" data-r="哥哥">兄</button>
+            <button class="kk" data-r="弟弟">弟</button>
+            <button class="kk" data-r="姐姐">姐</button>
+            <button class="kk" data-r="妹妹">妹</button>
+            <button class="kk" data-r="儿子">子</button>
+            <button class="kk" data-r="女儿">女</button>
+            <button class="kk kk--fn" data-r="back" aria-label="退格">⌫</button>
+            <button class="kk kk--fn" data-r="clear">AC</button>
+          </div>
+          <p class="kin__note" id="kin-note">点「父」「母」等逐级添加，例如 父 → 兄 → 子 = 堂哥/堂弟。</p>
         </div>
       </section>
 
@@ -371,13 +425,87 @@
       var b = ev.target.closest(".k"); if (!b) return;
       input(b.getAttribute("data-k"));
     });
-    function setMode(sci) {
-      calc.classList.toggle("is-sci", sci);
-      $("m-sci").setAttribute("aria-pressed", sci); $("m-basic").setAttribute("aria-pressed", !sci);
-      try { localStorage.setItem("hark-calc-sci", sci ? "1" : "0"); } catch (e) {}
+    var mode = "basic", wrap = document.querySelector(".calc-wrap");
+    function setMode(m) {
+      if (m === true) m = "sci"; if (m === false) m = "basic";
+      mode = m;
+      calc.classList.toggle("is-sci", m === "sci");
+      calc.classList.toggle("is-kin", m === "kin");
+      wrap.classList.toggle("is-kin", m === "kin");
+      $("kin").hidden = m !== "kin";
+      $("m-basic").setAttribute("aria-pressed", m === "basic");
+      $("m-sci").setAttribute("aria-pressed", m === "sci");
+      $("m-kin").setAttribute("aria-pressed", m === "kin");
+      if (m === "kin") kinInit();
+      try { localStorage.setItem("hark-calc-mode", m); } catch (e) {}
     }
-    $("m-basic").addEventListener("click", function () { setMode(false); });
-    $("m-sci").addEventListener("click", function () { setMode(true); });
+    $("m-basic").addEventListener("click", function () { setMode("basic"); });
+    $("m-sci").addEventListener("click", function () { setMode("sci"); });
+    $("m-kin").addEventListener("click", function () { setMode("kin"); });
+
+    /* ---------- 亲戚称呼 (relationship.js, MIT, vendored at /assets/relationship.min.js) ---------- */
+    var kinChain = [], kinSex = 1, kinRev = false, kinLib = null, kinLoading = false;
+    var MALE = { "爸爸": 1, "老公": 1, "哥哥": 1, "弟弟": 1, "儿子": 1 };
+    function kinInit() {
+      if (kinLib || kinLoading) return kinRender();
+      kinLoading = true;
+      $("kin-out").textContent = "加载中…";
+      var sc = document.createElement("script");
+      sc.src = "/assets/relationship.min.js";
+      sc.onload = function () { kinLib = window.relationship; kinLoading = false; kinRender(); };
+      sc.onerror = function () { kinLoading = false; $("kin-out").textContent = "称呼数据加载失败，请刷新重试"; };
+      document.head.appendChild(sc);
+    }
+    function lastIsMale() {
+      if (!kinChain.length) return kinSex === 1;
+      return !!MALE[kinChain[kinChain.length - 1]];
+    }
+    function kinRender() {
+      var chainEl = $("kin-chain"), out = $("kin-out");
+      chainEl.textContent = kinChain.length ? "我的" + kinChain.join("的") : "我";
+      /* a man has no 老公 and a woman no 老婆 in this chain, so disable the impossible spouse key */
+      var male = lastIsMale();
+      [].forEach.call(document.querySelectorAll(".kk[data-r]"), function (b) {
+        var r = b.getAttribute("data-r");
+        b.disabled = (r === "老公" && male) || (r === "老婆" && !male);
+      });
+      out.classList.remove("is-err");
+      if (!kinChain.length) { out.classList.add("is-hint"); out.textContent = "选择关系开始"; return; }
+      if (!kinLib) return;
+      var res = [];
+      try { res = kinLib({ text: kinChain.join("的"), sex: kinSex, reverse: kinRev }) || []; } catch (e) { res = []; }
+      out.classList.remove("is-hint");
+      if (!res.length) { out.classList.add("is-hint"); out.textContent = kinChain.length > 6 ? "关系太远，算不出来啦" : "没有对应称呼"; return; }
+      out.textContent = (kinRev ? "TA 叫我：" : "") + res.slice(0, 4).join(" / ");
+    }
+    $("kin").addEventListener("click", function (ev) {
+      var b = ev.target.closest(".kk"); if (b && !b.disabled) {
+        var r = b.getAttribute("data-r");
+        if (r === "clear") kinChain = [];
+        else if (r === "back") kinChain.pop();
+        else if (kinChain.length < 10) kinChain.push(r);
+        return kinRender();
+      }
+      var s = ev.target.closest(".seg__b"); if (s) {
+        kinSex = +s.getAttribute("data-sex");
+        [].forEach.call(document.querySelectorAll(".seg__b"), function (x) { x.setAttribute("aria-pressed", x === s); });
+        /* drop links that no longer make sense, e.g. switching to 女生 after choosing 老婆 first */
+        var keep = [];
+        for (var i = 0; i < kinChain.length; i++) {
+          var prevMale = i === 0 ? kinSex === 1 : !!MALE[kinChain[i - 1]];
+          if ((kinChain[i] === "老公" && prevMale) || (kinChain[i] === "老婆" && !prevMale)) break;
+          keep.push(kinChain[i]);
+        }
+        kinChain = keep;
+        return kinRender();
+      }
+    });
+    $("kin-rev").addEventListener("click", function () {
+      kinRev = !kinRev;
+      this.setAttribute("aria-pressed", kinRev);
+      this.textContent = kinRev ? "TA 叫我" : "我叫 TA";
+      kinRender();
+    });
     $("m-angle").addEventListener("click", function () {
       deg = !deg; this.textContent = deg ? "DEG" : "RAD";
       this.setAttribute("aria-pressed", !deg); render();
@@ -389,7 +517,7 @@
     var KEYMAP = { "+": "+", "-": "−", "*": "×", "x": "×", "/": "÷", "^": "^", "(": "(", ")": ")", "%": "%", ".": ".", ",": ".", "!": "!",
       "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "Delete": "clear", "p": "π", "s": "sin(", "c": "cos(", "t": "tan(", "l": "ln(", "r": "√(" };
     document.addEventListener("keydown", function (ev) {
-      if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      if (ev.ctrlKey || ev.metaKey || ev.altKey || mode === "kin") return;
       var k = /^[0-9]$/.test(ev.key) ? ev.key : KEYMAP[ev.key];
       if (!k) return;
       ev.preventDefault();
@@ -399,7 +527,10 @@
       if (btn) { btn.classList.add("is-hit"); setTimeout(function () { btn.classList.remove("is-hit"); }, 120); }
     });
 
-    try { if (localStorage.getItem("hark-calc-sci") === "1") setMode(true); } catch (e) {}
+    try {
+      var savedMode = localStorage.getItem("hark-calc-mode") || (localStorage.getItem("hark-calc-sci") === "1" ? "sci" : "basic");
+      if (savedMode !== "basic") setMode(savedMode);
+    } catch (e) {}
     drawHistory(); render();
     window.__calcEval = evaluate;
   })();
