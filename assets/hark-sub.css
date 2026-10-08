@@ -108,6 +108,8 @@
   -webkit-tap-highlight-color: transparent;
   transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease;
 }
+:root a.home-fab, :root a.home-fab:link, :root a.home-fab:visited { color: var(--text-primary-on); background-color: var(--fill-primary); text-decoration: none; }
+.home-fab svg, .home-fab svg * { fill: none !important; stroke: currentColor !important; }
 :root[data-theme="light"] .home-fab { color-scheme: light; }
 :root[data-theme="dark"] .home-fab { color-scheme: dark; }
 .home-fab svg { width: 22px; height: 22px; display: block; }

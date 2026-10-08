@@ -29,8 +29,8 @@
     .features { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
     .feature-card { display: flex; flex-direction: column; border-radius: var(--r-l); background: var(--fill-tertiary); overflow: hidden; min-width: 0; transition: box-shadow 300ms var(--ease-out); }
     .feature-card:hover { box-shadow: var(--hark-shadow); }
-    .feature-img { display: grid; place-items: center; height: 140px; margin: 10px 10px 0; padding: 20px; border-radius: var(--r-m); background: var(--fill-primary-on); }
-    .feature-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .feature-img { display: grid; place-items: center; overflow: hidden; height: 140px; margin: 10px 10px 0; padding: 20px; border-radius: var(--r-m); background: var(--fill-primary-on); }
+    .feature-img img { width: 100%; height: 100%; object-fit: contain; }
     .feature-content { display: flex; flex-direction: column; gap: 6px; flex: 1; padding: 16px 20px 20px; }
     .feature-content h3 { margin: 0; font: var(--type-heading); }
     .feature-content p { margin: 0; color: var(--text-secondary); font-size: var(--size-body); line-height: 1.55; }

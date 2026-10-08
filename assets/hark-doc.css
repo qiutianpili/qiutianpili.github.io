@@ -145,7 +145,9 @@ img, video { height: auto; }
 }
 .hark-word td, .hark-word th { border-color: var(--stroke-primary) !important; }
 .hark-word img { height: auto !important; }
-.hark-word a { color: inherit; text-decoration-color: var(--stroke-primary); text-underline-offset: 3px; }
+.hark-word td span, .hark-word th span { font-size: max(13px, 1em) !important; }
+.hark-word td p, .hark-word th p { font-size: 13px; }
+.hark-word body a:not(.home-fab, .hark-bar a) { color: inherit; text-decoration-color: var(--stroke-primary); text-underline-offset: 3px; }
 /* Word code blocks */
 .hark-word .CodeBlock, .hark-word .CodeBlock * { font-family: var(--mono) !important; }
 .hark-word div:has(> p.CodeBlock) {
