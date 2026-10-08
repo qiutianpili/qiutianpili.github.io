@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>计算器 | 秋天霹雳</title>
-  <meta name="description" content="在浏览器里运行的计算器，支持科学函数、亲戚称呼计算、键盘输入和历史记录。">
+  <meta name="description" content="在浏览器里运行的计算器，支持科学函数、亲戚称呼与年龄计算、键盘输入和历史记录。">
   <link rel="icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,6 +89,23 @@
     .kk--fn { color: var(--text-secondary); }
     .kk[disabled] { opacity: .35; cursor: not-allowed; }
     .kin__note { color: var(--text-secondary); font: var(--type-small); margin: 12px 2px 0; }
+    .calc.is-age .calc__num, .calc.is-age #m-angle { display: none; }
+    .calc-wrap.is-age { grid-template-columns: minmax(0, 520px); }
+    .calc-wrap.is-age .hist { display: none; }
+    .age[hidden] { display: none; }
+    .calc__modes { flex-wrap: wrap; }
+    .age__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .fld { display: grid; gap: 6px; font: var(--type-small); color: var(--text-secondary); }
+    .fld input {
+      width: 100%; min-height: 46px; padding: 0 12px; border-radius: var(--r-m, 14px);
+      border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary);
+      font: 500 16px/1 var(--sans); color-scheme: inherit; -webkit-appearance: none; appearance: none;
+    }
+    .age__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 0; }
+    .age__grid div { background: var(--fill-primary-on); border: 1px solid var(--stroke-secondary); border-radius: var(--r-m, 14px); padding: 10px 12px; min-width: 0; }
+    .age__grid dt { font: var(--type-small); color: var(--text-secondary); margin: 0 0 4px; }
+    .age__grid dd { margin: 0; font: 500 18px/1.3 var(--sans); color: var(--text-primary); font-variant-numeric: tabular-nums; word-break: break-all; }
+    @media (max-width: 380px) { .age__fields, .age__grid { grid-template-columns: 1fr; } }
     @media (max-width: 760px) {
       .calc-wrap { grid-template-columns: 1fr; }
       .calc { padding: 12px; border-radius: 24px; }
@@ -116,7 +133,7 @@
     <header class="doc-head">
       <p class="doc-eyebrow">小作品</p>
       <h1>计算器</h1>
-      <p class="lead">四则运算、百分比、科学函数，还能算亲戚该怎么称呼。</p>
+      <p class="lead">四则运算、百分比、科学函数，还能算亲戚称呼和年龄。</p>
     </header>
 
     <div class="calc-wrap">
@@ -125,6 +142,7 @@
           <button class="chip" type="button" id="m-basic" aria-pressed="true">标准</button>
           <button class="chip" type="button" id="m-sci" aria-pressed="false">科学</button>
           <button class="chip" type="button" id="m-kin" aria-pressed="false">称呼</button>
+          <button class="chip" type="button" id="m-age" aria-pressed="false">年龄</button>
           <button class="chip" type="button" id="m-angle" aria-pressed="false" title="角度/弧度" style="margin-left:auto">DEG</button>
         </div>
         <div class="calc__num">
@@ -199,6 +217,17 @@
             <button class="kk kk--fn" data-r="clear">AC</button>
           </div>
           <p class="kin__note" id="kin-note">点「父」「母」等逐级添加，例如 父 → 兄 → 子 = 堂哥/堂弟。</p>
+        </div>
+        <div class="age" id="age" hidden>
+          <div class="age__fields">
+            <label class="fld"><span>出生日期</span><input type="date" id="age-birth" min="1900-01-01"></label>
+            <label class="fld"><span>计算到</span><input type="date" id="age-to"></label>
+          </div>
+          <div class="calc__screen kin__screen" aria-live="polite">
+            <div class="calc__expr" id="age-sub">选择出生日期</div>
+            <div class="calc__out is-hint" id="age-out">—</div>
+          </div>
+          <dl class="age__grid" id="age-grid"></dl>
         </div>
       </section>
 
@@ -432,16 +461,90 @@
       calc.classList.toggle("is-sci", m === "sci");
       calc.classList.toggle("is-kin", m === "kin");
       wrap.classList.toggle("is-kin", m === "kin");
+      calc.classList.toggle("is-age", m === "age");
+      wrap.classList.toggle("is-age", m === "age");
       $("kin").hidden = m !== "kin";
+      $("age").hidden = m !== "age";
+      $("m-age").setAttribute("aria-pressed", m === "age");
       $("m-basic").setAttribute("aria-pressed", m === "basic");
       $("m-sci").setAttribute("aria-pressed", m === "sci");
       $("m-kin").setAttribute("aria-pressed", m === "kin");
       if (m === "kin") kinInit();
+      if (m === "age") ageInit();
       try { localStorage.setItem("hark-calc-mode", m); } catch (e) {}
     }
     $("m-basic").addEventListener("click", function () { setMode("basic"); });
     $("m-sci").addEventListener("click", function () { setMode("sci"); });
     $("m-kin").addEventListener("click", function () { setMode("kin"); });
+    $("m-age").addEventListener("click", function () { setMode("age"); });
+
+    /* ---------- 年龄计算 ---------- */
+    var ZODIAC = "鼠牛虎兔龙蛇马羊猴鸡狗猪";
+    var STARS = [[120, "摩羯座"], [219, "水瓶座"], [321, "双鱼座"], [420, "白羊座"], [521, "金牛座"], [622, "双子座"], [723, "巨蟹座"], [823, "狮子座"], [923, "处女座"], [1024, "天秤座"], [1123, "天蝎座"], [1222, "射手座"], [1232, "摩羯座"]];
+    var WEEK = "日一二三四五六";
+    function pad2(n) { return (n < 10 ? "0" : "") + n; }
+    function iso(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+    function parseD(v) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); return m ? new Date(+m[1], m[2] - 1, +m[3]) : null; }
+    function dayDiff(a, b) { return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5); }
+    function dim(y, m) { return new Date(y, m + 1, 0).getDate(); }
+    /* birthday in year y; a Feb 29 birthday falls on Feb 28 in common years */
+    function bdayIn(b, y) { return new Date(y, b.getMonth(), Math.min(b.getDate(), dim(y, b.getMonth()))); }
+    function lunarYear(d) {
+      try {
+        var parts = new Intl.DateTimeFormat("zh-u-ca-chinese", { year: "numeric" }).formatToParts(d);
+        for (var i = 0; i < parts.length; i++) if (parts[i].type === "relatedYear") return +parts[i].value;
+      } catch (e) {}
+      return null;
+    }
+    function star(d) { var k = (d.getMonth() + 1) * 100 + d.getDate(); for (var i = 0; i < STARS.length; i++) if (k < STARS[i][0]) return STARS[i][1]; return "摩羯座"; }
+    function ageInit() {
+      var to = $("age-to");
+      if (!to.value) to.value = iso(new Date());
+      var b = $("age-birth");
+      if (!b.value) { try { b.value = localStorage.getItem("hark-calc-birth") || ""; } catch (e) {} }
+      b.max = iso(new Date());
+      ageRender();
+    }
+    function ageRender() {
+      var b = parseD($("age-birth").value), t = parseD($("age-to").value) || new Date(), out = $("age-out"), sub = $("age-sub"), grid = $("age-grid");
+      grid.innerHTML = "";
+      if (!b) { out.className = "calc__out is-hint"; out.textContent = "—"; sub.textContent = "选择出生日期"; return; }
+      try { localStorage.setItem("hark-calc-birth", $("age-birth").value); } catch (e) {}
+      if (dayDiff(b, t) < 0) { out.className = "calc__out is-hint"; out.textContent = "计算日期早于出生日期"; sub.textContent = ""; return; }
+      /* exact Y-M-D */
+      var tm = (t.getFullYear() - b.getFullYear()) * 12 + (t.getMonth() - b.getMonth());
+      function addM(n) { var yy = b.getFullYear() + Math.floor((b.getMonth() + n) / 12), mm = (b.getMonth() + n) % 12; return new Date(yy, mm, Math.min(b.getDate(), dim(yy, mm))); }
+      var anchor = addM(tm);
+      if (dayDiff(anchor, t) < 0) { tm--; anchor = addM(tm); }
+      var y = Math.floor(tm / 12), m = tm % 12, d = dayDiff(anchor, t);
+      var full = y;
+      var days = dayDiff(b, t);
+      var ly = lunarYear(t), lb = lunarYear(b);
+      var xu = ly && lb ? ly - lb + 1 : t.getFullYear() - b.getFullYear() + 1;
+      var zy = lb || b.getFullYear();
+      var next = bdayIn(b, t.getFullYear());
+      if (dayDiff(t, next) < 0) next = bdayIn(b, t.getFullYear() + 1);
+      var left = dayDiff(t, next);
+      out.className = "calc__out";
+      out.textContent = full + " 周岁";
+      sub.textContent = left === 0 ? "🎂 今天生日，生日快乐！" : "虚岁 " + xu + " 岁";
+      var rows = [
+        ["精确年龄", y + " 年 " + m + " 个月 " + d + " 天"],
+        ["虚岁", xu + " 岁"],
+        ["已活天数", days.toLocaleString("zh-CN") + " 天"],
+        ["约合周数", Math.floor(days / 7).toLocaleString("zh-CN") + " 周"],
+        ["下次生日", left === 0 ? "就是今天" : "还有 " + left + " 天（" + (next.getMonth() + 1) + "月" + next.getDate() + "日 周" + WEEK[next.getDay()] + "）"],
+        ["出生那天", "星期" + WEEK[b.getDay()]],
+        ["生肖", ZODIAC[((zy - 4) % 12 + 12) % 12]],
+        ["星座", star(b)]
+      ];
+      rows.forEach(function (r) {
+        var div = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
+        dt.textContent = r[0]; dd.textContent = r[1]; div.appendChild(dt); div.appendChild(dd); grid.appendChild(div);
+      });
+    }
+    $("age-birth").addEventListener("input", ageRender);
+    $("age-to").addEventListener("input", ageRender);
 
     /* ---------- 亲戚称呼 (relationship.js, MIT, vendored at /assets/relationship.min.js) ---------- */
     var kinChain = [], kinSex = 1, kinRev = false, kinLib = null, kinLoading = false;
@@ -517,7 +620,7 @@
     var KEYMAP = { "+": "+", "-": "−", "*": "×", "x": "×", "/": "÷", "^": "^", "(": "(", ")": ")", "%": "%", ".": ".", ",": ".", "!": "!",
       "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "Delete": "clear", "p": "π", "s": "sin(", "c": "cos(", "t": "tan(", "l": "ln(", "r": "√(" };
     document.addEventListener("keydown", function (ev) {
-      if (ev.ctrlKey || ev.metaKey || ev.altKey || mode === "kin") return;
+      if (ev.ctrlKey || ev.metaKey || ev.altKey || mode === "kin" || mode === "age") return;
       var k = /^[0-9]$/.test(ev.key) ? ev.key : KEYMAP[ev.key];
       if (!k) return;
       ev.preventDefault();
