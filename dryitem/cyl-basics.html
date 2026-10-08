@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#a6192e" />
+  <link rel="icon" href="data:," />
+  <title>共青团基本知识</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@700;900&display=swap');
+    :root{
+      color-scheme:light dark;
+      --bg:#f6f3ed;--paper:#fffdfa;--ink:#251f1b;--muted:#685e56;--line:#d9d0c5;
+      --red:#a6192e;--red-deep:#741222;--red-soft:#f5e4e6;--gold:#b57b17;--gold-soft:#f4ead2;
+      --green:#185646;--green-soft:#e4eee9;--shadow:0 16px 44px rgba(75,43,30,.09);
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#171311;--paper:#211b18;--ink:#f4eee8;--muted:#c2b7ae;--line:#493d37;
+      --red:#ef6a7c;--red-deep:#ff9aa7;--red-soft:#3b2025;--gold:#e2b35e;--gold-soft:#392f1e;
+      --green:#77c7ae;--green-soft:#1d332d;--shadow:0 18px 50px rgba(0,0,0,.28)}
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:80px}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",sans-serif;line-height:1.72;-webkit-font-smoothing:antialiased}
+    a{color:inherit} button{font:inherit}
+    .progress{position:fixed;inset:0 0 auto;height:3px;background:var(--red);transform-origin:left;transform:scaleX(0);z-index:50}
+    .wrap{width:min(1120px,calc(100% - 32px));margin:auto}
+    .hero{padding:52px 0 30px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:340px;height:340px;border:70px solid var(--gold-soft);border-radius:50%;right:-130px;top:-140px;opacity:.65;z-index:-1}
+    .stamp{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:13px;font-weight:800;letter-spacing:.06em}
+    .stamp:before{content:"";width:30px;height:3px;background:currentColor}
+    h1{font-family:"Noto Serif SC",serif;font-size:clamp(34px,6vw,66px);line-height:1.08;letter-spacing:-.04em;margin:16px 0 18px;max-width:850px}
+    .lead{max-width:750px;color:var(--muted);font-size:clamp(16px,2vw,20px);margin:0}
+    .hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:34px}
+    .hero-fact{background:var(--paper);border-top:4px solid var(--red);padding:18px 16px;box-shadow:var(--shadow);min-height:118px}
+    .hero-fact:nth-child(even){border-top-color:var(--gold)}
+    .hero-fact strong{display:block;font-family:"Noto Serif SC",serif;font-size:24px;line-height:1.25;margin-bottom:6px}
+    .hero-fact span{font-size:13px;color:var(--muted)}
+    .sticky{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-block:1px solid var(--line)}
+    .nav{display:flex;align-items:center;gap:6px;padding:10px 0;overflow-x:auto;scrollbar-width:none}
+    .nav::-webkit-scrollbar{display:none}.nav a{white-space:nowrap;text-decoration:none;padding:7px 11px;border-radius:6px;color:var(--muted);font-size:13px;font-weight:700}.nav a:hover,.nav a.active{background:var(--red-soft);color:var(--red-deep)}
+    main{padding:38px 0 70px}.section{margin:0 0 64px}.section-head{display:grid;grid-template-columns:70px 1fr;gap:18px;align-items:start;margin-bottom:24px}.num{font-family:"Noto Serif SC",serif;font-size:48px;line-height:1;color:var(--red);border-bottom:5px solid var(--gold);padding-bottom:8px}.section h2{font-family:"Noto Serif SC",serif;font-size:clamp(25px,4vw,38px);line-height:1.2;margin:0 0 7px}.section-head p{margin:0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:var(--paper);padding:22px;border:1px solid var(--line);box-shadow:0 6px 24px rgba(60,35,25,.035)}
+    .card h3{font-size:18px;margin:0 0 10px}.card p{margin:0;color:var(--muted)}
+    .k{color:var(--red-deep);font-weight:800}.official{display:inline-block;font-size:11px;color:var(--green);background:var(--green-soft);padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:2px;font-weight:800}
+    .memory{background:var(--red-deep);color:#fff;padding:26px 28px;display:flex;gap:18px;align-items:center;margin:20px 0}.memory b{font-family:"Noto Serif SC",serif;font-size:22px;white-space:nowrap}.memory p{margin:0;color:#ffecef}.memory code{font-family:inherit;background:rgba(255,255,255,.14);padding:3px 7px;border-radius:4px}
+    .steps{counter-reset:step;display:grid;gap:0;border-block:1px solid var(--line)}.step{counter-increment:step;display:grid;grid-template-columns:54px 1fr;gap:15px;padding:18px 4px;border-bottom:1px solid var(--line)}.step:last-child{border:0}.step:before{content:counter(step);width:34px;height:34px;border:1px solid var(--red);color:var(--red);border-radius:50%;display:grid;place-items:center;font-weight:800}.step strong{display:block;margin-bottom:3px}.step span{color:var(--muted);font-size:14px}
+    .list{list-style:none;padding:0;margin:0}.list li{display:grid;grid-template-columns:31px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.list li:last-child{border:0}.list i{font-style:normal;width:28px;height:28px;display:grid;place-items:center;background:var(--red-soft);color:var(--red-deep);font-weight:800;border-radius:4px}.list b{display:block;margin-bottom:2px}.list small{color:var(--muted);font-size:13px}
+    .symbol-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:14px}.symbol-main{background:var(--red-deep);color:#fff;padding:28px}.symbol-main h3{font-family:"Noto Serif SC",serif;font-size:29px;margin:0 0 14px}.symbol-main p{color:#ffe8ec}.symbol-main .parts{display:flex;flex-wrap:wrap;gap:7px;margin:20px 0}.parts span{background:rgba(255,255,255,.13);padding:5px 9px;border-radius:4px;font-size:13px}.symbol-side{display:grid;gap:14px}.symbol-side .card{box-shadow:none}
+    .dues{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line)}.dues th,.dues td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}.dues th{color:var(--muted);font-size:13px}.dues tr:last-child td{border:0}.dues td:first-child{font-weight:800;color:var(--red-deep);width:35%}
+    .quote{margin:0;background:var(--gold-soft);padding:26px;border-left:0}.quote p{font-family:"Noto Serif SC",serif;font-size:clamp(18px,2.5vw,24px);line-height:1.8;margin:0}.quote cite{display:block;font-style:normal;color:var(--muted);font-size:13px;margin-top:12px}
+    .ceremony{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}.ceremony span{background:var(--paper);border:1px solid var(--line);padding:8px 10px;border-radius:4px;font-size:13px}.ceremony i{font-style:normal;color:var(--gold);font-weight:800}
+    .quiz{background:var(--paper);border-top:6px solid var(--gold);padding:clamp(20px,4vw,38px);box-shadow:var(--shadow)}.quiz-top{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:22px}.quiz-top h2{margin:0}.score{color:var(--muted);font-weight:700}.question{padding:18px 0;border-top:1px solid var(--line)}.question h3{font-size:16px;margin:0 0 12px}.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.option{text-align:left;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:11px 13px;border-radius:6px;cursor:pointer}.option:hover{border-color:var(--gold)}.option.good{background:var(--green-soft);border-color:var(--green);color:var(--green)}.option.bad{background:var(--red-soft);border-color:var(--red);color:var(--red-deep)}.option:disabled{cursor:default}.feedback{min-height:24px;font-size:13px;margin-top:7px;color:var(--muted)}
+    .sources{background:var(--paper);padding:28px;border:1px solid var(--line)}.sources h3{margin-top:0}.source-list{display:grid;gap:10px}.source{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-top:1px solid var(--line);text-decoration:none}.source:hover strong{color:var(--red)}.source small{color:var(--muted);text-align:right}.caveat{margin-top:20px;padding:16px;background:var(--gold-soft);font-size:13px;color:var(--muted)}
+    .back{display:inline-block;margin-top:22px;color:var(--red);font-weight:800;text-decoration:none}footer{padding:24px 0 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+    @media(max-width:780px){html{scroll-padding-top:120px}.hero{padding-top:36px}.hero-grid{grid-template-columns:repeat(2,1fr)}.nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:4px}.nav a{text-align:center;padding:6px 2px;font-size:12px}.grid,.symbol-grid{grid-template-columns:1fr}.section-head{grid-template-columns:52px 1fr}.num{font-size:36px}.memory{align-items:flex-start;flex-direction:column;gap:7px}.dues,.dues tbody,.dues tr,.dues td{display:block}.dues thead{display:none}.dues tr{padding:12px 14px;border-bottom:1px solid var(--line)}.dues tr:last-child{border:0}.dues td{border:0;padding:3px 0}.dues td:first-child{width:auto}.options{grid-template-columns:1fr}.source{display:block}.source small{display:block;text-align:left;margin-top:4px}.quiz-top{display:block}.score{margin-top:8px}}
+    @media(max-width:430px){.wrap{width:min(100% - 22px,1120px)}.hero-grid{gap:7px}.hero-fact{min-height:108px;padding:14px 12px}.hero-fact strong{font-size:21px}.section{margin-bottom:48px}.card,.symbol-main,.sources{padding:18px}.section-head{gap:12px}.lead{font-size:15px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="stamp">官方资料交叉核实 · 2026-10-08</div>
+    <h1>考前先记住这四组核心答案</h1>
+    <p class="lead">面向入团考试与日常学习的精炼笔记：先抓数字，再背口诀，最后用 8 道题检查。重要表述以现行团章和团中央有关规定为准。</p>
+    <div class="hero-grid">
+      <div class="hero-fact"><strong>1922年<br>5月5—10日</strong><span>一大在广州召开，正式成立</span></div>
+      <div class="hero-fact"><strong>14—28<br>周岁</strong><span>可以申请入团的年龄范围</span></div>
+      <div class="hero-fact"><strong>助手<br>和后备军</strong><span>共青团与中国共产党的关系</span></div>
+      <div class="hero-fact"><strong>学宣守卫<br>帮批</strong><span>六项义务速记口诀</span></div>
+    </div>
+  </div>
+</header>
+<nav class="sticky" aria-label="章节导航"><div class="wrap nav">
+  <a href="#identity">基本定位</a><a href="#join">入团程序</a><a href="#rights">权利义务</a><a href="#symbols">团的标志</a><a href="#dues">团费团籍</a><a href="#oath">誓词仪式</a><a href="#quiz">自测</a><a href="#sources">来源</a>
+</div></nav>
+<main class="wrap">
+  <section class="section" id="identity">
+    <div class="section-head"><div class="num">01</div><div><h2>基本定位与历史坐标</h2><p>这些是最常见的填空、单选和简答题。</p></div></div>
+    <div class="grid">
+      <article class="card"><h3>全称与简称 <span class="official">官方口径</span></h3><p>全称是<span class="k">中国共产主义青年团</span>，简称<span class="k">共青团</span>。</p></article>
+      <article class="card"><h3>正式成立 <span class="official">官方口径</span></h3><p><span class="k">1922年5月5日至10日</span>，中国社会主义青年团第一次全国代表大会在<span class="k">广州</span>召开。</p></article>
+      <article class="card"><h3>团的性质 <span class="official">官方口径</span></h3><p>中国共产党领导的先进青年的群团组织；广大青年在实践中学习中国特色社会主义和共产主义的学校；中国共产党的<span class="k">助手和后备军</span>。</p></article>
+      <article class="card"><h3>组织原则与全国代表大会 <span class="official">官方口径</span></h3><p>团的组织原则是<span class="k">民主集中制</span>；团的全国代表大会<span class="k">每五年</span>举行一次。</p></article>
+    </div>
+    <div class="memory"><b>一句话背诵</b><p>“党有号召、团有行动”，记住：<code>1922 · 广州 · 助手和后备军</code></p></div>
+    <article class="card"><h3>行动指南 <span class="official">官方口径</span></h3><p>马克思列宁主义、毛泽东思想、邓小平理论、“三个代表”重要思想、科学发展观、习近平新时代中国特色社会主义思想。</p></article>
+  </section>
+
+  <section class="section" id="join">
+    <div class="section-head"><div class="num">02</div><div><h2>谁能入团，怎样入团</h2><p>年龄只是第一道条件，政治标准和规范程序同样重要。</p></div></div>
+    <article class="card"><h3>申请条件 <span class="official">官方口径</span></h3><p>年龄在<span class="k">十四周岁以上、二十八周岁以下</span>的中国青年，承认团的章程，愿意参加团的一个组织并在其中积极工作，执行团的决议，按期交纳团费，可以申请加入。</p></article>
+    <div class="steps" aria-label="入团程序">
+      <div class="step"><div><strong>书面申请</strong><span>向工作、学习所在单位团组织递交入团申请书；团组织收到后一个月内派人谈话。</span></div></div>
+      <div class="step"><div><strong>培养考察</strong><span>确定入团积极分子，经过三个月以上培养考察，并参加不少于8学时的团课学习。</span></div></div>
+      <div class="step"><div><strong>两名介绍人</strong><span>由两名团员作介绍人；说明团章，并向团组织如实介绍申请人的思想、表现和经历。</span></div></div>
+      <div class="step"><div><strong>填写与审议</strong><span>本人提出申请、填写入团志愿书，经支部大会讨论通过和上级委员会批准；发展团员把政治标准放在首位。</span></div></div>
+      <div class="step"><div><strong>取得团籍并宣誓</strong><span>从支部大会通过之日起取得团籍；新团员必须参加入团仪式，在团旗下宣誓。</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="rights">
+    <div class="section-head"><div class="num">03</div><div><h2>六项义务与六项权利</h2><p>口诀先定位，再用关键词展开。</p></div></div>
+    <div class="grid">
+      <article class="card"><h3>团员义务：学、宣、守、卫、帮、批</h3><ol class="list">
+        <li><i>学</i><div><b>学习理论和知识</b><small>提高为人民服务的本领。</small></div></li>
+        <li><i>宣</i><div><b>宣传、执行路线方针政策</b><small>完成任务，在学习劳动工作中起模范作用。</small></div></li>
+        <li><i>守</i><div><b>遵守法律和团纪</b><small>执行决议，维护国家和人民利益。</small></div></li>
+        <li><i>卫</i><div><b>接受国防教育</b><small>增强国防意识，履行保卫祖国义务。</small></div></li>
+        <li><i>帮</i><div><b>帮助青年进步</b><small>向群众学习，反映青年的意见和要求。</small></div></li>
+        <li><i>批</i><div><b>批评和自我批评</b><small>改正缺点错误，自觉维护团结。</small></div></li>
+      </ol></article>
+      <article class="card"><h3>团员权利：会、选、议、保、辩、告</h3><ol class="list">
+        <li><i>会</i><div><b>参加会议活动</b><small>接受团组织教育和培训。</small></div></li>
+        <li><i>选</i><div><b>选举、被选举、表决</b><small>团内三项基本民主权利。</small></div></li>
+        <li><i>议</i><div><b>讨论、建议、监督、批评</b><small>可在团的会议和媒体上参与。</small></div></li>
+        <li><i>保</i><div><b>保留不同意见</b><small>坚决执行决议的前提下，可向上级提出。</small></div></li>
+        <li><i>辩</i><div><b>申辩与辩护</b><small>处分讨论中本人可申辩，其他团员可作证辩护。</small></div></li>
+        <li><i>告</i><div><b>请求、申诉、控告</b><small>可直到中央委员会，并要求负责答复。</small></div></li>
+      </ol></article>
+    </div>
+  </section>
+
+  <section class="section" id="symbols">
+    <div class="section-head"><div class="num">04</div><div><h2>团旗、团徽、团歌、团员证</h2><p>颜色、图案、年份和象征意义最容易被混考。</p></div></div>
+    <div class="symbol-grid">
+      <article class="symbol-main"><h3>团徽代表什么？</h3><p>团徽由团旗、齿轮、麦穗、初升的太阳及其光芒和写有“中国共青团”五字的绶带组成，涂色为金红二色。</p><div class="parts"><span>团旗</span><span>齿轮</span><span>麦穗</span><span>初升太阳与光芒</span><span>“中国共青团”绶带</span></div><p><b>象征：</b>共青团在党的思想光辉照耀下，团结各族青年，朝着党所指引的方向奋勇前进。</p><p><small>1959年5月4日颁布；徽章直径2厘米，参加团的活动时佩戴在左胸前。</small></p></article>
+      <div class="symbol-side">
+        <article class="card"><h3>团旗</h3><p>1950年5月4日公布。红色旗面象征革命胜利；左上角黄色五角星及黄色圆圈，象征中国青年一代紧密团结在中国共产党周围。长宽比<span class="k">3:2</span>，通用规格为288×192、192×128、96×64厘米。</p></article>
+        <article class="card"><h3>团歌</h3><p>《<span class="k">光荣啊，中国共青团</span>》。1988年团十二大确定为代团歌，2003年团十五大正式确定为团歌；入团仪式、超龄离团仪式和团的各级代表大会等场合应当奏唱。</p></article>
+        <article class="card"><h3>团员证</h3><p>封面<span class="k">墨绿色</span>，象征青春和朝气蓬勃的青年运动；上方红色烫金团徽，象征共青团是团结教育青年的核心。1988年起全团实行团员证制度。</p></article>
+      </div>
+    </div>
+    <div class="memory"><b>团员证七项功能</b><p>证明身份、转接关系、参加活动、记载奖励、年度注册、选举表决资格、超龄离团后的永久纪念。</p></div>
+  </section>
+
+  <section class="section" id="dues">
+    <div class="section-head"><div class="num">05</div><div><h2>团费、离团与团籍</h2><p>重点记住 0.2 元、2‰、20 元和“连续六个月”。</p></div></div>
+    <table class="dues">
+      <thead><tr><th>对象 / 情况</th><th>标准</th></tr></thead><tbody>
+        <tr><td>学生等团员</td><td>学生、下岗失业、依靠抚恤或救济生活、领取当地最低生活保障金的团员：<span class="k">每月0.2元</span>。</td></tr>
+        <tr><td>农民团员</td><td>每月<span class="k">0.2元至1元</span>。</td></tr>
+        <tr><td>月收入低于2000元</td><td>以税后相对固定、经常性的工资收入为基数，每月<span class="k">3元</span>。</td></tr>
+        <tr><td>月收入达到2000元</td><td>按收入×<span class="k">2‰</span>，用去尾法取整，每月最高<span class="k">20元</span>。</td></tr>
+        <tr><td>保留团籍的共产党员</td><td>从取得预备党员资格起交纳党费，可以不交团费；自愿交纳不限。</td></tr>
+      </tbody>
+    </table>
+    <div class="grid" style="margin-top:14px">
+      <article class="card"><h3>何时开始、如何补交</h3><p>从支部大会通过其为团员之日起交纳；可按季交纳或委托代交，补交一般不超过<span class="k">6个月</span>，不得预交。</p></article>
+      <article class="card"><h3>超龄离团</h3><p>团员年满<span class="k">28周岁</span>、没有担任团内职务的，应办理离团手续。加入共产党后仍保留团籍；年满28周岁且不担任团内职务，不再保留团籍。</p></article>
+      <article class="card"><h3>自行脱团的三种情形</h3><p>无正当理由连续<span class="k">6个月</span>不交团费、不过组织生活，或不做团组织分配的工作，均被认为自行脱团；由支部大会决定除名，报上级委员会批准。</p></article>
+      <article class="card"><h3>年度团籍注册</h3><p>团组织每年对团员证进行年度团籍注册，这是团员证七项功能之一。</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="oath">
+    <div class="section-head"><div class="num">06</div><div><h2>入团誓词与仪式</h2><p>誓词适合分成“立场—纪律—行动—目标”四段来背。</p></div></div>
+    <blockquote class="quote"><p>“我志愿加入中国共产主义青年团，坚决拥护中国共产党的领导，遵守团的章程，执行团的决议，履行团员义务，严守团的纪律，勤奋学习，积极工作，吃苦在前，享受在后，为共产主义事业而奋斗。”</p><cite>— 中国共产主义青年团入团誓词</cite></blockquote>
+    <article class="card" style="margin-top:14px"><h3>入团志愿书</h3><p>由申请人用钢笔或签字笔、黑色或蓝黑色墨水填写，字迹清晰工整；它是团员档案材料，封面右上角加印发展团员编号。</p></article>
+    <h3 style="margin-top:28px">入团仪式基本程序</h3>
+    <div class="ceremony"><span>奏（唱）国歌</span><i>→</i><span>宣布新团员名单</span><i>→</i><span>颁发团章、团员证和团徽</span><i>→</i><span>宣誓</span><i>→</i><span>宣读义务与权利</span><i>→</i><span>新老团员代表发言</span><i>→</i><span>领导讲话</span><i>→</i><span>唱团歌</span></div>
+  </section>
+
+  <section class="section quiz" id="quiz">
+    <div class="quiz-top"><div><h2>8 题快速自测</h2><p style="margin:6px 0 0;color:var(--muted)">每题选择后立即显示结果；刷新页面可重新作答。</p></div><div class="score" id="score">已答 0 / 8 · 正确 0</div></div>
+    <div id="questions"></div>
+  </section>
+
+  <section class="section" id="sources" style="margin-top:64px">
+    <div class="section-head"><div class="num">07</div><div><h2>资料来源与核实说明</h2><p>社交平台用于发现常见学习主题，关键事实以官方文件交叉核实。</p></div></div>
+    <div class="sources">
+      <h3>主要官方资料</h3>
+      <div class="source-list">
+        <a class="source" href="https://web.archive.org/web/20260404124432/https://www.gqt.org.cn/xxgk/jbqk/202209/t20220921_789661.htm" target="_blank" rel="noopener"><strong>团中央官网介绍页存档</strong><small>团的基本情况</small></a>
+        <a class="source" href="http://www.cmm.zju.edu.cn/_upload/article/files/d0/e2/6085588d4052bc171d7ed26d13ea/41bfcd80-1b39-4069-8de3-e9da8dc05c62.pdf" target="_blank" rel="noopener"><strong>《中国共产主义青年团发展团员工作细则》</strong><small>申请、培养、接收程序</small></a>
+        <a class="source" href="https://www.sdjzu.edu.cn/gqt/wj/ZQ2016-13.pdf" target="_blank" rel="noopener"><strong>团费收缴、使用和管理规定</strong><small>团费标准</small></a>
+        <a class="source" href="http://tw.xmoc.edu.cn/uploadfile/46/Attachment/81f7bf0f3b.pdf" target="_blank" rel="noopener"><strong>团旗、团徽、团歌制作使用管理规定</strong><small>标志与使用规范</small></a>
+        <a class="source" href="http://www.ynarts.cn/uploads/pdf/20230519/04f3de85-e9a8-4ea7-9409-b1dd03dbae87.pdf" target="_blank" rel="noopener"><strong>入团仪式规定</strong><small>仪式程序</small></a>
+      </div>
+      <h3 style="margin-top:28px">社交平台学习线索</h3>
+      <div class="source-list">
+        <a class="source" href="https://search.bilibili.com/all?keyword=共青团基本知识" target="_blank" rel="noopener"><strong>哔哩哔哩：共青团基本知识搜索页</strong><small>公开搜索结果已核对 · 2026-10-08</small></a>
+        <a class="source" href="https://www.bilibili.com/video/BV1SuDnBeEL6/" target="_blank" rel="noopener"><strong>《共青团章程 核心知识点、题库带刷》</strong><small>UP：初坠_</small></a>
+        <a class="source" href="https://www.bilibili.com/video/BV1V84y1w7Bj/" target="_blank" rel="noopener"><strong>《中国共青团知识点》</strong><small>UP：水默-念霜</small></a>
+        <a class="source" href="https://www.bilibili.com/video/BV12M3VeNEHA/" target="_blank" rel="noopener"><strong>《团旗、团歌和团徽》</strong><small>UP：速找活零工市场</small></a>
+      </div>
+      <div class="caveat"><b>核实边界：</b>B站公开搜索结果中的标题、UP主和播放量线索已核对，但未逐字核对视频口播；抖音搜索页未渲染结果，小红书搜索页受登录墙限制，未读取其正文，因此没有把无法核实的内容写进知识点。现行团章为2023年6月22日团十九大部分修改通过；平台部分旧题库引用2018年版，但本页所列第一章核心条款在两版中一致。团歌词曲作者未在本次查到的官方文本中出现，故不作填写。</div>
+    </div>
+    <a href="#top" class="back">↑ 回到开头</a>
+  </section>
+</main>
+<footer><div class="wrap">学习建议：先背首页四组答案，再掌握“学宣守卫帮批 / 会选议保辩告”两句口诀，最后做自测。</div></footer>
+<script>
+(function(){
+  var data=[
+    {q:'中国共产主义青年团正式成立于哪一年？',o:['1919年','1921年','1922年','1925年'],a:2,e:'1922年5月5日至10日，一大在广州召开。'},
+    {q:'申请入团的年龄范围是？',o:['12—24周岁','14—28周岁','16—30周岁','18—28周岁'],a:1,e:'团章规定为十四周岁以上、二十八周岁以下的中国青年。'},
+    {q:'团员证封面是什么颜色？',o:['鲜红色','天蓝色','墨绿色','金黄色'],a:2,e:'墨绿色象征青春和朝气蓬勃的青年运动。'},
+    {q:'团徽参加团的活动时应佩戴在哪里？',o:['右胸前','左胸前','左臂','右臂'],a:1,e:'团徽徽章直径2厘米，佩戴在左胸前。'},
+    {q:'学生团员每月交纳团费多少？',o:['0.2元','1元','2元','3元'],a:0,e:'学生团员每月交纳0.2元。'},
+    {q:'无正当理由连续多久不交团费，可被认为自行脱团？',o:['3个月','5个月','6个月','12个月'],a:2,e:'连续六个月不交团费、不过组织生活或不做分配工作，均属相关情形。'},
+    {q:'团的组织原则是？',o:['民主集中制','少数服从多数制','首长负责制','委员会制'],a:0,e:'团的组织原则是民主集中制。'},
+    {q:'中国共产主义青年团团歌是？',o:['《义勇军进行曲》','《我们是共产主义接班人》','《光荣啊，中国共青团》','《五月的花海》'],a:2,e:'《光荣啊，中国共青团》于2003年正式确定为团歌。'}
+  ];
+  var box=document.getElementById('questions'),answered=0,correct=0;
+  data.forEach(function(item,idx){
+    var q=document.createElement('div');q.className='question';
+    q.innerHTML='<h3>'+(idx+1)+'. '+item.q+'</h3><div class="options"></div><div class="feedback" aria-live="polite"></div>';
+    var opts=q.querySelector('.options'),fb=q.querySelector('.feedback');
+    item.o.forEach(function(text,i){var b=document.createElement('button');b.className='option';b.textContent=text;b.addEventListener('click',function(){
+      if(q.dataset.done)return;q.dataset.done='1';answered++;
+      var bs=opts.querySelectorAll('button');bs.forEach(function(x){x.disabled=true});
+      bs[item.a].classList.add('good');
+      if(i===item.a){correct++;fb.textContent='答对了。'+item.e}else{b.classList.add('bad');fb.textContent='正确答案：'+item.o[item.a]+'。'+item.e}
+      document.getElementById('score').textContent='已答 '+answered+' / '+data.length+' · 正确 '+correct;
+    });opts.appendChild(b)});box.appendChild(q)
+  });
+  var progress=document.getElementById('progress');
+  function onScroll(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;progress.style.transform='scaleX('+(max?d.scrollTop/max:0)+')';var sections=document.querySelectorAll('main section[id]');var cur='';sections.forEach(function(s){if(s.getBoundingClientRect().top<110)cur=s.id});document.querySelectorAll('.nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur)})}
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+</script>
+</body>
+</html>
