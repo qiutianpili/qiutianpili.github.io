@@ -56,6 +56,7 @@
     @media(max-width:780px){html{scroll-padding-top:120px}.hero{padding-top:36px}.hero-grid{grid-template-columns:repeat(2,1fr)}.nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:4px}.nav a{text-align:center;padding:6px 2px;font-size:12px}.grid,.symbol-grid{grid-template-columns:1fr}.section-head{grid-template-columns:52px 1fr}.num{font-size:36px}.memory{align-items:flex-start;flex-direction:column;gap:7px}.dues,.dues tbody,.dues tr,.dues td{display:block}.dues thead{display:none}.dues tr{padding:12px 14px;border-bottom:1px solid var(--line)}.dues tr:last-child{border:0}.dues td{border:0;padding:3px 0}.dues td:first-child{width:auto}.options{grid-template-columns:1fr}.source{display:block}.source small{display:block;text-align:left;margin-top:4px}.quiz-top{display:block}.score{margin-top:8px}}
     @media(max-width:430px){.wrap{width:min(100% - 22px,1120px)}.hero-grid{gap:7px}.hero-fact{min-height:108px;padding:14px 12px}.hero-fact strong{font-size:21px}.section{margin-bottom:48px}.card,.symbol-main,.sources{padding:18px}.section-head{gap:12px}.lead{font-size:15px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  .home-fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:60;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--red);color:#fff;box-shadow:var(--shadow);text-decoration:none;transition:transform .15s,background .15s;-webkit-tap-highlight-color:transparent}.home-fab:hover{background:var(--red-deep);transform:translateY(-2px)}.home-fab:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.home-fab svg{width:22px;height:22px}@media(prefers-color-scheme:dark){.home-fab{color:#171311}}
   </style>
 </head>
 <body>
@@ -192,6 +193,7 @@
   </section>
 </main>
 <footer><div class="wrap">学习建议：先背首页四组答案，再掌握“学宣守卫帮批 / 会选议保辩告”两句口诀，最后做自测。</div></footer>
+<a class="home-fab" href="/" aria-label="返回主页" title="返回主页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg></a>
 <script>
 (function(){
   var data=[
