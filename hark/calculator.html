@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>计算器 | 秋天霹雳</title>
+  <meta name="description" content="在浏览器里运行的计算器，支持科学函数、键盘输入和历史记录。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/hark-doc.css">
+  <script src="/assets/hark-sub.js"></script>
+  <style>
+    .calc-wrap { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 20px; align-items: start; }
+    .calc {
+      background: var(--fill-tertiary); border: 1px solid var(--stroke-secondary);
+      border-radius: var(--r-xl, 28px); padding: 16px; box-shadow: var(--hark-shadow);
+    }
+    .calc__screen {
+      min-height: 128px; padding: 14px 14px 10px; margin-bottom: 14px;
+      border-radius: var(--r-l, 20px); background: var(--fill-primary-on);
+      border: 1px solid var(--stroke-secondary);
+      display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; gap: 6px; overflow: hidden;
+    }
+    .calc__expr { font: 400 clamp(15px, 4vw, 18px)/1.3 var(--mono); color: var(--text-secondary); word-break: break-all; text-align: right; min-height: 1.3em; }
+    .calc__out { font: 500 clamp(34px, 10vw, 48px)/1.1 var(--sans); color: var(--text-primary); font-variant-numeric: tabular-nums; word-break: break-all; text-align: right; }
+    .calc__out.is-err { color: var(--fill-system-red); font-size: clamp(22px, 6vw, 28px); }
+    .calc__modes { display: flex; gap: 6px; margin-bottom: 12px; }
+    .chip {
+      border: 1px solid var(--stroke-primary); background: transparent; color: var(--text-secondary);
+      font: var(--type-label); padding: 6px 14px; border-radius: var(--r-pill); cursor: pointer; min-height: 36px;
+    }
+    .chip[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); border-color: transparent; }
+    .calc__sci { display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 8px; }
+    .calc.is-sci .calc__sci { display: grid; }
+    .calc__keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .k {
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      min-height: clamp(52px, 14vw, 64px); border: 0; border-radius: var(--r-pill);
+      background: var(--fill-primary-on); color: var(--text-primary);
+      font: 500 clamp(18px, 5vw, 22px)/1 var(--sans); cursor: pointer;
+      box-shadow: inset 0 0 0 1px var(--stroke-secondary);
+      transition: transform var(--dur-quick, .15s) var(--ease-out, ease), background-color var(--dur-quick, .15s) ease;
+    }
+    .calc__sci .k { min-height: 44px; font-size: 15px; }
+    .k:active, .k.is-hit { transform: scale(.94); }
+    @media (hover: hover) { .k:hover { background: var(--hover-wash); } }
+    .k--fn { color: var(--text-secondary); }
+    .k--op { background: var(--fill-primary); color: var(--text-primary-on); box-shadow: none; }
+    @media (hover: hover) { .k--op:hover { background: var(--fill-segment); } }
+    .k--eq { background: var(--fill-system-orange); color: #fff; box-shadow: none; }
+    @media (hover: hover) { .k--eq:hover { background: var(--fill-system-orange); filter: brightness(1.08); } }
+    .k--zero { grid-column: span 2; }
+    .hist { background: var(--fill-tertiary); border: 1px solid var(--stroke-secondary); border-radius: var(--r-xl, 28px); padding: 16px 18px; }
+    .hist__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .hist__head h2 { font: var(--type-title); margin: 0; }
+    .hist ol { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow: auto; }
+    .hist li button {
+      width: 100%; text-align: right; background: none; border: 0; border-top: 1px solid var(--stroke-secondary);
+      padding: 10px 4px; cursor: pointer; color: var(--text-primary); font: inherit;
+    }
+    .hist li:first-child button { border-top: 0; }
+    .hist li small { display: block; font: 400 13px/1.4 var(--mono); color: var(--text-secondary); word-break: break-all; }
+    .hist li b { font: 500 18px/1.3 var(--sans); word-break: break-all; }
+    .hist__empty { color: var(--text-secondary); font: var(--type-small); margin: 6px 0; }
+    .tip { color: var(--text-secondary); font: var(--type-small); margin-top: 12px; }
+    @media (max-width: 760px) {
+      .calc-wrap { grid-template-columns: 1fr; }
+      .calc { padding: 12px; border-radius: 24px; }
+      .hist ol { max-height: 260px; }
+      .tip { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="x-bar hark-bar">
+    <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+      <span class="x-brand__mark" aria-hidden="true">Q</span>
+      <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+    </a>
+    <nav class="x-pill x-links" aria-label="站点导航">
+      <a href="/">首页</a>
+      <a href="/hark/">小作品</a>
+      <a href="/assist.html">资源</a>
+      <a href="/friends.html">友链</a>
+    </nav>
+    <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+  </header>
+
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">小作品</p>
+      <h1>计算器</h1>
+      <p class="lead">四则运算、百分比、科学函数，点按或直接用键盘输入。</p>
+    </header>
+
+    <div class="calc-wrap">
+      <section class="calc" id="calc" aria-label="计算器">
+        <div class="calc__modes" role="group" aria-label="模式">
+          <button class="chip" type="button" id="m-basic" aria-pressed="true">标准</button>
+          <button class="chip" type="button" id="m-sci" aria-pressed="false">科学</button>
+          <button class="chip" type="button" id="m-angle" aria-pressed="false" title="角度/弧度" style="margin-left:auto">DEG</button>
+        </div>
+        <div class="calc__screen" aria-live="polite">
+          <div class="calc__expr" id="expr"></div>
+          <div class="calc__out" id="out">0</div>
+        </div>
+        <div class="calc__sci">
+          <button class="k k--fn" data-k="sin(">sin</button>
+          <button class="k k--fn" data-k="cos(">cos</button>
+          <button class="k k--fn" data-k="tan(">tan</button>
+          <button class="k k--fn" data-k="ln(">ln</button>
+          <button class="k k--fn" data-k="log(">log</button>
+          <button class="k k--fn" data-k="(">(</button>
+          <button class="k k--fn" data-k=")">)</button>
+          <button class="k k--fn" data-k="^">xʸ</button>
+          <button class="k k--fn" data-k="^2">x²</button>
+          <button class="k k--fn" data-k="√(">√</button>
+          <button class="k k--fn" data-k="π">π</button>
+          <button class="k k--fn" data-k="e">e</button>
+          <button class="k k--fn" data-k="!">n!</button>
+          <button class="k k--fn" data-k="1/">1/x</button>
+          <button class="k k--fn" data-k="ans">Ans</button>
+        </div>
+        <div class="calc__keys">
+          <button class="k k--fn" data-k="clear" id="clear">AC</button>
+          <button class="k k--fn" data-k="back" aria-label="退格">⌫</button>
+          <button class="k k--fn" data-k="%">%</button>
+          <button class="k k--op" data-k="÷">÷</button>
+          <button class="k" data-k="7">7</button>
+          <button class="k" data-k="8">8</button>
+          <button class="k" data-k="9">9</button>
+          <button class="k k--op" data-k="×">×</button>
+          <button class="k" data-k="4">4</button>
+          <button class="k" data-k="5">5</button>
+          <button class="k" data-k="6">6</button>
+          <button class="k k--op" data-k="−">−</button>
+          <button class="k" data-k="1">1</button>
+          <button class="k" data-k="2">2</button>
+          <button class="k" data-k="3">3</button>
+          <button class="k k--op" data-k="+">+</button>
+          <button class="k k--fn" data-k="neg" aria-label="正负号">±</button>
+          <button class="k" data-k="0">0</button>
+          <button class="k" data-k=".">.</button>
+          <button class="k k--eq" data-k="=">=</button>
+        </div>
+      </section>
+
+      <aside class="hist" aria-label="历史记录">
+        <div class="hist__head">
+          <h2>历史</h2>
+          <button class="chip" type="button" id="hist-clear">清空</button>
+        </div>
+        <p class="hist__empty" id="hist-empty">还没有记录。点一条历史可以把结果带回计算器。</p>
+        <ol id="hist"></ol>
+        <p class="tip">键盘：数字与 + − * / ^ ( ) %，Enter 求值，Backspace 退格，Esc 清空。</p>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    "use strict";
+    var $ = function (id) { return document.getElementById(id); };
+    var exprEl = $("expr"), outEl = $("out"), calc = $("calc"), histEl = $("hist"), histEmpty = $("hist-empty");
+    var expr = "", ans = 0, deg = true, justEval = false;
+    var HKEY = "hark-calc-history", history = [];
+    try { history = JSON.parse(localStorage.getItem(HKEY) || "[]") || []; } catch (e) { history = []; }
+
+    /* ---------- safe parser (no eval) ---------- */
+    function tokenize(s) {
+      var t = [], i = 0, m;
+      while (i < s.length) {
+        var c = s[i];
+        if (c === " ") { i++; continue; }
+        if ((m = /^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i.exec(s.slice(i))) && !/^e[^+\-\d]/.test(s.slice(i))) {
+          if (/\d|\./.test(c)) { t.push({ t: "n", v: parseFloat(m[0]) }); i += m[0].length; continue; }
+        }
+        if ((m = /^(sin|cos|tan|ln|log|√)/.exec(s.slice(i)))) { t.push({ t: "f", v: m[0] }); i += m[0].length; continue; }
+        if (c === "π") { t.push({ t: "n", v: Math.PI }); i++; continue; }
+        if (c === "e") { t.push({ t: "n", v: Math.E }); i++; continue; }
+        if (s.slice(i, i + 3) === "Ans") { t.push({ t: "n", v: ans }); i += 3; continue; }
+        if ("+−-×*÷/^()%!".indexOf(c) >= 0) {
+          var v = c === "−" ? "-" : c === "×" ? "*" : c === "÷" ? "/" : c;
+          t.push({ t: "o", v: v }); i++; continue;
+        }
+        throw new Error("无法识别：" + c);
+      }
+      return t;
+    }
+    function fact(n) {
+      if (n < 0 || Math.floor(n) !== n) throw new Error("阶乘只支持非负整数");
+      if (n > 170) return Infinity;
+      var r = 1; for (var i = 2; i <= n; i++) r *= i; return r;
+    }
+    function evaluate(s) {
+      var tk = tokenize(s), p = 0;
+      function peek() { return tk[p]; }
+      function isOp(v) { var x = tk[p]; return x && x.t === "o" && x.v === v; }
+      function startsPrimary(x) { return x && (x.t === "n" || x.t === "f" || (x.t === "o" && x.v === "(")); }
+      function expr() {
+        var v = term();
+        while (isOp("+") || isOp("-")) {
+          var op = tk[p++].v, r = term();
+          if (tk[p - 1] && tk[p - 1].pct) r = v * r;
+          v = op === "+" ? v + r : v - r;
+        }
+        return v;
+      }
+      function term() {
+        var v = unary();
+        for (;;) {
+          if (isOp("*") || isOp("/")) {
+            var op = tk[p++].v, r = unary();
+            if (op === "/" && r === 0) throw new Error("不能除以 0");
+            v = op === "*" ? v * r : v / r;
+          } else if (startsPrimary(peek())) { v = v * unary(); } /* implicit multiply: 2π, 3(4) */
+          else break;
+        }
+        return v;
+      }
+      function unary() {
+        if (isOp("-")) { p++; return -unary(); }
+        if (isOp("+")) { p++; return unary(); }
+        return power();
+      }
+      function power() {
+        var b = postfix();
+        if (isOp("^")) { p++; var e = unary(); return Math.pow(b, e); }
+        return b;
+      }
+      function postfix() {
+        var v = primary();
+        for (;;) {
+          if (isOp("!")) { p++; v = fact(v); }
+          else if (isOp("%")) { p++; v = v / 100; tk[p - 1].pct = true; }
+          else break;
+        }
+        return v;
+      }
+      function primary() {
+        var x = tk[p];
+        if (!x) throw new Error("算式不完整");
+        if (x.t === "n") { p++; return x.v; }
+        if (x.t === "f") {
+          p++;
+          var a = isOp("(") ? group() : postfix();
+          var r = deg ? a * Math.PI / 180 : a;
+          switch (x.v) {
+            case "sin": return clean(Math.sin(r));
+            case "cos": return clean(Math.cos(r));
+            case "tan":
+              if (Math.abs(Math.cos(r)) < 1e-12) throw new Error("tan 在此处无定义");
+              return clean(Math.tan(r));
+            case "ln": if (a <= 0) throw new Error("ln 需要正数"); return Math.log(a);
+            case "log": if (a <= 0) throw new Error("log 需要正数"); return Math.log10(a);
+            case "√": if (a < 0) throw new Error("负数不能开平方"); return Math.sqrt(a);
+          }
+        }
+        if (x.t === "o" && x.v === "(") return group();
+        throw new Error("算式有误");
+      }
+      function group() {
+        p++; var v = expr();
+        if (isOp(")")) p++; /* allow missing closing parens */
+        return v;
+      }
+      var v = expr();
+      if (p < tk.length) throw new Error("算式有误");
+      if (!isFinite(v)) throw new Error(isNaN(v) ? "结果无效" : "结果太大");
+      return v;
+    }
+    function clean(x) { return Math.abs(x) < 1e-12 ? 0 : x; }
+    function fmt(v) {
+      if (Object.is(v, -0)) v = 0;
+      var a = Math.abs(v);
+      if (a !== 0 && (a >= 1e15 || a < 1e-9)) return v.toExponential(8).replace(/\.?0+e/, "e");
+      var s = parseFloat(v.toPrecision(12)).toString();
+      var parts = s.split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+
+    /* ---------- UI ---------- */
+    function preview() {
+      if (!expr) return "0";
+      try { return fmt(evaluate(expr)); } catch (e) { return null; }
+    }
+    function render(result, err) {
+      exprEl.textContent = expr;
+      outEl.classList.toggle("is-err", !!err);
+      if (err) { outEl.textContent = err; return; }
+      if (result !== undefined) { outEl.textContent = result; return; }
+      var pv = preview();
+      outEl.textContent = pv === null ? (outEl.textContent || "0") : pv;
+      $("clear").textContent = expr ? "C" : "AC";
+    }
+    var OPS = "+−×÷^";
+    function input(k) {
+      if (k === "clear") { expr = ""; justEval = false; return render(); }
+      if (k === "back") { expr = justEval ? "" : expr.replace(/(sin\(|cos\(|tan\(|ln\(|log\(|√\(|Ans|.)$/, ""); justEval = false; return render(); }
+      if (k === "=") return equals();
+      if (k === "neg") {
+        var m = /(\d+\.?\d*|π|e|Ans|\))$/.exec(expr);
+        if (!expr) { expr = "−"; }
+        else if (/\(−[^()]*\)$/.test(expr)) expr = expr.replace(/\(−([^()]*)\)$/, "$1");
+        else if (m) { var i = expr.length - m[0].length; expr = expr.slice(0, i) + "(−" + m[0] + ")"; }
+        justEval = false; return render();
+      }
+      if (k === "ans") k = "Ans";
+      if (justEval) {
+        if (OPS.indexOf(k) >= 0 || k === "^2" || k === "!" || k === "%") expr = "Ans";
+        else expr = "";
+        justEval = false;
+      }
+      var last = expr.slice(-1);
+      if (OPS.indexOf(k) >= 0 && k !== "−") {
+        if (!expr) expr = "Ans";
+        else if (OPS.indexOf(last) >= 0) expr = expr.slice(0, -1);
+      }
+      if (k === "−" && last === "−") return;
+      if (k === ".") {
+        var num = /(\d*\.?\d*)$/.exec(expr)[0];
+        if (num.indexOf(".") >= 0) return;
+        if (!num) k = "0.";
+      }
+      expr += k;
+      render();
+    }
+    function equals() {
+      if (!expr) return;
+      try {
+        var v = evaluate(expr);
+        var shown = expr;
+        ans = v;
+        history.unshift({ e: shown, r: fmt(v), v: v });
+        history = history.slice(0, 50);
+        try { localStorage.setItem(HKEY, JSON.stringify(history)); } catch (e) {}
+        drawHistory();
+        exprEl.textContent = shown + " =";
+        outEl.classList.remove("is-err");
+        outEl.textContent = fmt(v);
+        expr = String(v).length > 16 ? String(parseFloat(v.toPrecision(15))) : String(v);
+        if (/e/.test(expr)) expr = "Ans";
+        justEval = true;
+        $("clear").textContent = "AC";
+      } catch (e) {
+        render(undefined, e.message);
+      }
+    }
+    function drawHistory() {
+      histEl.innerHTML = "";
+      histEmpty.style.display = history.length ? "none" : "";
+      history.forEach(function (h) {
+        var li = document.createElement("li"), b = document.createElement("button");
+        b.type = "button";
+        var sm = document.createElement("small"); sm.textContent = h.e + " =";
+        var bb = document.createElement("b"); bb.textContent = h.r;
+        b.appendChild(sm); b.appendChild(bb);
+        b.addEventListener("click", function () {
+          ans = h.v; expr = "Ans"; justEval = true;
+          exprEl.textContent = h.e + " ="; outEl.classList.remove("is-err"); outEl.textContent = h.r;
+        });
+        li.appendChild(b); histEl.appendChild(li);
+      });
+    }
+
+    calc.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".k"); if (!b) return;
+      input(b.getAttribute("data-k"));
+    });
+    function setMode(sci) {
+      calc.classList.toggle("is-sci", sci);
+      $("m-sci").setAttribute("aria-pressed", sci); $("m-basic").setAttribute("aria-pressed", !sci);
+      try { localStorage.setItem("hark-calc-sci", sci ? "1" : "0"); } catch (e) {}
+    }
+    $("m-basic").addEventListener("click", function () { setMode(false); });
+    $("m-sci").addEventListener("click", function () { setMode(true); });
+    $("m-angle").addEventListener("click", function () {
+      deg = !deg; this.textContent = deg ? "DEG" : "RAD";
+      this.setAttribute("aria-pressed", !deg); render();
+    });
+    $("hist-clear").addEventListener("click", function () {
+      history = []; try { localStorage.removeItem(HKEY); } catch (e) {} drawHistory();
+    });
+
+    var KEYMAP = { "+": "+", "-": "−", "*": "×", "x": "×", "/": "÷", "^": "^", "(": "(", ")": ")", "%": "%", ".": ".", ",": ".", "!": "!",
+      "Enter": "=", "=": "=", "Backspace": "back", "Escape": "clear", "Delete": "clear", "p": "π", "s": "sin(", "c": "cos(", "t": "tan(", "l": "ln(", "r": "√(" };
+    document.addEventListener("keydown", function (ev) {
+      if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      var k = /^[0-9]$/.test(ev.key) ? ev.key : KEYMAP[ev.key];
+      if (!k) return;
+      ev.preventDefault();
+      if (/^[sctlr]$/.test(ev.key)) setMode(true);
+      input(k);
+      var btn = calc.querySelector('.k[data-k="' + (k === "clear" ? "clear" : k) + '"]');
+      if (btn) { btn.classList.add("is-hit"); setTimeout(function () { btn.classList.remove("is-hit"); }, 120); }
+    });
+
+    try { if (localStorage.getItem("hark-calc-sci") === "1") setMode(true); } catch (e) {}
+    drawHistory(); render();
+    window.__calcEval = evaluate;
+  })();
+  </script>
+</body>
+</html>
