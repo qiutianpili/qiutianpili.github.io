@@ -101,15 +101,15 @@
         box-shadow: inset 0 0 0 1.5px currentColor;
         background: linear-gradient(to right, light-dark(currentColor, transparent) 50%, light-dark(transparent, currentColor) 50%);
       }
-      .section, .hero, .x-strip { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }
+      .section, .hero, .x-strip, #works { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }
       @media (max-width: 760px) {
         .x-bar { gap: 6px; }
         .x-brand { padding-right: 4px; }
         .x-brand__text { display: none; }
         .x-brand__mark, .x-theme { width: var(--tap); height: var(--tap); }
         .x-theme { width: 54px; height: 54px; }
-        .x-links { justify-self: stretch; }
-        .x-links a { min-height: var(--tap); padding: 0 13px; }
+        .x-links { justify-self: stretch; justify-content: center; }
+        .x-links a { min-height: var(--tap); padding: 0 14px; }
       }
       @media (max-width: 360px) {
         .x-links a { padding: 0 10px; }
@@ -177,6 +177,9 @@
       .x-work--miku { --tint: var(--fill-system-green); }
       .x-work--music { --tint: var(--fill-system-red); }
       .x-work--video { --tint: var(--hero-surface); }
+      #works { display: block; height: 0; }
+      .x-work--assist { --tint: var(--fill-system-green); }
+      .x-work--friends { --tint: var(--fill-system-orange); }
       .x-work__icon {
         width: 72px; height: 72px;
         display: grid;
@@ -249,9 +252,7 @@
         <nav class="x-pill x-links" id="x-links" aria-label="站点导航">
           <a href="#posts">文章</a>
           <a href="#tools">工具</a>
-          <a href="#works">小作品</a>
-          <a href="assist.html">资源</a>
-          <a href="friends.html">友链</a>
+          <a href="#more">其他</a>
         </nav>
         <button class="x-pill x-theme" id="theme-btn" type="button" aria-label="切换深浅色"></button>
       </header>
@@ -280,11 +281,12 @@
           <a class="x-tile" href="download.html"><span><b>下载</b><small>临时文件和说明</small></span></a>
         </nav>
 
-        <section class="section" id="works">
+        <section class="section" id="more">
+          <span id="works" aria-hidden="true"></span>
           <div class="head x-reveal">
-            <p class="head__eyebrow">小作品</p>
-            <h2>点开就能玩的四个互动小作品。</h2>
-            <p class="head__sub">都在浏览器里运行，不用安装。</p>
+            <p class="head__eyebrow">其他</p>
+            <h2>小作品、资源和友链，都在这里。</h2>
+            <p class="head__sub">四个小作品都在浏览器里运行，不用安装。</p>
           </div>
           <div class="x-works">
             <a class="x-work x-work--sun x-reveal" href="hark/sun-escape.html">
@@ -305,6 +307,16 @@
             <a class="x-work x-work--video x-reveal" href="hark/video-player.html">
               <span class="x-work__icon" aria-hidden="true"><span>🎬</span></span>
               <div><h3>本地视频播放器</h3><p>拖入视频，支持字幕与截图</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+            <a class="x-work x-work--assist x-reveal" href="assist.html">
+              <span class="x-work__icon" aria-hidden="true"><span>📦</span></span>
+              <div><h3>资源</h3><p>常用软件与帮助入口</p></div>
+              <span class="x-work__go" aria-hidden="true">↗</span>
+            </a>
+            <a class="x-work x-work--friends x-reveal" href="friends.html">
+              <span class="x-work__icon" aria-hidden="true"><span>🔗</span></span>
+              <div><h3>友链</h3><p>朋友们的站点</p></div>
               <span class="x-work__go" aria-hidden="true">↗</span>
             </a>
           </div>
