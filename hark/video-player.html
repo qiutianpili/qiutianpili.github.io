@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地视频播放器</title>
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      html, body { overflow-x: clip; }
+      .x-app { height: calc(100dvh - 52px); min-height: 460px; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 12px; min-width: 0; }
+      .x-head > * { min-width: 0; }
+      .x-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+      .x-head h1 { font: var(--type-heading); margin: 0; margin-right: auto; }
+      .x-head .fineprint { flex-basis: 100%; margin: 0; }
+      .x-head button.btn, .x-side button { cursor: pointer; }
+      .x-head button.btn:disabled { opacity: .45; cursor: default; }
+      .x-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; min-height: 0; }
+      .x-body.is-collapsed { grid-template-columns: minmax(0, 1fr) 0; gap: 0; }
+      .x-body.is-collapsed .x-side { display: none; }
+      .x-stage { position: relative; min-height: 0; border-radius: var(--r-l); overflow: hidden; background: var(--hero-surface); color: var(--hero-text); display: grid; }
+      .x-stage:fullscreen { border-radius: 0; }
+      .x-stage video { width: 100%; height: 100%; min-height: 0; object-fit: contain; display: block; grid-area: 1/1; }
+      .x-stage.is-idle { cursor: none; }
+      .x-drop { grid-area: 1/1; margin: 16px; border: 2px dashed var(--hero-glass-stroke); border-radius: var(--r-m); display: grid; place-content: center; justify-items: center; gap: 8px; text-align: center; cursor: pointer; font: var(--type-lede); padding: 24px; }
+      .x-drop small { font: var(--type-small); color: var(--hero-text-muted); }
+      .x-drop::before { content: "+"; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: var(--type-title); background: var(--hero-glass); border: 1px solid var(--hero-glass-stroke); }
+      body.is-dragging .x-stage { outline: 3px solid var(--fill-system-orange); outline-offset: -3px; }
+      .x-msg { grid-area: 1/1; place-self: center; margin: 16px; padding: 14px 18px; border-radius: var(--r-m); background: var(--hero-glass); border: 1px solid var(--hero-glass-stroke); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); font: var(--type-body-strong); text-align: center; }
+      .x-ctrl { position: absolute; inset: auto 0 0 0; padding: 40px 12px 8px; background: linear-gradient(to top, var(--hero-scrim-strong), transparent); transition: opacity var(--dur-quick) ease; }
+      .x-stage.is-idle .x-ctrl { opacity: 0; pointer-events: none; }
+      .x-seek { position: relative; display: flex; align-items: center; height: 28px; }
+      .x-ctrl input[type="range"] { accent-color: var(--hero-text); width: 100%; margin: 0; height: 28px; cursor: pointer; }
+      .x-tip { position: absolute; bottom: 30px; transform: translateX(-50%); padding: 3px 8px; border-radius: var(--r-pill); background: var(--hero-text); color: var(--hero-surface); font: var(--type-tag); font-variant-numeric: tabular-nums; pointer-events: none; }
+      .x-row { display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+      .x-row .x-sp { flex: 1; }
+      .x-cb { flex: none; min-width: var(--tap); height: var(--tap); padding: 0 8px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--hero-text); font: var(--type-label); cursor: pointer; white-space: nowrap; }
+      .x-cb:hover, .x-cb.is-on { background: var(--hero-glass); }
+      .x-ctrl select.x-cb { appearance: none; text-align: center; }
+      .x-ctrl select option { color: initial; }
+      .x-vol { width: 84px !important; flex: none; }
+      .x-time { flex: none; font: var(--type-small); font-variant-numeric: tabular-nums; color: var(--hero-text-muted); padding: 0 8px; white-space: nowrap; }
+      .x-side { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); border: 1px solid var(--stroke-primary); border-radius: var(--r-l); overflow: hidden; }
+      .x-side header { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--stroke-secondary); font: var(--type-label); }
+      .x-side header span { margin-right: auto; }
+      .x-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; display: grid; align-content: start; gap: 2px; }
+      .x-list li { display: grid; grid-template-columns: 80px minmax(0, 1fr) var(--tap); align-items: center; gap: 10px; padding: 6px; border-radius: var(--r-s); cursor: pointer; }
+      .x-list li:hover { background: var(--hover-wash); }
+      .x-list li.is-cur { background: var(--fill-tertiary); }
+      .x-list img, .x-list .x-ph { width: 80px; aspect-ratio: 16/9; border-radius: 8px; object-fit: cover; background: var(--hero-surface); display: block; }
+      .x-list b { display: block; font: var(--type-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-list small { font: var(--type-caption); color: var(--text-secondary); }
+      .x-list li.is-bad small { color: var(--fill-system-red); }
+      .x-list li.is-cur b::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--fill-system-orange); margin-right: 6px; vertical-align: 1px; }
+      .x-x { width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; background: transparent; color: var(--text-secondary); font: var(--type-heading); }
+      .x-x:hover { background: var(--hover-wash); color: var(--text-primary); }
+      .x-empty { padding: 20px 12px; font: var(--type-small); color: var(--text-secondary); text-align: center; }
+      .x-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; z-index: 50; padding: 10px 18px; border-radius: var(--r-pill); background: var(--fill-primary); color: var(--text-primary-on); font: var(--type-label); box-shadow: var(--hark-shadow); transition: opacity var(--dur-quick) ease, transform var(--dur-quick) var(--ease-out); pointer-events: none; max-width: calc(100vw - 32px); }
+      .x-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+      [hidden] { display: none !important; }
+      @media (max-width: 799px) {
+        .x-app { height: auto; min-height: 0; }
+        .x-body, .x-body.is-collapsed { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+        .x-stage { aspect-ratio: 16/10; min-height: 240px; }
+        .x-body.is-collapsed .x-side { display: grid; }
+        .x-body.is-collapsed .x-list { display: none; }
+        .x-vol { display: none; }
+        .x-side { max-height: 60vh; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <div class="x-app">
+        <div class="x-head">
+          <h1>本地视频播放器</h1>
+          <button class="btn" id="addBtn" type="button">添加视频</button>
+          <button class="btn" id="subBtn" type="button">加载字幕</button>
+          <button class="btn" id="subToggle" type="button" disabled>字幕：关</button>
+          <button class="btn" id="sideBtn" type="button" aria-expanded="true">收起列表</button>
+          <p class="fineprint">文件只在你的浏览器里播放，不会上传。快捷键：空格/K 播放 · ←/→ 5 秒 · J/L 10 秒 · ↑/↓ 音量 · F 全屏 · M 静音 · &lt; &gt; 速度</p>
+          <input type="file" id="fileIn" accept="video/*,.mp4,.webm,.mkv,.mov" multiple hidden />
+          <input type="file" id="subIn" accept=".srt,.vtt" hidden />
+        </div>
+        <div class="x-body" id="body">
+          <div class="x-stage" id="stage">
+            <video id="v" playsinline></video>
+            <div class="x-drop" id="drop" role="button" tabindex="0">拖入视频文件或点击添加<small>支持 MP4、WebM，部分浏览器可播 MKV、MOV</small></div>
+            <div class="x-msg" id="msg" hidden></div>
+            <div class="x-ctrl" id="ctrl" hidden>
+              <div class="x-seek" id="seekWrap">
+                <input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="进度" />
+                <span class="x-tip" id="tip" hidden>0:00</span>
+              </div>
+              <div class="x-row">
+                <button class="x-cb" id="prev" type="button" aria-label="上一个" title="上一个">⏮</button>
+                <button class="x-cb" id="play" type="button" aria-label="播放" title="播放/暂停 (空格)">▶</button>
+                <button class="x-cb" id="next" type="button" aria-label="下一个" title="下一个">⏭</button>
+                <button class="x-cb" id="mute" type="button" aria-label="静音" title="静音 (M)">🔊</button>
+                <input type="range" class="x-vol" id="vol" min="0" max="1" step="0.05" value="1" aria-label="音量" />
+                <span class="x-time" id="time">0:00 / 0:00</span>
+                <span class="x-sp"></span>
+                <select class="x-cb" id="speed" aria-label="播放速度" title="速度 (&lt; &gt;)">
+                  <option value="0.5">0.5x</option><option value="0.75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="1.75">1.75x</option><option value="2">2x</option>
+                </select>
+                <button class="x-cb" id="loop" type="button" title="循环模式">列表循环</button>
+                <button class="x-cb" id="shot" type="button" aria-label="截图" title="截图">📷</button>
+                <button class="x-cb" id="pip" type="button" aria-label="画中画" title="画中画">⧉</button>
+                <button class="x-cb" id="fs" type="button" aria-label="全屏" title="全屏 (F)">⛶</button>
+              </div>
+            </div>
+          </div>
+          <aside class="x-side" id="side">
+            <header><span id="count">播放列表</span><button class="btn" id="clear" type="button">清空</button></header>
+            <ul class="x-list" id="list"></ul>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <div class="x-toast" id="toast" role="status"></div>
+    <script src="hark.js"></script>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const v = $("v"), stage = $("stage"), listEl = $("list");
+        const BAD = "这个格式浏览器播不了，试试 MP4/WebM";
+        const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+        const LOOPS = ["列表循环", "单曲循环", "播完停止"];
+        let list = [], cur = -1, loopMode = 0, subUrl = null, idleT, toastT;
+
+        const fmt = (s) => {
+          if (!isFinite(s)) return "0:00";
+          s = Math.floor(s);
+          const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, "0");
+          return h ? `${h}:${String(m).padStart(2, "0")}:${x}` : `${m}:${x}`;
+        };
+        const toast = (t) => { const el = $("toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("is-on"), 2400); };
+        const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const isVideo = (f) => f.type.startsWith("video/") || /\.(mp4|webm|mkv|mov|m4v|ogv)$/i.test(f.name);
+
+        function render() {
+          $("count").textContent = list.length ? `播放列表 · ${list.length}` : "播放列表";
+          $("clear").hidden = !list.length;
+          listEl.innerHTML = list.length ? list.map((it, i) => `<li class="${i === cur ? "is-cur" : ""} ${it.bad ? "is-bad" : ""}" data-i="${i}">
+            ${it.thumb ? `<img src="${it.thumb}" alt="">` : `<span class="x-ph"></span>`}
+            <div><b title="${esc(it.name)}">${esc(it.name)}</b><small>${it.bad ? "无法播放" : it.dur ? fmt(it.dur) : "读取中…"}</small></div>
+            <button class="x-x" type="button" data-rm="${i}" aria-label="移除 ${esc(it.name)}">×</button></li>`).join("")
+            : `<li class="x-empty" style="display:block;cursor:default">还没有视频</li>`;
+          const has = cur >= 0;
+          $("drop").hidden = has; $("ctrl").hidden = !has;
+        }
+
+        let q = Promise.resolve();
+        function probe(it) {
+          return new Promise((done) => {
+            const p = document.createElement("video");
+            let end = () => { end = () => {}; clearTimeout(t); p.removeAttribute("src"); p.load(); render(); done(); };
+            const t = setTimeout(() => end(), 8000);
+            p.muted = true; p.preload = "metadata";
+            p.onloadedmetadata = () => { it.dur = p.duration; p.currentTime = Math.min(1, (p.duration || 2) / 2); };
+            p.onseeked = () => {
+              try {
+                if (p.videoWidth) {
+                  const c = document.createElement("canvas"); c.width = 160; c.height = 90;
+                  const g = c.getContext("2d"), r = Math.max(160 / p.videoWidth, 90 / p.videoHeight);
+                  const w = p.videoWidth * r, h = p.videoHeight * r;
+                  g.drawImage(p, (160 - w) / 2, (90 - h) / 2, w, h);
+                  it.thumb = c.toDataURL("image/jpeg", 0.75);
+                }
+              } catch (e) {}
+              end();
+            };
+            p.onerror = () => { it.bad = true; end(); };
+            p.src = it.url;
+          });
+        }
+
+        function add(files) {
+          const fs = [...files].filter(isVideo);
+          if (!fs.length) { if (files.length) toast("没有找到视频文件"); return; }
+          const start = list.length;
+          fs.forEach((f) => { const it = { name: f.name, url: URL.createObjectURL(f) }; list.push(it); q = q.then(() => probe(it)); });
+          toast(`已添加 ${fs.length} 个视频`);
+          if (cur < 0) load(start); else render();
+        }
+
+        function load(i, autoplay = true) {
+          if (i < 0 || i >= list.length) return;
+          cur = i; $("msg").hidden = true;
+          v.src = list[i].url; v.playbackRate = +$("speed").value;
+          if (autoplay) v.play().catch(() => {});
+          render(); wake();
+        }
+
+        function remove(i) {
+          URL.revokeObjectURL(list[i].url);
+          list.splice(i, 1);
+          if (i === cur) { if (list.length) load(Math.min(i, list.length - 1), !v.paused); else { cur = -1; v.removeAttribute("src"); v.load(); $("msg").hidden = true; } }
+          else if (i < cur) cur--;
+          render();
+        }
+
+        const step = (d) => { if (!list.length) return; let n = cur + d; if (n < 0 || n >= list.length) { if (loopMode !== 0) return toast(d > 0 ? "已是最后一个" : "已是第一个"); n = (n + list.length) % list.length; } load(n); };
+        const togglePlay = () => { if (cur < 0) return pickVideo(); v.paused ? v.play().catch(() => {}) : v.pause(); };
+        const seekBy = (s) => { if (cur < 0) return; v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + s)); toast(`${s > 0 ? "快进" : "后退"} ${Math.abs(s)} 秒`); };
+        const setVol = (x) => { v.volume = Math.max(0, Math.min(1, x)); v.muted = v.volume === 0; };
+        const setSpeed = (d) => { const i = Math.max(0, Math.min(SPEEDS.length - 1, SPEEDS.indexOf(v.playbackRate) + d)); v.playbackRate = SPEEDS[i] ?? 1; $("speed").value = v.playbackRate; toast(`速度 ${v.playbackRate}x`); };
+
+        async function fullscreen() {
+          try {
+            if (document.fullscreenElement || document.webkitFullscreenElement) return await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+            if (req) await req.call(stage); else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen(); else throw 0;
+          } catch (e) { toast("全屏被当前环境限制"); }
+        }
+        async function pip() {
+          try {
+            if (document.pictureInPictureElement) return await document.exitPictureInPicture();
+            if (!document.pictureInPictureEnabled || cur < 0) throw 0;
+            await v.requestPictureInPicture();
+          } catch (e) { toast("画中画不可用"); }
+        }
+        function shot() {
+          if (cur < 0 || !v.videoWidth) return toast("暂无画面可截图");
+          try {
+            const c = document.createElement("canvas"); c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext("2d").drawImage(v, 0, 0);
+            c.toBlob((b) => {
+              if (!b) return toast("截图失败");
+              const a = document.createElement("a"), u = URL.createObjectURL(b);
+              a.href = u; a.download = `${list[cur].name.replace(/\.[^.]+$/, "")}_${fmt(v.currentTime).replace(/:/g, "-")}.png`;
+              document.body.appendChild(a); a.click(); a.remove();
+              setTimeout(() => URL.revokeObjectURL(u), 4000); toast("截图已保存");
+            }, "image/png");
+          } catch (e) { toast("截图失败"); }
+        }
+
+        function loadSub(f) {
+          const r = new FileReader();
+          r.onload = () => {
+            let t = String(r.result).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+            if (!/^WEBVTT/.test(t)) t = "WEBVTT\n\n" + t.replace(/(\d{1,2}:\d{2}:\d{2}),(\d{3})/g, "$1.$2");
+            if (subUrl) URL.revokeObjectURL(subUrl);
+            subUrl = URL.createObjectURL(new Blob([t], { type: "text/vtt" }));
+            v.querySelectorAll("track").forEach((x) => x.remove());
+            const tr = document.createElement("track");
+            tr.kind = "subtitles"; tr.label = f.name; tr.srclang = "zh"; tr.src = subUrl; tr.default = true;
+            v.appendChild(tr);
+            setTimeout(() => setSub(true), 50);
+            $("subToggle").disabled = false; toast("字幕已加载");
+          };
+          r.readAsText(f);
+        }
+        const setSub = (on) => { const t = v.textTracks[0]; if (!t) return; t.mode = on ? "showing" : "hidden"; $("subToggle").textContent = on ? "字幕：开" : "字幕：关"; };
+
+        function wake() {
+          stage.classList.remove("is-idle"); clearTimeout(idleT);
+          idleT = setTimeout(() => { if (!v.paused) stage.classList.add("is-idle"); }, 3000);
+        }
+
+        // Events
+        const pick = (inp, msg) => { toast(msg); try { inp.showPicker ? inp.showPicker() : inp.click(); } catch (e) { inp.click(); } };
+        const pickVideo = () => pick($("fileIn"), "选择视频文件…（也可以直接拖进来）");
+        $("addBtn").onclick = $("drop").onclick = pickVideo;
+        $("drop").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickVideo(); } };
+        $("fileIn").onchange = (e) => { add(e.target.files); e.target.value = ""; };
+        $("subBtn").onclick = () => pick($("subIn"), "选择 .srt 或 .vtt 字幕文件…");
+        $("subIn").onchange = (e) => { if (e.target.files[0]) loadSub(e.target.files[0]); e.target.value = ""; };
+        $("subToggle").onclick = () => setSub(v.textTracks[0]?.mode !== "showing");
+        $("sideBtn").onclick = () => { const c = $("body").classList.toggle("is-collapsed"); $("sideBtn").textContent = c ? "展开列表" : "收起列表"; $("sideBtn").setAttribute("aria-expanded", !c); };
+        $("clear").onclick = () => { while (list.length) remove(list.length - 1); toast("列表已清空"); };
+        listEl.onclick = (e) => { const rm = e.target.closest("[data-rm]"); if (rm) return remove(+rm.dataset.rm); const li = e.target.closest("li[data-i]"); if (li) load(+li.dataset.i); };
+
+        $("play").onclick = togglePlay; $("prev").onclick = () => step(-1); $("next").onclick = () => step(1);
+        $("mute").onclick = () => { v.muted = !v.muted; if (!v.muted && !v.volume) v.volume = 0.5; };
+        $("vol").oninput = (e) => setVol(+e.target.value);
+        $("speed").onchange = (e) => (v.playbackRate = +e.target.value);
+        $("loop").onclick = () => { loopMode = (loopMode + 1) % 3; v.loop = loopMode === 1; $("loop").textContent = LOOPS[loopMode]; toast(LOOPS[loopMode]); };
+        $("shot").onclick = shot; $("pip").onclick = pip; $("fs").onclick = fullscreen;
+        $("ctrl").addEventListener("click", (e) => e.stopPropagation());
+        $("ctrl").addEventListener("dblclick", (e) => e.stopPropagation());
+
+        const seek = $("seek"), tip = $("tip");
+        seek.oninput = () => { if (v.duration) v.currentTime = (seek.value / 1000) * v.duration; };
+        $("seekWrap").onpointermove = (e) => {
+          if (!v.duration) return;
+          const r = seek.getBoundingClientRect(), p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+          tip.hidden = false; tip.textContent = fmt(p * v.duration); tip.style.left = Math.max(24, Math.min(r.width - 24, p * r.width)) + "px";
+        };
+        $("seekWrap").onpointerleave = () => (tip.hidden = true);
+
+        v.onclick = togglePlay;
+        v.ondblclick = fullscreen;
+        stage.onpointermove = stage.onpointerdown = wake;
+        v.onplay = () => { $("play").textContent = "❚❚"; $("play").setAttribute("aria-label", "暂停"); wake(); };
+        v.onpause = () => { $("play").textContent = "▶"; $("play").setAttribute("aria-label", "播放"); stage.classList.remove("is-idle"); };
+        v.ontimeupdate = v.ondurationchange = () => {
+          $("time").textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+          if (v.duration) seek.value = Math.round((v.currentTime / v.duration) * 1000);
+        };
+        v.onvolumechange = () => { $("vol").value = v.muted ? 0 : v.volume; $("mute").textContent = v.muted || !v.volume ? "🔇" : "🔊"; };
+        v.onended = () => { if (loopMode === 0 && list.length) load((cur + 1) % list.length); };
+        v.onerror = () => { if (cur < 0 || !v.getAttribute("src")) return; list[cur].bad = true; $("msg").textContent = BAD; $("msg").hidden = false; render(); };
+        v.onloadeddata = () => { if (cur >= 0 && !v.videoWidth && v.duration) toast("只解码到音频，视频画面格式不受支持"); };
+        v.onloadedmetadata = () => { const it = list[cur]; if (it && !it.dur) { it.dur = v.duration; render(); } };
+
+        let dragN = 0;
+        addEventListener("dragenter", (e) => { e.preventDefault(); dragN++; document.body.classList.add("is-dragging"); });
+        addEventListener("dragleave", () => { if (--dragN <= 0) { dragN = 0; document.body.classList.remove("is-dragging"); } });
+        addEventListener("dragover", (e) => e.preventDefault());
+        addEventListener("drop", (e) => {
+          e.preventDefault(); dragN = 0; document.body.classList.remove("is-dragging");
+          const fs = [...e.dataTransfer.files], subs = fs.filter((f) => /\.(srt|vtt)$/i.test(f.name));
+          if (subs[0]) loadSub(subs[0]);
+          add(fs.filter((f) => !subs.includes(f)));
+        });
+
+        addEventListener("keydown", (e) => {
+          if (e.ctrlKey || e.metaKey || e.altKey || e.target.tagName === "SELECT") return;
+          const k = e.key, map = {
+            " ": togglePlay, k: togglePlay, K: togglePlay,
+            ArrowLeft: () => seekBy(-5), ArrowRight: () => seekBy(5), j: () => seekBy(-10), J: () => seekBy(-10), l: () => seekBy(10), L: () => seekBy(10),
+            ArrowUp: () => { setVol(v.volume + 0.1); toast(`音量 ${Math.round(v.volume * 100)}%`); }, ArrowDown: () => { setVol(v.volume - 0.1); toast(`音量 ${Math.round(v.volume * 100)}%`); },
+            f: fullscreen, F: fullscreen, m: () => $("mute").click(), M: () => $("mute").click(),
+            "<": () => setSpeed(-1), ",": () => setSpeed(-1), ">": () => setSpeed(1), ".": () => setSpeed(1),
+          };
+          if (!map[k]) return;
+          if (k === " " && e.target.tagName === "BUTTON") return;
+          e.preventDefault(); map[k](); wake();
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
