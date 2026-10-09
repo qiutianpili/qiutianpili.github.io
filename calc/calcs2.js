@@ -49,6 +49,8 @@
     var r = new Date(1900, 0, 31); r.setDate(r.getDate() + off + d - 1); return r;
   }
 
+  H.lunar = lunar; H.lunar2solar = lunar2solar;
+
   /* ======================= 财务理财 ======================= */
   add({ cat: "finance", id: "combo-loan", name: "组合贷款计算器", desc: "商业贷款 + 公积金贷款组合，合计月供与利息", kw: "公积金 组合贷 房贷",
     fields: [{ k: "c", l: "商业贷款金额", u: "万元", v: 70 }, { k: "cr", l: "商贷年利率", u: "%", v: 3.05 }, { k: "h", l: "公积金贷款金额", u: "万元", v: 50 }, { k: "hr", l: "公积金年利率", u: "%", v: 2.6 }, { k: "n", l: "贷款年限", u: "年", v: 30 }],
