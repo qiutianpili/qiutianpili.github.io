@@ -82,3 +82,7 @@
   .cx-box { padding: 14px; border-radius: 24px; }
 }
 @media (max-width: 380px) { .cx-kv { grid-template-columns: 1fr; } .cx-grid { grid-template-columns: 1fr; } }
+/* chips are links: beat .doc a:not(.btn) colour so the selected chip stays readable */
+.doc a.cx-chip { color: var(--text-secondary); }
+.doc a.cx-chip[aria-pressed="true"] { color: var(--text-primary-on) !important; background: var(--fill-primary); }
+.doc a.cx-back { color: var(--text-secondary); }
