@@ -841,6 +841,7 @@
 
   window.CX = {
     cats: { finance: "财务理财", property: "房产置业", auto: "汽车出行", health: "健康健身", math: "数学计算", convert: "单位换算", date: "日期时间", life: "生活实用", edu: "教育学业", biz: "商业财税", build: "工程建筑", science: "科学工程" },
-    list: L
+    list: L,
+    h: { add: add, ok: ok, need: need, pos: pos, f: f, g: g, y: y, wy: wy, pct: pct, D: D, iso: iso, WK: WK, dayDiff: dayDiff, addMonths: addMonths, ymd: ymd, pmt: pmt, taxBy: taxBy, IIT: IIT, IIT_M: IIT_M, unit: unit, gcd: gcd, purchaseTax: purchaseTax }
   };
 })();
