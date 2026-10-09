@@ -3,13 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="秋天霹雳的文章和更新记录。">
+  <meta name="description" content="秋天霹雳的全部文章、学习资料和站点更新记录。">
   <title>文章 | 秋天霹雳</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="assets/fonts/geist.css" />
-  <link rel="stylesheet" href="/assets/hark-sub.css">
-  <link rel="stylesheet" href="/assets/site.css">
-  <script src="/assets/hark-sub.js"></script>
+  <link rel="stylesheet" href="/assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610100100">
+  <link rel="stylesheet" href="/assets/site.css?v=2610100100">
+  <script src="/assets/hark-sub.js?v=2610100100"></script>
+  <style>
+    .post-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+    .post-filter button { min-height: 36px; padding: 0 16px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-tag); cursor: pointer; }
+    .post-filter button:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+    .post-filter button[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); border-color: transparent; }
+    .post-filter small { opacity: .7; margin-left: 4px; }
+    .timeline .post-cat { margin: 0 0 4px; font: var(--type-tag); color: var(--text-tertiary); }
+    .timeline article[hidden] { display: none; }
+    @media (max-width: 640px) { .timeline article { grid-template-columns: minmax(0, 1fr); gap: 6px; } }
+  </style>
 </head>
 <body>
   <div class="page-shell">
@@ -20,9 +30,10 @@
       </a>
       <nav class="x-pill x-links" aria-label="站点导航">
         <a href="/">首页</a>
-        <a href="/posts.html">文章</a>
+        <a href="/posts.html" aria-current="page">文章</a>
+        <a href="/hark/">项目</a>
+        <a href="/calc/">计算器</a>
         <a href="/assist.html">资源</a>
-        <a href="/download.html">下载</a>
         <a href="/friends.html">友链</a>
       </nav>
       <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
@@ -32,31 +43,148 @@
       <section class="page-title">
         <p class="eyebrow">Posts</p>
         <h1>文章与更新</h1>
-        <p>这里用于承接后续文章。当前先把仓库已有页面和本次站点整理记录归档。</p>
+        <p>教程、学习资料、Linux 笔记和站点更新，按时间倒序排列。</p>
       </section>
 
+      <div class="post-filter" role="group" aria-label="筛选">
+        <button type="button" data-f="all" aria-pressed="true">全部<small>15</small></button>
+        <button type="button" data-f="post" aria-pressed="false">文章<small>9</small></button>
+        <button type="button" data-f="site" aria-pressed="false">站点更新<small>6</small></button>
+      </div>
+
       <section class="timeline">
-        <article>
+        <article data-kind="post">
           <time datetime="2026-10-09">2026-10-09</time>
           <div>
+            <p class="post-cat">教程</p>
             <h2>断开远程桌面但保持会话不锁屏（tscon）</h2>
-            <p>一行命令把远程桌面会话切回本机控制台，断开后程序继续运行、不锁屏。</p>
-            <a href="dryitem/rdp-tscon-console.html">打开页面</a>
+            <p>一行命令把远程桌面会话切回本机控制台，断开 RDP 后程序继续运行、不锁屏。</p>
+            <a href="dryitem/rdp-tscon-console.html">阅读全文</a>
           </div>
         </article>
-        <article>
+        <article data-kind="site">
+          <time datetime="2026-10-09">2026-10-09</time>
+          <div>
+            <p class="post-cat">站点更新</p>
+            <h2>Any Music 上线</h2>
+            <p>自建在线音乐站：歌单、收藏、逐句同步歌词，多台设备各放各的；白名单账号登录。</p>
+            <a href="https://music.20610728.xyz/" target="_blank" rel="noopener">打开页面</a>
+          </div>
+        </article>
+        <article data-kind="site">
+          <time datetime="2026-10-09">2026-10-09</time>
+          <div>
+            <p class="post-cat">站点更新</p>
+            <h2>性压抑指数测评</h2>
+            <p>基于开源项目（MIT）的性心理自评工具，提供快测与完整版，数据只存在本机。</p>
+            <a href="/sri/">打开页面</a>
+          </div>
+        </article>
+        <article data-kind="site">
+          <time datetime="2026-10-09">2026-10-09</time>
+          <div>
+            <p class="post-cat">站点更新</p>
+            <h2>计算器中心上线，667 个计算器</h2>
+            <p>房贷、个税、工资到手、BMI、单位换算、日期推算、农历等，全部在浏览器本地计算。</p>
+            <a href="/calc/">打开页面</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-10-08">2026-10-08</time>
+          <div>
+            <p class="post-cat">学习资料</p>
+            <h2>共青团基本知识</h2>
+            <p>团的性质、入团条件、团员义务与权利、团旗团徽与团费等基础知识，附 8 道自测题。</p>
+            <a href="dryitem/cyl-basics.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="site">
+          <time datetime="2026-10-08">2026-10-08</time>
+          <div>
+            <p class="post-cat">站点更新</p>
+            <h2>全站换上 Hark 新样式</h2>
+            <p>主页重新设计，子页面统一样式、深浅色和返回主页按钮；新增太阳出逃、Miku 甩葱舞、本地音乐/视频播放器和计算器。</p>
+            <a href="/hark/">打开页面</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-07-30">2026-07-30</time>
+          <div>
+            <p class="post-cat">教程</p>
+            <h2>Claude Desktop 对接第三方 Deepseek API Key</h2>
+            <p>用 CC-Switch 和 OpenOX 令牌，让 Claude Desktop 跑在 Deepseek 模型上的图文教程。</p>
+            <a href="claude-deepseek-apikey.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-07-25">2026-07-25</time>
+          <div>
+            <p class="post-cat">Linux 笔记</p>
+            <h2>模块 A Linux 2 小时基础分抢分手册</h2>
+            <p>VMware + Debian 12 环境，按时间轴先拿可验证的基础分，每项附验收命令。</p>
+            <a href="linux/BLinux.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-07-25">2026-07-25</time>
+          <div>
+            <p class="post-cat">Linux 笔记</p>
+            <h2>项目和任务的描述及解决办法</h2>
+            <p>Linux 赛项各任务的初始化命令与配置思路整理。</p>
+            <a href="linux/ALinux.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="site">
+          <time datetime="2026-07-08">2026-07-08</time>
+          <div>
+            <p class="post-cat">站点更新</p>
+            <h2>资源中心新增 NekoBox 与 SingBox</h2>
+            <p>补充 NekoBox、SingBox GUI / NoGUI 的说明、截图和下载链接。</p>
+            <a href="assist.html">打开页面</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-07-01">2026-07-01</time>
+          <div>
+            <p class="post-cat">Linux 笔记</p>
+            <h2>Vim 编辑器常用命令指南</h2>
+            <p>三种模式、移动、编辑、搜索替换等最常用的 Vim 命令。</p>
+            <a href="linux/vim.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-07-01">2026-07-01</time>
+          <div>
+            <p class="post-cat">Linux 笔记</p>
+            <h2>Linux yum 命令核心指南</h2>
+            <p>红帽系发行版的包管理：安装、更新、查询、仓库与缓存管理。</p>
+            <a href="linux/yum.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="post">
+          <time datetime="2026-06-30">2026-06-30</time>
+          <div>
+            <p class="post-cat">学习资料</p>
+            <h2>毛概复习资料（客观题）</h2>
+            <p>249 道单选、多选与判断题，附正确答案，适合考前刷题。</p>
+            <a href="mgtest.html">阅读全文</a>
+          </div>
+        </article>
+        <article data-kind="site">
           <time datetime="2026-06-23">2026-06-23</time>
           <div>
+            <p class="post-cat">站点更新</p>
             <h2>重构 GitHub Pages 首页</h2>
-            <p>参考 Firefly 的博客信息架构，把主页改为静态门户，新增资源、文章、友链等入口。</p>
+            <p>把主页改为静态门户，新增资源、文章、友链等入口。</p>
           </div>
         </article>
-        <article>
-          <time datetime="2026-06-21">2026-06-21</time>
+        <article data-kind="post">
+          <time datetime="2025-11-23">2025-11-23</time>
           <div>
+            <p class="post-cat">教程</p>
             <h2>PowerShell 修改文件日期</h2>
-            <p>保留原有干货页面，后续可以迁移为正式文章模板。</p>
-            <a href="dryitem/PowerShellEditFileDate.html">打开页面</a>
+            <p>用 PowerShell 修改文件的创建、修改和访问时间。</p>
+            <a href="dryitem/PowerShellEditFileDate.html">阅读全文</a>
           </div>
         </article>
       </section>
@@ -67,5 +195,23 @@
       <a href="/">首页</a>
     </footer>
   </div>
+  <script>
+    (function () {
+      var bs = [].slice.call(document.querySelectorAll(".post-filter button"));
+      var as = [].slice.call(document.querySelectorAll(".timeline article"));
+      function apply(f) {
+        bs.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === f)); });
+        as.forEach(function (a) { a.hidden = f !== "all" && a.dataset.kind !== f; });
+      }
+      bs.forEach(function (b) {
+        b.addEventListener("click", function () {
+          apply(b.dataset.f);
+          try { history.replaceState(null, "", b.dataset.f === "all" ? location.pathname : "#" + b.dataset.f); } catch (e) {}
+        });
+      });
+      var h = location.hash.slice(1);
+      if (h === "post" || h === "site") apply(h);
+    })();
+  </script>
 </body>
 </html>

@@ -42,17 +42,31 @@
 
   var HOUSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>';
 
-  var NAV = [["/", "首页"], ["/posts.html", "文章"], ["/assist.html", "资源"], ["/download.html", "下载"], ["/friends.html", "友链"]];
+  // One navigation for the whole site. Every static .hark-bar nav is rewritten to this list,
+  // so editing it here updates every page (the homepage copies it by hand in index.html).
+  var NAV = [["/", "首页"], ["/posts.html", "文章"], ["/hark/", "项目"], ["/calc/", "计算器"], ["/assist.html", "资源"], ["/friends.html", "友链"]];
+  // which nav item a page belongs to
+  function section(p) {
+    if (p === "/") return "/";
+    if (p === "/404") return "";
+    if (/^\/(posts|dryitem\/|linux\/|claude-deepseek-apikey|mgtest)/.test(p)) return "/posts.html";
+    if (/^\/(calc|sri)(\/|$)/.test(p)) return "/calc/";
+    if (/^\/(assist|download|help)(\/|$)/.test(p)) return "/assist.html";
+    if (p === "/friends") return "/friends.html";
+    return "/hark/";
+  }
+  var sec = section(path);
+  function navHTML() {
+    return NAV.map(function (n) {
+      var cur = n[0] !== "/" && n[0] === sec;
+      return '<a href="' + n[0] + '"' + (cur ? ' aria-current="page"' : "") + ">" + n[1] + "</a>";
+    }).join("");
+  }
   function headerHTML() {
     return '<a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">' +
       '<span class="x-brand__mark" aria-hidden="true">Q</span>' +
       '<span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span></a>' +
-      '<nav class="x-pill x-links" aria-label="站点导航">' +
-      NAV.map(function (n) {
-        var cur = n[0] !== "/" && path === norm(n[0]);
-        return '<a href="' + n[0] + '"' + (cur ? ' aria-current="page"' : "") + ">" + n[1] + "</a>";
-      }).join("") +
-      "</nav>" +
+      '<nav class="x-pill x-links" aria-label="站点导航">' + navHTML() + "</nav>" +
       '<button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>';
   }
 
@@ -65,10 +79,11 @@
       bar.innerHTML = headerHTML();
       body.insertBefore(bar, body.firstChild);
     }
-    // mark the current page in any static header
-    [].forEach.call(doc.querySelectorAll(".hark-bar .x-links a"), function (a) {
-      var href = a.getAttribute("href") || "";
-      if (href !== "/" && href.charAt(0) === "/" && norm(href) === path) a.setAttribute("aria-current", "page");
+    // unify every static header's links
+    [].forEach.call(doc.querySelectorAll(".hark-bar .x-links"), function (nav) {
+      nav.innerHTML = navHTML();
+      var cur = nav.querySelector('[aria-current="page"]');
+      if (cur) nav.scrollLeft = Math.max(0, cur.offsetLeft - 8);
     });
     [].forEach.call(doc.querySelectorAll("[data-theme-toggle], .hark-bar .x-theme"), function (b) {
       if (b.__harkBound) return;

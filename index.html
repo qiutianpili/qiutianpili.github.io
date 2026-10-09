@@ -96,7 +96,7 @@
         box-shadow: inset 0 0 0 1.5px currentColor;
         background: linear-gradient(to right, light-dark(currentColor, transparent) 50%, light-dark(transparent, currentColor) 50%);
       }
-      .section, .hero, .x-strip, #works { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }
+      .section, .hero, .x-strip { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px); }
       @media (max-width: 760px) {
         .x-bar { gap: 6px; }
         .x-brand { padding-right: 4px; }
@@ -266,10 +266,12 @@
           <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
         </a>
         <nav class="x-pill x-links" id="x-links" aria-label="站点导航">
-          <a href="#music">音乐</a>
-          <a href="#posts">文章</a>
-          <a href="#tools">工具</a>
-          <a href="#more">其他</a>
+          <a href="/" aria-current="page">首页</a>
+          <a href="/posts.html">文章</a>
+          <a href="/hark/">项目</a>
+          <a href="/calc/">计算器</a>
+          <a href="/assist.html">资源</a>
+          <a href="/friends.html">友链</a>
         </nav>
         <button class="x-pill x-theme" id="theme-btn" type="button" aria-label="切换深浅色"></button>
       </header>
@@ -281,22 +283,17 @@
             <h1>把常用工具、记录和小作品整理到一个清爽入口。</h1>
             <p class="hero__sub">这里是秋天霹雳的 GitHub Pages 主页。页面保持静态部署，打开即用，后续可以继续扩展成博客、资源库或作品集。</p>
             <div class="links">
-              <a class="btn" href="#posts">查看内容</a>
+              <a class="btn" href="/posts.html">查看文章</a>
               <a class="btn" href="https://space.bilibili.com/399766872" target="_blank" rel="noopener">Bilibili</a>
             </div>
           </div>
           <aside class="callout" aria-label="Now">
             <p class="callout__head"><span class="chip chip--solid">Now</span></p>
-            <p class="callout__lead"><strong>主页换上了新样式</strong> 全新设计，新增互动小作品专区。</p>
-            <a class="btn" href="#works">去看看小作品</a>
+            <p class="callout__lead"><strong>全站整理完成</strong> 统一导航，文章归档到一页，项目集中到一个入口。</p>
+            <a class="btn" href="/hark/">查看全部项目</a>
           </aside>
         </section>
 
-        <nav class="x-strip x-reveal" aria-label="快速入口">
-          <a class="x-tile" href="assist.html"><span><b>资源</b><small>常用软件与帮助入口</small></span></a>
-          <a class="x-tile" href="firework.html"><span><b>烟花</b><small>Canvas 烟花互动</small></span></a>
-          <a class="x-tile" href="download.html"><span><b>下载</b><small>临时文件和说明</small></span></a>
-        </nav>
 
         <section class="section" id="music">
           <div class="x-am x-reveal">
@@ -311,90 +308,60 @@
 
         <section class="section" id="posts">
           <div class="head x-reveal">
-            <p class="head__eyebrow">最近整理</p>
-            <h2>最近整理的更新、教程和导航。</h2>
+            <p class="head__eyebrow">最近文章</p>
+            <h2>最近更新的教程和资料。</h2>
           </div>
           <div class="cards">
             <div class="x-post x-reveal">
-              <p class="x-kicker">学习资料 <span class="dot">新</span></p>
+              <p class="x-kicker">教程 <span class="dot">新</span></p>
+              <h3>断开远程桌面但保持会话不锁屏</h3>
+              <p>一行 tscon 命令把远程会话切回本机控制台，断开后程序继续运行。</p>
+              <div class="links"><a class="btn" href="dryitem/rdp-tscon-console.html">阅读</a></div>
+            </div>
+            <div class="x-post x-reveal">
+              <p class="x-kicker">学习资料</p>
               <h3>共青团基本知识</h3>
               <p>团的性质、入团条件、团员义务与权利、团旗团徽与团费等基础知识整理。</p>
               <div class="links"><a class="btn" href="dryitem/cyl-basics.html">阅读</a></div>
             </div>
             <div class="x-post x-reveal">
-              <p class="x-kicker">站点更新 <span class="dot">精选</span></p>
-              <h3>主页重构为静态博客入口</h3>
-              <p>替换原有损坏的首页结构，新增统一导航、响应式卡片、深浅色切换和可继续扩展的内容区域。</p>
-              <div class="links"><a class="btn" href="posts.html">阅读</a></div>
-            </div>
-            <div class="x-post x-reveal">
               <p class="x-kicker">教程</p>
-              <h3>PowerShell 修改文件日期</h3>
-              <p>保留原有干货页面，并将其纳入新的主页导航体系。</p>
-              <div class="links"><a class="btn" href="dryitem/PowerShellEditFileDate.html">阅读</a></div>
-            </div>
-            <div class="x-post x-reveal">
-              <p class="x-kicker">导航</p>
-              <h3>帮助中心和常用工具</h3>
-              <p>把代理工具、压缩工具、截图工具等入口集中到一个更易维护的页面。</p>
-              <div class="links"><a class="btn" href="assist.html">打开</a></div>
+              <h3>Claude Desktop 对接 Deepseek API Key</h3>
+              <p>用 CC-Switch 和第三方令牌，让 Claude Desktop 跑在 Deepseek 模型上。</p>
+              <div class="links"><a class="btn" href="claude-deepseek-apikey.html">阅读</a></div>
             </div>
           </div>
+          <div class="links x-reveal"><a class="btn" href="/posts.html">更多文章</a></div>
         </section>
 
-        <section class="section" id="tools">
+        <section class="section" id="projects">
           <div class="head x-reveal">
-            <p class="head__eyebrow">快捷入口</p>
-            <h2>常用页面，一步直达。</h2>
-          </div>
-          <div class="x-strip x-reveal">
-            <a class="x-tile" href="copylink.html"><span><small>复制链接</small><b>新年祝福页</b></span></a>
-            <a class="x-tile" href="kiku/"><span><small>页面收藏</small><b>Kiku</b></span></a>
-            <a class="x-tile" href="mchack/"><span><small>专题页面</small><b>MC Hack</b></span></a>
-            <a class="x-tile" href="calc/"><span><small>在线工具</small><b>计算器中心</b></span></a>
-          </div>
-        </section>
-
-        <section class="section" id="more">
-          <span id="works" aria-hidden="true"></span>
-          <div class="head x-reveal">
-            <p class="head__eyebrow">其他</p>
-            <h2>小作品、资源和友链，都在这里。</h2>
-            <p class="head__sub">四个小作品都在浏览器里运行，不用安装。</p>
+            <p class="head__eyebrow">项目</p>
+            <h2>工具、小作品和资源，一个入口。</h2>
           </div>
           <div class="x-works">
-            <a class="x-work x-work--sun x-reveal" href="hark/sun-escape.html">
-              <span class="x-work__icon" aria-hidden="true"><span>🌞</span></span>
-              <div><h3>太阳出逃</h3><p>拖动太阳甩出太阳系，长按制造引力井</p></div>
+            <a class="x-work x-work--sun x-reveal" href="/calc/">
+              <span class="x-work__icon" aria-hidden="true"><span>📐</span></span>
+              <div><h3>计算器中心</h3><p>房贷、个税、BMI、换算等 660+ 个计算器</p></div>
               <span class="x-work__go" aria-hidden="true">↗</span>
             </a>
-            <a class="x-work x-work--miku x-reveal" href="hark/miku.html">
-              <span class="x-work__icon" aria-hidden="true"><span>🎵</span></span>
-              <div><h3>Miku 甩葱舞</h3><p>跟着 Ievan Polkka 甩葱</p></div>
+            <a class="x-work x-work--miku x-reveal" href="/hark/">
+              <span class="x-work__icon" aria-hidden="true"><span>🎮</span></span>
+              <div><h3>互动小作品</h3><p>太阳出逃、Miku 甩葱舞、烟花和本地播放器</p></div>
               <span class="x-work__go" aria-hidden="true">↗</span>
             </a>
-            <a class="x-work x-work--music x-reveal" href="hark/music-player.html">
-              <span class="x-work__icon" aria-hidden="true"><span>🎧</span></span>
-              <div><h3>本地音乐播放器</h3><p>拖入 MP3 直接播放</p></div>
-              <span class="x-work__go" aria-hidden="true">↗</span>
-            </a>
-            <a class="x-work x-work--video x-reveal" href="hark/video-player.html">
-              <span class="x-work__icon" aria-hidden="true"><span>🎬</span></span>
-              <div><h3>本地视频播放器</h3><p>拖入视频，支持字幕与截图</p></div>
-              <span class="x-work__go" aria-hidden="true">↗</span>
-            </a>
-            <a class="x-work x-work--assist x-reveal" href="assist.html">
+            <a class="x-work x-work--assist x-reveal" href="/assist.html">
               <span class="x-work__icon" aria-hidden="true"><span>📦</span></span>
-              <div><h3>资源</h3><p>常用软件与帮助入口</p></div>
+              <div><h3>资源与下载</h3><p>常用软件、帮助入口和临时文件</p></div>
               <span class="x-work__go" aria-hidden="true">↗</span>
             </a>
-            <a class="x-work x-work--friends x-reveal" href="friends.html">
+            <a class="x-work x-work--friends x-reveal" href="/friends.html">
               <span class="x-work__icon" aria-hidden="true"><span>🔗</span></span>
               <div><h3>友链</h3><p>朋友们的站点</p></div>
               <span class="x-work__go" aria-hidden="true">↗</span>
             </a>
           </div>
-          <div class="links x-reveal"><a class="btn" href="hark/">全部作品</a></div>
+          <div class="links x-reveal"><a class="btn" href="/hark/">全部项目</a></div>
         </section>
       </main>
 
