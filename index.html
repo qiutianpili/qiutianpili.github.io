@@ -235,6 +235,27 @@
         .x-work, .x-tile { transform: none !important; transition: none; }
         .x-work:hover .x-work__icon span { animation: none; }
       }
+      /* Any Music feature + first-visit tip */
+      .x-am { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 20px; border-radius: var(--r-l); background: var(--mat-agent); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); border: 1px solid var(--stroke-composer); box-shadow: var(--hark-shadow); color: var(--text-primary); }
+      .x-am__icon { width: 56px; height: 56px; border-radius: 14px; display: block; box-shadow: 0 4px 14px rgb(37 99 235 / 0.28); }
+      .x-am h3 { margin: 0 0 4px; font-size: var(--size-title); }
+      .x-am p { margin: 0; color: var(--text-secondary); font-size: var(--size-small); }
+      .x-am .links { margin: 0; }
+      @media (max-width: 599px) { .x-am { grid-template-columns: auto minmax(0, 1fr); } .x-am .links { grid-column: 1 / -1; } }
+      .am-tip { position: fixed; inset: 0; z-index: 2147483100; display: grid; place-items: center; padding: 20px; background: rgb(0 0 0 / 0.38); opacity: 0; transition: opacity var(--dur-quick, .2s) ease; }
+      .am-tip.is-open { opacity: 1; }
+      .am-tip[hidden] { display: none; }
+      .am-tip__card { position: relative; width: min(380px, 100%); display: grid; gap: 12px; justify-items: center; text-align: center; padding: 26px 22px 20px; border-radius: var(--r-xl, 22px); background: var(--mat-agent); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); border: 1px solid var(--stroke-composer); box-shadow: var(--hark-shadow), 0 20px 50px rgb(0 0 0 / 0.25); color: var(--text-primary); transform: translateY(10px) scale(.98); transition: transform var(--dur-quick, .2s) var(--ease-out, ease); }
+      .am-tip.is-open .am-tip__card { transform: none; }
+      .am-tip__card img { width: 64px; height: 64px; border-radius: 16px; }
+      .am-tip__card h2 { margin: 0; font-size: var(--size-heading); }
+      .am-tip__card p { margin: 0; color: var(--text-secondary); font-size: var(--size-small); }
+      .am-tip__go { width: 100%; justify-content: center; min-height: 40px; background: var(--fill-primary); color: var(--text-primary-on); border-color: transparent; font-weight: 600; }
+      .am-tip__row { display: flex; gap: 8px; width: 100%; }
+      .am-tip__row .btn { flex: 1; justify-content: center; min-height: 36px; cursor: pointer; }
+      .am-tip__x { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; color: var(--text-secondary); font-size: 20px; line-height: 1; cursor: pointer; }
+      .am-tip__x:hover { background: var(--hover-wash); }
+      @media (prefers-reduced-motion: reduce) { .am-tip, .am-tip__card { transition: none; } }
     </style>
   </head>
   <body>
@@ -245,6 +266,7 @@
           <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
         </a>
         <nav class="x-pill x-links" id="x-links" aria-label="站点导航">
+          <a href="#music">音乐</a>
           <a href="#posts">文章</a>
           <a href="#tools">工具</a>
           <a href="#more">其他</a>
@@ -275,6 +297,17 @@
           <a class="x-tile" href="firework.html"><span><b>烟花</b><small>Canvas 烟花互动</small></span></a>
           <a class="x-tile" href="download.html"><span><b>下载</b><small>临时文件和说明</small></span></a>
         </nav>
+
+        <section class="section" id="music">
+          <div class="x-am x-reveal">
+            <img class="x-am__icon" src="assets/anymusic.png" alt="" width="56" height="56">
+            <div>
+              <h3>Any Music</h3>
+              <p>我的在线音乐站：歌单、收藏、逐句同步歌词，多台设备各放各的。需白名单账号登录。</p>
+            </div>
+            <div class="links"><a class="btn" href="https://music.20610728.xyz/" target="_blank" rel="noopener">打开 Any Music</a></div>
+          </div>
+        </section>
 
         <section class="section" id="posts">
           <div class="head x-reveal">
@@ -373,6 +406,48 @@
         </nav>
       </footer>
     </div>
+    <div class="am-tip" id="am-tip" role="dialog" aria-modal="true" aria-labelledby="am-tip-title" hidden>
+      <div class="am-tip__card">
+        <button class="am-tip__x" type="button" data-am-close aria-label="关闭">×</button>
+        <img src="assets/anymusic.png" alt="" width="64" height="64">
+        <h2 id="am-tip-title">新上线：Any Music</h2>
+        <p>本站的在线音乐播放器，支持歌单、同步歌词和多设备独立播放。白名单用户登录后即可收听。</p>
+        <a class="btn am-tip__go" href="https://music.20610728.xyz/" target="_blank" rel="noopener" data-am-close>去听歌</a>
+        <div class="am-tip__row">
+          <button class="btn" type="button" data-am-close>知道了</button>
+          <button class="btn" type="button" data-am-never>不再提示</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var KEY = "anymusic-tip-off", tip = document.getElementById("am-tip");
+        if (!tip) return;
+        var off = false;
+        try { off = localStorage.getItem(KEY) === "1" || sessionStorage.getItem(KEY) === "1"; } catch (e) {}
+        if (off) return;
+        var last = null;
+        function close(never) {
+          try { (never ? localStorage : sessionStorage).setItem(KEY, "1"); } catch (e) {}
+          tip.classList.remove("is-open");
+          document.removeEventListener("keydown", onKey);
+          setTimeout(function () { tip.hidden = true; if (last && last.focus) last.focus(); }, 200);
+        }
+        function onKey(e) { if (e.key === "Escape") close(false); }
+        tip.addEventListener("click", function (e) {
+          if (e.target === tip) return close(false);
+          if (e.target.closest("[data-am-never]")) return close(true);
+          if (e.target.closest("[data-am-close]")) close(false);
+        });
+        setTimeout(function () {
+          last = document.activeElement;
+          tip.hidden = false;
+          requestAnimationFrame(function () { tip.classList.add("is-open"); });
+          document.addEventListener("keydown", onKey);
+          var b = tip.querySelector(".am-tip__go"); if (b) b.focus({ preventScroll: true });
+        }, 700);
+      })();
+    </script>
     <script src="hark.js"></script>
     <script>
       (function () {
