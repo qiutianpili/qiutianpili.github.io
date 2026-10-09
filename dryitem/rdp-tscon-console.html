@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>断开远程桌面但保持会话不锁屏（tscon） | 秋天霹雳</title>
+  <meta name="description" content="用一行 tscon 命令把当前远程桌面会话切回本机控制台，断开 RDP 后程序继续在桌面上运行、不锁屏。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <link rel="stylesheet" href="/assets/hark-doc.css">
+  <script src="/assets/hark-sub.js"></script>
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/assist.html">资源</a>
+        <a href="/download.html">下载</a>
+        <a href="/friends.html">友链</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows 远程桌面</p>
+      <h1>断开远程桌面但保持会话不锁屏（tscon）</h1>
+    </header>
+
+    <p>直接关掉远程桌面窗口，Windows 会把会话锁住、桌面不再渲染，依赖界面的脚本、挂机程序、游戏就会停下。下面这一行命令把当前会话"交还"给本机的物理控制台：远程连接立即断开，但桌面保持解锁、继续运行。</p>
+
+    <h2>命令</h2>
+    <p>在远程桌面里，<b>以管理员身份</b>打开 PowerShell，运行：</p>
+    <pre><code>tscon (Get-Process -Id $PID).SessionId /dest:console</code></pre>
+
+    <h2>它做了什么</h2>
+    <ul>
+      <li><code>$PID</code> 是当前 PowerShell 进程的 ID，<code>(Get-Process -Id $PID).SessionId</code> 取到它所在的会话编号，也就是你正在用的这个远程桌面会话。</li>
+      <li><code>tscon &lt;会话编号&gt; /dest:console</code> 把这个会话连接到本机控制台（物理显示器那一路）。</li>
+      <li>结果：远程桌面窗口会断开，电脑本地屏幕上显示的是已解锁的桌面，程序照常运行。</li>
+    </ul>
+
+    <h2>想手动查看会话编号</h2>
+    <pre><code>query session</code></pre>
+    <p>带 <code>&gt;</code> 的那一行就是当前会话，<code>ID</code> 列即编号，也可以写成 <code>tscon 2 /dest:console</code> 这种形式。</p>
+
+    <h2>做成双击即用的快捷方式</h2>
+    <p>新建 <code>rdp-to-console.bat</code>，右键"以管理员身份运行"：</p>
+    <pre><code>@echo off
+powershell -NoProfile -Command "tscon (Get-Process -Id $PID).SessionId /dest:console"</code></pre>
+
+    <h2>注意事项</h2>
+    <ul>
+      <li>必须用管理员权限运行，否则会提示拒绝访问。</li>
+      <li>执行后本机显示器上是解锁状态，任何人坐到电脑前都能直接操作，公共场所慎用。</li>
+      <li>下次再用远程桌面连上来，会自动接回同一个会话，正在运行的程序不受影响。</li>
+      <li>适用于 Windows 专业版 / 企业版 / Server 自带的远程桌面。</li>
+    </ul>
+  </main>
+</body>
+</html>
