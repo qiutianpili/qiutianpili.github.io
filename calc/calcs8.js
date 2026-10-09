@@ -128,6 +128,8 @@
     fields: [{ k: "n", l: "每天次数", t: "sel", o: [[1, "一日一次"], [2, "一日两次"], [3, "一日三次"], [4, "一日四次"]], v: 3 }, { k: "w", l: "起床时间", t: "text", v: "07:00" }, { k: "s", l: "睡觉时间", t: "text", v: "23:00" }, { k: "m", l: "方式", t: "sel", o: ["清醒时段内平均", "严格每隔 24/n 小时"] }],
     run: function (v) { var a = tmin(v.w), b = tmin(v.s); if (b <= a) b += 1440; var T = []; if (v.m[0] === "严") for (var i = 0; i < v.n; i++) T.push(a + i * 1440 / v.n); else if (v.n === 1) T.push(a + 60); else for (i = 0; i < v.n; i++) T.push(a + 30 + (b - a - 60) * i / (v.n - 1)); return { table: { h: ["第几次", "时间"], r: T.map(function (t, i) { return ["第 " + (i + 1) + " 次", hm(t)]; }) }, note: "饭前、饭后、睡前等特殊要求以说明书和医嘱为准；抗生素等需维持血药浓度的药按严格间隔服用。" }; } });
 
+  add({ cat: "health", id: "sri", name: "性压抑指数（SRI）测评", desc: "基于 SIS/SES、Mosher 性内疚、KISS-9、SOS 量表的自评问卷，快测 39 题 / 完整版 117 题，数据只存本机", kw: "性压抑 sri 性心理 问卷 测评", href: "/sri/", fields: [], run: function () {} });
+
   /* ======================= 数学计算 ======================= */
   add({ cat: "math", id: "ratio-split", name: "按比例分配", desc: "把一个总数按 3:2:1 这样的比例分成几份", kw: "按比例分配 比例 分配",
     fields: [{ k: "t", l: "总数", v: 12000 }, { k: "r", l: "比例（如 3:2:1）", t: "text", v: "3:2:1" }],
