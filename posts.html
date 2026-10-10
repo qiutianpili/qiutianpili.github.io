@@ -7,9 +7,9 @@
   <title>文章 | 秋天霹雳</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="stylesheet" href="/assets/fonts/geist.css" />
-  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610100100">
-  <link rel="stylesheet" href="/assets/site.css?v=2610100100">
-  <script src="/assets/hark-sub.js?v=2610100100"></script>
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101100">
+  <link rel="stylesheet" href="/assets/site.css?v=2610101100">
+  <script src="/assets/hark-sub.js?v=2610101100"></script>
   <style>
     .post-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
     .post-filter button { min-height: 36px; padding: 0 16px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-primary); font: var(--type-tag); cursor: pointer; }
@@ -32,9 +32,6 @@
         <a href="/">首页</a>
         <a href="/posts.html" aria-current="page">文章</a>
         <a href="/hark/">项目</a>
-        <a href="/calc/">计算器</a>
-        <a href="/assist.html">资源</a>
-        <a href="/friends.html">友链</a>
       </nav>
       <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
     </header>
@@ -199,18 +196,26 @@
     (function () {
       var bs = [].slice.call(document.querySelectorAll(".post-filter button"));
       var as = [].slice.call(document.querySelectorAll(".timeline article"));
-      function apply(f) {
-        bs.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.f === f)); });
-        as.forEach(function (a) { a.hidden = f !== "all" && a.dataset.kind !== f; });
+      function apply(f, cat) {
+        bs.forEach(function (b) { b.setAttribute("aria-pressed", String(!cat && b.dataset.f === f)); });
+        as.forEach(function (a) {
+          var c = (a.querySelector(".post-cat") || {}).textContent || "";
+          a.hidden = cat ? c.trim() !== cat : (f !== "all" && a.dataset.kind !== f);
+        });
+      }
+      function fromHash() {
+        var h = decodeURIComponent(location.hash.slice(1));
+        if (h.indexOf("c=") === 0) apply("all", h.slice(2));
+        else apply(h === "post" || h === "site" ? h : "all");
       }
       bs.forEach(function (b) {
         b.addEventListener("click", function () {
-          apply(b.dataset.f);
           try { history.replaceState(null, "", b.dataset.f === "all" ? location.pathname : "#" + b.dataset.f); } catch (e) {}
+          fromHash();
         });
       });
-      var h = location.hash.slice(1);
-      if (h === "post" || h === "site") apply(h);
+      window.addEventListener("hashchange", fromHash);
+      fromHash();
     })();
   </script>
 </body>

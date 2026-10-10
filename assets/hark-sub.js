@@ -44,15 +44,12 @@
 
   // One navigation for the whole site. Every static .hark-bar nav is rewritten to this list,
   // so editing it here updates every page (the homepage copies it by hand in index.html).
-  var NAV = [["/", "首页"], ["/posts.html", "文章"], ["/hark/", "项目"], ["/calc/", "计算器"], ["/assist.html", "资源"], ["/friends.html", "友链"]];
+  var NAV = [["/", "首页"], ["/posts.html", "文章"], ["/hark/", "项目"]];
   // which nav item a page belongs to
   function section(p) {
     if (p === "/") return "/";
     if (p === "/404") return "";
     if (/^\/(posts|dryitem\/|linux\/|claude-deepseek-apikey|mgtest)/.test(p)) return "/posts.html";
-    if (/^\/(calc|sri)(\/|$)/.test(p)) return "/calc/";
-    if (/^\/(assist|download|help)(\/|$)/.test(p)) return "/assist.html";
-    if (p === "/friends") return "/friends.html";
     return "/hark/";
   }
   var sec = section(path);
@@ -91,6 +88,11 @@
       b.addEventListener("click", toggle);
     });
     label();
+    if (doc.querySelector("header.x-bar") && !doc.querySelector("script[src*='hark-side.js']")) {
+      var sd = doc.createElement("script");
+      sd.src = "/assets/hark-side.js?v=2610101100";
+      doc.head.appendChild(sd);
+    }
     if (!isHome && opt.fab !== "off" && !doc.querySelector(".home-fab")) {
       var a = doc.createElement("a");
       a.className = "home-fab" + (opt.fab === "top" ? " home-fab--top" : "");
