@@ -90,7 +90,7 @@
     label();
     if (doc.querySelector("header.x-bar") && !doc.querySelector("script[src*='hark-side.js']")) {
       var sd = doc.createElement("script");
-      sd.src = "/assets/hark-side.js?v=2610101100";
+      sd.src = "/assets/hark-side.js?v=2610101300";
       doc.head.appendChild(sd);
     }
     if (!isHome && opt.fab !== "off" && !doc.querySelector(".home-fab")) {

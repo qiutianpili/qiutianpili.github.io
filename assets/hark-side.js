@@ -25,6 +25,7 @@
     ["资源", [
       ["/assist.html", "资源中心"],
       ["/download.html", "下载"],
+      ["/videos/", "视频"],
       ["/help/main.html", "帮助中心"],
       ["/friends.html", "友链"]
     ]]
