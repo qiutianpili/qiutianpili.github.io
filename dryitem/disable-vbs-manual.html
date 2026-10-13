@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>彻底关闭 Windows 的“基于虚拟化的安全性”（VBS）：手动五步法 | 秋天霹雳</title>
+  <meta name="description" content="不用第三方工具，从 Windows 安全中心、bcdedit 引导配置、组策略/注册表和可选功能四个层面彻底关闭 VBS 与内存完整性，并用 msinfo32 验证。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <link rel="stylesheet" href="/assets/hark-doc.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/dryitem/disable-vbs-manual.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="彻底关闭 Windows 的“基于虚拟化的安全性”（VBS）：手动五步法 | 秋天霹雳">
+  <meta property="og:description" content="不用第三方工具，从 Windows 安全中心、bcdedit 引导配置、组策略/注册表和可选功能四个层面彻底关闭 VBS 与内存完整性，并用 msinfo32 验证。">
+  <meta property="og:url" content="https://20610728.xyz/dryitem/disable-vbs-manual.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/hark/">项目</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows</p>
+      <h1>彻底关闭 Windows 的“基于虚拟化的安全性”（VBS）</h1>
+    </header>
+
+    <p class="lead">只在 Windows 安全中心关掉开关并不能彻底关闭 VBS（Virtualization-based Security）：底层的虚拟机监控程序（Hyper-V Hypervisor）仍可能随系统引导启动。要彻底关闭，需要从<b>系统设置</b>、<b>引导配置（BCD）</b>、<b>组策略/注册表</b>三个层面一起处理，再关掉依赖它的可选功能。</p>
+    <p class="tip">想省事可以直接用微软官方脚本一键关闭，见 <a href="/dryitem/disable-vbs.html">用微软官方工具关闭 VBS</a>。本文是不借助脚本的手动做法。</p>
+
+    <h2>第一步：关闭“内存完整性”（HVCI）</h2>
+    <ol>
+      <li>按 <code>Win + S</code> 搜索并打开 <b>Windows 安全中心</b>。</li>
+      <li>依次点击 <b>设备安全性 → 内核隔离详细信息</b>。</li>
+      <li>把 <b>内存完整性</b>（以及若有的“固件保护”）开关切换为 <b>关</b>。</li>
+    </ol>
+
+    <h2>第二步：从引导层关闭 Hypervisor（最关键）</h2>
+    <p>这是阻止 VBS 启动最核心的一步。只要 Windows 在引导阶段加载了底层 Hypervisor，VBS 就可能保持待命或运行状态。</p>
+    <ol>
+      <li>右键点击开始菜单，选择 <b>终端（管理员）</b> 或 <b>命令提示符（管理员）</b>。</li>
+      <li>输入以下命令并回车：</li>
+    </ol>
+    <pre><code>bcdedit /set hypervisorlaunchtype off</code></pre>
+    <p>看到“操作成功完成”即可。该命令禁止系统在开机引导时加载 Windows 虚拟机监控程序。</p>
+
+    <h2>第三步：配置组策略与注册表（防止被策略重新打开）</h2>
+    <h3>1. 组策略（专业版 / 企业版 / 教育版）</h3>
+    <ol>
+      <li>按 <code>Win + R</code> 输入 <code>gpedit.msc</code> 并回车。</li>
+      <li>导航至 <b>计算机配置 → 管理模板 → 系统 → Device Guard</b>（或“设备保护”）。</li>
+      <li>双击右侧的 <b>打开基于虚拟化的安全性</b>（Turn On Virtualization Based Security）。</li>
+      <li>将其改为 <b>已禁用</b>，点击确定。</li>
+    </ol>
+    <h3>2. 注册表（所有版本，包括家庭版）</h3>
+    <ol>
+      <li>按 <code>Win + R</code> 输入 <code>regedit</code> 打开注册表编辑器。</li>
+      <li>定位到下面的路径，把 <code>EnableVirtualizationBasedSecurity</code> 和 <code>RequirePlatformSecurityFeatures</code> 都改为 <code>0</code>（没有就新建 DWORD 32 位值）：</li>
+    </ol>
+    <pre><code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard</code></pre>
+    <ol start="3">
+      <li>再定位到下面的路径，把 <code>Enabled</code> 改为 <code>0</code>：</li>
+    </ol>
+    <pre><code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity</code></pre>
+    <p>也可以在管理员终端里一次性写入，效果相同：</p>
+    <pre><code>reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeatures /t REG_DWORD /d 0 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f</code></pre>
+
+    <h2>第四步：关闭依赖 Hypervisor 的可选功能</h2>
+    <p>装了强依赖 Hypervisor 的系统组件，也可能重新触发虚拟化安全机制。</p>
+    <ol>
+      <li>按 <code>Win + R</code> 输入 <code>optionalfeatures</code>，打开“启用或关闭 Windows 功能”。</li>
+      <li>取消勾选以下组件（未安装则忽略）：
+        <ul>
+          <li><b>Hyper-V</b></li>
+          <li><b>虚拟机平台</b>（Virtual Machine Platform）</li>
+          <li><b>Windows 虚拟机监控程序平台</b>（Windows Hypervisor Platform）</li>
+          <li><b>Windows 沙盒</b>（Windows Sandbox）</li>
+        </ul>
+      </li>
+      <li>点击确定，等待系统应用更改。</li>
+    </ol>
+
+    <h2>第五步：重启并验证</h2>
+    <p>完成以上配置后<b>重启电脑</b>，进入系统后验证：</p>
+    <ol>
+      <li>按 <code>Win + R</code> 输入 <code>msinfo32</code> 打开 <b>系统信息</b>。</li>
+      <li>在“系统摘要”右侧向下找到：
+        <ul>
+          <li><b>基于虚拟化的安全性</b>：应显示 <b>未启用</b>；</li>
+          <li><b>基于虚拟化的安全性运行中的服务</b>：应为 <b>无</b> 或空。</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2>注意事项与恢复</h2>
+    <ul>
+      <li><b>不要在 BIOS 里关 CPU 虚拟化</b>（Intel VT-x / AMD-V、SVM）。这样虽能粗暴关掉 VBS，但 VMware Workstation、VirtualBox、安卓模拟器等也会完全无法运行。上面的 <code>bcdedit</code> 命令已经能在保留硬件虚拟化的同时剥离 VBS。</li>
+      <li><b>对 WSL2 / WSA 的影响</b>：<code>hypervisorlaunchtype off</code> 会让 WSL2 和 WSA 无法运行。</li>
+      <li>VBS 是一项安全防护，关闭会降低对内核级恶意软件的防御；公司电脑若由组策略 / Intune 管理，可能会被重新打开。</li>
+    </ul>
+    <p>以后需要重新启用 VBS 或使用 WSL2，在管理员终端执行下面的命令后重启即可（第一、三、四步改过的开关按需改回）：</p>
+    <pre><code>bcdedit /set hypervisorlaunchtype auto</code></pre>
+  </main>
+</body>
+</html>
