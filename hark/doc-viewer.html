@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>在线文档查看器</title>
+  <meta name="description" content="在线文档查看器：拖入 Word、Excel、PDF、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      html, body { overflow-x: clip; }
+      .x-app { height: calc(100dvh - 52px); min-height: 460px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; min-width: 0; }
+      .x-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+      .x-head > * { min-width: 0; }
+      .x-head h1 { font: var(--type-heading); margin: 0; margin-right: auto; }
+      .x-head .fineprint { flex-basis: 100%; margin: 0; }
+      .x-head button.btn, .x-side button { cursor: pointer; }
+      .x-head button.btn:disabled { opacity: .45; cursor: default; }
+      .x-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; min-height: 0; }
+      .x-body.is-collapsed { grid-template-columns: minmax(0, 1fr) 0; gap: 0; }
+      .x-body.is-collapsed .x-side { display: none; }
+      .x-stage { position: relative; min-height: 0; border-radius: var(--r-l); overflow: hidden; border: 1px solid var(--stroke-primary); background: var(--fill-tertiary); display: grid; grid-template-rows: auto minmax(0, 1fr); }
+      .x-stage:fullscreen { border-radius: 0; }
+      .x-bar2 { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--stroke-secondary); font: var(--type-label); min-width: 0; }
+      .x-bar2 .x-name { margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-cb { flex: none; min-width: var(--tap); height: var(--tap); padding: 0 10px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-primary); font: var(--type-label); cursor: pointer; white-space: nowrap; }
+      .x-cb:hover { background: var(--hover-wash); }
+      .x-zoom { font: var(--type-small); font-variant-numeric: tabular-nums; color: var(--text-secondary); min-width: 44px; text-align: center; }
+      .x-view { min-height: 0; overflow: auto; position: relative; }
+      .x-drop { position: absolute; inset: 16px; border: 2px dashed var(--stroke-primary); border-radius: var(--r-m); display: grid; place-content: center; justify-items: center; gap: 8px; text-align: center; cursor: pointer; padding: 16px; font: var(--type-body-strong); color: var(--text-primary); }
+      .x-drop small { font: var(--type-small); color: var(--text-secondary); max-width: 34em; }
+      .x-drop::before { content: "+"; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: var(--type-title); background: var(--fill-secondary); }
+      body.is-dragging .x-stage { outline: 3px solid var(--fill-system-orange); outline-offset: -3px; }
+      .x-msg { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; padding: 24px; font: var(--type-body); color: var(--text-secondary); }
+      /* docx */
+      .x-docx { transform-origin: top center; }
+      .x-docx .docx-wrapper { background: transparent !important; padding: 20px 12px !important; }
+      .x-docx .docx-wrapper > section.docx { box-shadow: 0 2px 12px rgba(0,0,0,.18) !important; margin-bottom: 20px !important; }
+      /* sheets */
+      .x-tabs { display: flex; gap: 4px; padding: 6px 8px; overflow-x: auto; border-top: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); scrollbar-width: thin; }
+      .x-tabs button { flex: none; height: 32px; padding: 0 12px; border: 1px solid var(--stroke-secondary); border-radius: var(--r-pill); background: transparent; color: var(--text-primary); font: var(--type-small); cursor: pointer; }
+      .x-tabs button[aria-selected="true"] { background: var(--fill-primary); color: var(--fill-primary-on, #fff); border-color: transparent; }
+      .x-sheet { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+      .x-grid { overflow: auto; background: #fff; color: #111; }
+      .x-grid table { border-collapse: collapse; font: 13px/1.45 var(--sans, sans-serif); transform-origin: top left; }
+      .x-grid th, .x-grid td { border: 1px solid #d9d9d9; padding: 3px 8px; white-space: pre; vertical-align: top; max-width: 420px; overflow: hidden; text-overflow: ellipsis; }
+      .x-grid thead th, .x-grid tbody th { position: sticky; background: #f3f3f3; color: #666; font-weight: 500; text-align: center; z-index: 1; }
+      .x-grid thead th { top: 0; }
+      .x-grid tbody th { left: 0; min-width: 40px; }
+      .x-grid thead th:first-child { left: 0; z-index: 2; }
+      .x-grid td.n { text-align: right; font-variant-numeric: tabular-nums; }
+      .x-more { padding: 10px; font: var(--type-small); color: #666; }
+      /* pdf / text */
+      .x-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+      .x-text { margin: 0; padding: 20px 24px; min-height: 100%; box-sizing: border-box; background: #fff; color: #111; font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+      .x-side { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); border: 1px solid var(--stroke-primary); border-radius: var(--r-l); overflow: hidden; }
+      .x-side header { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--stroke-secondary); font: var(--type-label); }
+      .x-side header span { margin-right: auto; }
+      .x-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; display: grid; align-content: start; gap: 2px; }
+      .x-list li { display: grid; grid-template-columns: 44px minmax(0, 1fr) var(--tap); align-items: center; gap: 10px; padding: 6px; border-radius: var(--r-s); cursor: pointer; }
+      .x-list li:hover { background: var(--hover-wash); }
+      .x-list li.is-cur { background: var(--fill-tertiary); }
+      .x-ext { width: 44px; height: 52px; border-radius: 8px; display: grid; place-items: center; font: 700 11px/1 var(--sans, sans-serif); letter-spacing: .02em; color: #fff; background: #6b7280; text-transform: uppercase; }
+      .x-ext.w { background: #2b579a; } .x-ext.x { background: #217346; } .x-ext.p { background: #c4314b; } .x-ext.t { background: #6b7280; }
+      .x-list b { display: block; font: var(--type-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-list small { font: var(--type-caption); color: var(--text-secondary); }
+      .x-list li.is-bad small { color: var(--fill-system-red); }
+      .x-x { width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; background: transparent; color: var(--text-secondary); font: var(--type-heading); }
+      .x-x:hover { background: var(--hover-wash); color: var(--text-primary); }
+      .x-empty { padding: 20px 12px; font: var(--type-small); color: var(--text-secondary); text-align: center; display: block !important; cursor: default !important; }
+      .x-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; z-index: 50; padding: 10px 18px; border-radius: var(--r-pill); background: var(--fill-primary); color: var(--fill-primary-on, #fff); font: var(--type-label); transition: opacity .2s, transform .2s; pointer-events: none; }
+      .x-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+      [hidden] { display: none !important; }
+      @media (max-width: 799px) {
+        .x-app { height: auto; min-height: 0; }
+        .x-body, .x-body.is-collapsed { grid-template-columns: minmax(0, 1fr); }
+        .x-stage { height: 72vh; min-height: 360px; }
+        .x-body.is-collapsed .x-side { display: grid; }
+        .x-body.is-collapsed .x-list { display: none; }
+        .x-side { max-height: 50vh; }
+      }
+      @media print {
+        .x-head, .x-side, .x-bar2, .x-tabs, .hark-bar, header.x-bar { display: none !important; }
+        .x-app, .x-body, .x-stage, .x-view { height: auto !important; overflow: visible !important; border: 0 !important; display: block !important; }
+      }
+    </style>
+    <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300" />
+    <script src="/assets/hark-sub.js?v=2610101300" defer></script>
+    <link rel="canonical" href="https://20610728.xyz/hark/doc-viewer.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="在线文档查看器">
+  <meta property="og:description" content="在线文档查看器：拖入 Word、Excel、PDF、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
+  <meta property="og:url" content="https://20610728.xyz/hark/doc-viewer.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+  <body>
+    <div class="page" id="top">
+      <div class="x-app">
+        <div class="x-head">
+          <h1>在线文档查看器</h1>
+          <button class="btn" id="addBtn" type="button">打开文件</button>
+          <button class="btn" id="demoBtn" type="button">看示例</button>
+          <button class="btn" id="sideBtn" type="button" aria-expanded="true">收起列表</button>
+          <p class="fineprint">文件只在你的浏览器里解析，不会上传。支持 DOCX、XLSX / XLS / ODS / CSV、PDF、TXT / MD / JSON 等；旧版 DOC 和 PPT 暂不支持。</p>
+          <input type="file" id="fileIn" multiple hidden accept=".docx,.docm,.dotx,.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,.pdf,.txt,.md,.json,.xml,.log,.ini,.yaml,.yml" />
+        </div>
+        <div class="x-body" id="body">
+          <div class="x-stage" id="stage">
+            <div class="x-bar2" id="bar" hidden>
+              <span class="x-name" id="name"></span>
+              <button class="x-cb" id="zOut" type="button" aria-label="缩小" title="缩小">−</button>
+              <span class="x-zoom" id="zVal">100%</span>
+              <button class="x-cb" id="zIn" type="button" aria-label="放大" title="放大">+</button>
+              <button class="x-cb" id="dl" type="button" title="下载原文件">下载</button>
+              <button class="x-cb" id="fs" type="button" title="全屏">全屏</button>
+            </div>
+            <div class="x-view" id="view">
+              <div class="x-drop" id="drop" role="button" tabindex="0">拖入文件或点击打开<small>Word（.docx）、Excel（.xlsx .xls .csv）、PDF、文本文件都可以直接看，可以一次放多个。</small></div>
+            </div>
+          </div>
+          <aside class="x-side" id="side">
+            <header><span id="count">文件列表</span><button class="btn" id="clear" type="button">清空</button></header>
+            <ul class="x-list" id="list"></ul>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <div class="x-toast" id="toast" role="status"></div>
+    <script src="hark.js"></script>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const view = $("view"), listEl = $("list"), drop = $("drop");
+        const V = "/assets/vendor/";
+        const KIND = (n) => {
+          const e = (n.split(".").pop() || "").toLowerCase();
+          if (/^(docx|docm|dotx)$/.test(e)) return "docx";
+          if (/^(xlsx|xlsm|xlsb|xls|ods|csv|tsv)$/.test(e)) return "sheet";
+          if (e === "pdf") return "pdf";
+          if (/^(txt|md|json|xml|log|ini|yaml|yml|html?|css|js|ts|py|sh|bat|ps1|c|cpp|h|java|go|rs|sql)$/.test(e)) return "text";
+          if (/^(doc|ppt|pptx|wps|et|dps)$/.test(e)) return "unsupported";
+          return "";
+        };
+        const CLS = { docx: "w", sheet: "x", pdf: "p", text: "t", unsupported: "" };
+        let list = [], cur = -1, zoom = 1, toastT, renderId = 0, pdfUrl = null;
+
+        const toast = (t) => { const el = $("toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("is-on"), 2400); };
+        const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const size = (b) => b < 1024 ? b + " B" : b < 1048576 ? (b / 1024).toFixed(1) + " KB" : (b / 1048576).toFixed(1) + " MB";
+        const loaded = {};
+        const need = (f) => loaded[f] || (loaded[f] = new Promise((ok, no) => { const s = document.createElement("script"); s.src = V + f; s.onload = ok; s.onerror = () => { delete loaded[f]; no(new Error("组件加载失败，请检查网络后重试")); }; document.head.appendChild(s); }));
+
+        function renderList() {
+          $("count").textContent = list.length ? `文件列表 · ${list.length}` : "文件列表";
+          $("clear").hidden = !list.length;
+          listEl.innerHTML = list.length ? list.map((it, i) => {
+            const ext = (it.name.split(".").pop() || "?").slice(0, 4);
+            return `<li class="${i === cur ? "is-cur" : ""} ${it.bad ? "is-bad" : ""}" data-i="${i}">
+              <span class="x-ext ${CLS[it.kind] || ""}">${esc(ext)}</span>
+              <div><b title="${esc(it.name)}">${esc(it.name)}</b><small>${it.bad ? esc(it.bad) : size(it.file.size)}</small></div>
+              <button class="x-x" type="button" data-rm="${i}" aria-label="移除 ${esc(it.name)}">×</button></li>`;
+          }).join("") : `<li class="x-empty">还没有文件</li>`;
+        }
+
+        function add(files) {
+          const fs = [...files];
+          if (!fs.length) return;
+          const start = list.length;
+          fs.forEach((f) => list.push({ name: f.name, file: f, kind: KIND(f.name) }));
+          toast(`已添加 ${fs.length} 个文件`);
+          show(start);
+        }
+
+        function msg(t) { view.innerHTML = `<div class="x-msg">${t}</div>`; }
+        function applyZoom() {
+          $("zVal").textContent = Math.round(zoom * 100) + "%";
+          const d = view.querySelector(".x-docx"); if (d) d.style.zoom = zoom;
+          const t = view.querySelector(".x-grid table"); if (t) t.style.zoom = zoom;
+          const p = view.querySelector(".x-text"); if (p) p.style.fontSize = 13 * zoom + "px";
+          const pdf = !!view.querySelector(".x-frame");
+          $("zIn").hidden = $("zOut").hidden = $("zVal").hidden = pdf;
+        }
+
+        async function show(i) {
+          if (i < 0 || i >= list.length) return;
+          cur = i; const it = list[i], id = ++renderId;
+          renderList();
+          if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+          $("bar").hidden = false; $("name").textContent = it.name; zoom = 1;
+          msg("正在打开…");
+          try {
+            if (it.kind === "docx") {
+              await need("jszip.min.js"); await need("docx-preview.min.js");
+              const box = document.createElement("div"); box.className = "x-docx";
+              await window.docx.renderAsync(it.file, box, null, { inWrapper: true, ignoreLastRenderedPageBreak: true, breakPages: true, experimental: true });
+              if (id !== renderId) return;
+              view.innerHTML = ""; view.appendChild(box);
+            } else if (it.kind === "sheet") {
+              await need("xlsx.full.min.js");
+              const buf = await it.file.arrayBuffer();
+              const wb = XLSX.read(buf, { type: "array", cellDates: true, dense: true });
+              if (id !== renderId) return;
+              sheetView(wb);
+            } else if (it.kind === "pdf") {
+              pdfUrl = URL.createObjectURL(it.file.type === "application/pdf" ? it.file : new Blob([it.file], { type: "application/pdf" }));
+              view.innerHTML = `<iframe class="x-frame" title="${esc(it.name)}" src="${pdfUrl}"></iframe>`;
+            } else if (it.kind === "text") {
+              let t = await it.file.text();
+              if (/\.json$/i.test(it.name)) { try { t = JSON.stringify(JSON.parse(t), null, 2); } catch (e) {} }
+              if (id !== renderId) return;
+              const pre = document.createElement("pre"); pre.className = "x-text"; pre.textContent = t;
+              view.innerHTML = ""; view.appendChild(pre);
+            } else if (it.kind === "unsupported") {
+              throw new Error("旧版 DOC / PPT / PPTX 暂不支持，请另存为 DOCX 或 PDF 后再打开");
+            } else {
+              throw new Error("不认识这种文件格式");
+            }
+            it.bad = null;
+          } catch (e) {
+            if (id !== renderId) return;
+            it.bad = "无法打开";
+            msg(esc(e && e.message ? e.message : "文件解析失败，可能已损坏或加密"));
+          }
+          renderList(); applyZoom();
+          view.scrollTop = 0;
+        }
+
+        const MAXR = 5000, MAXC = 200;
+        function colName(c) { let s = ""; c++; while (c) { const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; }
+        function sheetView(wb) {
+          const wrap = document.createElement("div"); wrap.className = "x-sheet";
+          const grid = document.createElement("div"); grid.className = "x-grid";
+          const tabs = document.createElement("div"); tabs.className = "x-tabs"; tabs.setAttribute("role", "tablist");
+          wrap.append(grid, tabs);
+          const draw = (n) => {
+            const ws = wb.Sheets[n];
+            tabs.querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", b.dataset.n === n));
+            if (!ws || !ws["!ref"]) { grid.innerHTML = `<div class="x-more">这张表是空的</div>`; return; }
+            const r = XLSX.utils.decode_range(ws["!ref"]);
+            const r1 = Math.min(r.e.r, r.s.r + MAXR - 1), c1 = Math.min(r.e.c, r.s.c + MAXC - 1);
+            const merges = ws["!merges"] || [], skip = new Set(), span = {};
+            merges.forEach((m) => { span[m.s.r + "," + m.s.c] = m; for (let R = m.s.r; R <= m.e.r; R++) for (let C = m.s.c; C <= m.e.c; C++) if (R !== m.s.r || C !== m.s.c) skip.add(R + "," + C); });
+            const dense = ws["!data"];
+            const cell = (R, C) => dense ? (dense[R] || [])[C] : ws[XLSX.utils.encode_cell({ r: R, c: C })];
+            let h = "<table><thead><tr><th></th>";
+            for (let C = r.s.c; C <= c1; C++) h += `<th>${colName(C)}</th>`;
+            h += "</tr></thead><tbody>";
+            for (let R = r.s.r; R <= r1; R++) {
+              h += `<tr><th>${R + 1}</th>`;
+              for (let C = r.s.c; C <= c1; C++) {
+                const k = R + "," + C; if (skip.has(k)) continue;
+                const c = cell(R, C), m = span[k];
+                let v = "";
+                if (c) { try { v = XLSX.utils.format_cell(c); } catch (e) { v = c.v == null ? "" : String(c.v); } }
+                const at = m ? ` rowspan="${Math.min(m.e.r, r1) - R + 1}" colspan="${Math.min(m.e.c, c1) - C + 1}"` : "";
+                h += `<td${at}${c && c.t === "n" ? ' class="n"' : ""}${v.length > 40 ? ` title="${esc(v)}"` : ""}>${esc(v)}</td>`;
+              }
+              h += "</tr>";
+            }
+            h += "</tbody></table>";
+            if (r1 < r.e.r || c1 < r.e.c) h += `<div class="x-more">表格较大，只显示前 ${r1 - r.s.r + 1} 行、${c1 - r.s.c + 1} 列。完整内容请下载后用 Excel 打开。</div>`;
+            grid.innerHTML = h; grid.scrollTop = 0; grid.scrollLeft = 0; applyZoom();
+          };
+          wb.SheetNames.forEach((n) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "tab"); b.dataset.n = n; b.textContent = n; b.onclick = () => draw(n); tabs.appendChild(b); });
+          tabs.hidden = wb.SheetNames.length < 2;
+          view.innerHTML = ""; view.appendChild(wrap);
+          draw(wb.SheetNames[0]);
+        }
+
+        function reset() {
+          renderId++; cur = -1; $("bar").hidden = true;
+          if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+          view.innerHTML = ""; view.appendChild(drop); renderList();
+        }
+
+        const pick = () => $("fileIn").click();
+        $("addBtn").onclick = pick;
+        drop.onclick = pick;
+        drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } };
+        $("fileIn").onchange = (e) => { add(e.target.files); e.target.value = ""; };
+        $("sideBtn").onclick = () => { const c = $("body").classList.toggle("is-collapsed"); $("sideBtn").textContent = c ? "展开列表" : "收起列表"; $("sideBtn").setAttribute("aria-expanded", !c); };
+        $("clear").onclick = () => { list = []; reset(); };
+        listEl.onclick = (e) => {
+          const rm = e.target.closest("[data-rm]");
+          if (rm) { const i = +rm.dataset.rm; list.splice(i, 1); if (i === cur) { list.length ? show(Math.min(i, list.length - 1)) : reset(); } else { if (i < cur) cur--; renderList(); } return; }
+          const li = e.target.closest("li[data-i]"); if (li) show(+li.dataset.i);
+        };
+        $("zIn").onclick = () => { zoom = Math.min(3, +(zoom + 0.1).toFixed(2)); applyZoom(); };
+        $("zOut").onclick = () => { zoom = Math.max(0.3, +(zoom - 0.1).toFixed(2)); applyZoom(); };
+        $("dl").onclick = () => { const it = list[cur]; if (!it) return; const a = document.createElement("a"); a.href = URL.createObjectURL(it.file); a.download = it.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+        $("fs").onclick = () => { const s = $("stage"); document.fullscreenElement ? document.exitFullscreen() : s.requestFullscreen && s.requestFullscreen(); };
+
+        let dragN = 0;
+        addEventListener("dragenter", (e) => { e.preventDefault(); dragN++; document.body.classList.add("is-dragging"); });
+        addEventListener("dragleave", () => { if (--dragN <= 0) { dragN = 0; document.body.classList.remove("is-dragging"); } });
+        addEventListener("dragover", (e) => e.preventDefault());
+        addEventListener("drop", (e) => { e.preventDefault(); dragN = 0; document.body.classList.remove("is-dragging"); if (e.dataTransfer && e.dataTransfer.files.length) add(e.dataTransfer.files); });
+        addEventListener("keydown", (e) => {
+          if (e.target.closest("input,textarea,select")) return;
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "o") { e.preventDefault(); pick(); }
+          else if (cur >= 0 && (e.key === "+" || e.key === "=")) $("zIn").click();
+          else if (cur >= 0 && e.key === "-") $("zOut").click();
+        });
+
+        $("demoBtn").onclick = () => Promise.all(["sample.docx", "sample.xlsx"].map((n) => fetch("doc-samples/" + n).then((r) => { if (!r.ok) throw 0; return r.blob(); }).then((b) => new File([b], "示例" + n.slice(6), { type: b.type }))))
+          .then(add).catch(() => toast("示例文件加载失败"));
+
+        // ?src=/path/file.docx  打开站内（或允许跨域的）文件
+        const src = new URLSearchParams(location.search).get("src");
+        if (src) {
+          msg("正在下载文件…"); $("bar").hidden = true;
+          fetch(src).then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+            .then((b) => add([new File([b], decodeURIComponent(src.split("/").pop().split("?")[0]) || "file", { type: b.type })]))
+            .catch(() => { msg("文件下载失败：链接无效，或对方网站不允许跨域读取"); });
+        }
+        renderList();
+      })();
+    </script>
+  </body>
+</html>
