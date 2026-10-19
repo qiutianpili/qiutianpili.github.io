@@ -316,6 +316,7 @@
           add(files.map((x) => new File([x.data], x.name || "file", { type: x.mime || "" })));
         });
         if (window.opener) { try { window.opener.postMessage({ type: "doc-viewer:ready" }, "*"); } catch (e) {} }
+        if (window.parent && window.parent !== window) { try { window.parent.postMessage({ type: "doc-viewer:ready" }, "*"); } catch (e) {} }
 
         // ?src=/path/file.docx  打开站内（或允许跨域的）文件
         const src = new URLSearchParams(location.search).get("src");
