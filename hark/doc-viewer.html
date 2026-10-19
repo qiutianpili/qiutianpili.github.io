@@ -307,6 +307,16 @@
         $("demoBtn").onclick = () => Promise.all(["sample.docx", "sample.xlsx"].map((n) => fetch("doc-samples/" + n).then((r) => { if (!r.ok) throw 0; return r.blob(); }).then((b) => new File([b], "示例" + n.slice(6), { type: b.type }))))
           .then(add).catch(() => toast("示例文件加载失败"));
 
+        // 其他页面（如 NameSearcher 面板）用 window.open 打开本页后，通过 postMessage 把文件传进来：
+        //   收到 {type:"doc-viewer:ready"} 后发送 {type:"doc-viewer:file", name, mime, data: ArrayBuffer|Blob}
+        addEventListener("message", (e) => {
+          const d = e.data;
+          if (!d || d.type !== "doc-viewer:file" || !(d.data || d.files)) return;
+          const files = (Array.isArray(d.files) ? d.files : [d]).filter((x) => x && x.data);
+          add(files.map((x) => new File([x.data], x.name || "file", { type: x.mime || "" })));
+        });
+        if (window.opener) { try { window.opener.postMessage({ type: "doc-viewer:ready" }, "*"); } catch (e) {} }
+
         // ?src=/path/file.docx  打开站内（或允许跨域的）文件
         const src = new URLSearchParams(location.search).get("src");
         if (src) {
