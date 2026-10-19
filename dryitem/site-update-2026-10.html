@@ -38,49 +38,44 @@
       <h1>近期站点更新汇总（2026 年 10 月）</h1>
     </header>
 
-    <p class="lead">10 月 8 日到 20 日，这个小站几乎从里到外重做了一遍：换了新样式、理顺了导航，多了一个计算器中心、两个音乐应用入口、视频页和在线文档查看器，首页也能直接搜索了。下面按主题整理一下。</p>
+    <p class="lead">10 月 8 日至 20 日的主要更新。</p>
 
-    <h2>一、新样式与导航</h2>
+    <h2>样式与导航</h2>
     <ul>
-      <li><b>全站换上 Hark 风格</b>（10-08）：主页重新设计，所有子页面统一样式，支持深浅色切换，右下角有一个回到主页的小房子按钮，手机、平板、电脑都能正常显示。</li>
-      <li><b>导航收成三项</b>（10-10）：顶部只保留 <a href="/">首页</a>、<a href="/posts.html">文章</a>、<a href="/hark/">项目</a>；子页面多了一个侧边栏，按“文章 / 项目 / 资源”分组，能快速跳到相关页面。</li>
-      <li><b>图标换成线条风格</b>（10-10）：首页和项目页不再用 emoji，统一换成线性 SVG 图标。</li>
-      <li><b>文章归档到一页</b>（10-09）：<a href="/posts.html">文章页</a>按时间倒序列出全部教程和站点更新，可以按“文章 / 站点更新”筛选。</li>
+      <li>全站换上 Hark 风格，支持深浅色，右下角加了回主页按钮。</li>
+      <li>顶部导航精简为 <a href="/">首页</a> / <a href="/posts.html">文章</a> / <a href="/hark/">项目</a>，子页面增加侧边栏。</li>
+      <li>首页和项目页的 emoji 换成线条图标。</li>
     </ul>
 
-    <h2>二、新的工具和应用</h2>
+    <h2>新工具与应用</h2>
     <ul>
-      <li><b><a href="/calc/">计算器中心</a></b>（10-09）：分八批上线，现在共 667 个计算器，房贷、个税、工资到手、BMI、单位换算、日期推算、农历等都有，全部在浏览器本地计算。后来又把它打包成一个压缩后的脚本，打开更快。</li>
-      <li><b><a href="/sri/">性压抑指数测评</a></b>（10-09）：基于 MIT 开源项目的自评工具，有快测和完整版，数据只存在本机。</li>
-      <li><b>Any Music</b>（10-09）：自建的在线音乐站，支持歌单、收藏和逐句同步歌词，首页加了入口卡片和首次访问提示（可以选“不再提示”）。</li>
-      <li><b>Any Listen 安卓客户端</b>（10-18 起）：私人音乐库的 Android App，放在<a href="/download.html">下载页</a>，两天里从 1.0.5 迭代到 1.1.2，可以直接覆盖安装旧版。</li>
-      <li><b><a href="/videos/">视频页</a></b>（10-10）：原来的 <code>/Video/</code> 改名为 <code>/videos/</code>，做成了带封面和时长信息的播放页面。</li>
-      <li><b><a href="/hark/doc-viewer.html">在线文档查看器</a></b>（10-20）：拖进 DOCX、XLSX / XLS / ODS / CSV、PDF 或 TXT / MD / JSON 文件就能直接看，支持多文件切换、多个工作表、缩放和全屏。文件只在你的浏览器里解析，不会上传；用到的解析库也都放在本站，不走外部 CDN。它还能接收其他页面传过来的文件，AstrBot 机器人文件面板里“下载文件”旁边的“在线预览”按钮就是靠它实现的。</li>
+      <li><a href="/calc/">计算器中心</a>：667 个计算器，本地计算。</li>
+      <li><a href="/sri/">性压抑指数测评</a>：快测与完整版，数据只存本机。</li>
+      <li>Any Music 在线音乐站上线；Any Listen 安卓客户端见<a href="/download.html">下载页</a>（当前 1.1.2）。</li>
+      <li><a href="/videos/">视频页</a>：原 <code>/Video/</code> 改为 <code>/videos/</code>。</li>
+      <li><a href="/hark/doc-viewer.html">在线文档查看器</a>：本地预览 DOCX、XLSX / CSV、PDF 和文本文件，不上传。</li>
     </ul>
 
-    <h2>三、找内容更方便</h2>
+    <h2>搜索</h2>
     <ul>
-      <li><b>首页搜索框</b>（10-20）：首屏介绍下面多了一个搜索框，点一下会先列出最新的 6 篇文章，输入关键词就搜全站的文章、工具和项目。电脑上按 <code>/</code> 可以直接聚焦，方向键选择、回车打开。</li>
-      <li><b>404 页面也能搜</b>（10-10）：打开不存在的链接时，会根据网址里的词自动帮你搜一遍，并给出常用入口。首页和 404 共用同一份站内索引。</li>
-      <li><b>搜索引擎友好</b>（10-10）：每个页面都补上了描述、规范链接和分享卡片图，新增了 <code>robots.txt</code> 和 <code>sitemap.xml</code>。</li>
+      <li>首页新增搜索框，默认列出最新文章，按 <code>/</code> 聚焦。</li>
+      <li>404 页面支持站内搜索。</li>
+      <li>补全页面描述、分享卡片、<code>robots.txt</code> 和 <code>sitemap.xml</code>。</li>
     </ul>
 
-    <h2>四、新文章</h2>
+    <h2>新文章</h2>
     <ul>
-      <li><a href="/dryitem/rdp-tscon-console.html">断开远程桌面但保持会话不锁屏（tscon）</a>（10-09）</li>
-      <li><a href="/dryitem/mas-activate.html">用一行 PowerShell 命令激活 Windows / Office（MAS）</a>（10-11）</li>
-      <li><a href="/dryitem/disable-vbs.html">用微软官方工具关闭基于虚拟化的安全性（VBS）</a>（10-13）</li>
-      <li><a href="/dryitem/disable-vbs-manual.html">彻底关闭 VBS：手动五步法</a>（10-13）</li>
+      <li><a href="/dryitem/rdp-tscon-console.html">断开远程桌面但保持会话不锁屏（tscon）</a></li>
+      <li><a href="/dryitem/mas-activate.html">用一行 PowerShell 命令激活 Windows / Office（MAS）</a></li>
+      <li><a href="/dryitem/disable-vbs.html">用微软官方工具关闭 VBS</a></li>
+      <li><a href="/dryitem/disable-vbs-manual.html">彻底关闭 VBS：手动五步法</a></li>
     </ul>
 
-    <h2>五、整理与打扫</h2>
+    <h2>整理</h2>
     <ul>
-      <li>删掉了临时页面、接口测试页和空壳页面，截图统一转成体积更小的 WebP。</li>
-      <li><a href="/mgtest.html">毛概刷题页</a>重新做成了交互式题库（249 题）；两篇 Linux 笔记从 Word 导出稿重新排版成文章样式。</li>
-      <li>仓库历史清理了一遍旧的大文件，克隆和部署都更轻了。</li>
+      <li>删除临时页面，截图转为 WebP。</li>
+      <li><a href="/mgtest.html">毛概刷题页</a>重做为交互式题库（249 题），Linux 笔记重新排版。</li>
     </ul>
-
-    <p class="tip">接下来还想做一个图片查看器，和视频播放器、文档查看器放在一起。有想看的内容或者发现哪里不对，欢迎告诉我。</p>
   </main>
 </body>
 </html>
