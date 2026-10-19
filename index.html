@@ -110,6 +110,24 @@
         .x-links a { padding: 0 10px; }
       }
 
+
+      /* Site search */
+      .x-search { position: relative; max-width: 560px; margin-top: 4px; }
+      .x-search__box { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 8px 0 18px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); color: var(--text-secondary); transition: box-shadow var(--dur-quick) ease; }
+      .x-search__box:focus-within { box-shadow: 0 0 0 2px var(--fill-primary); }
+      .x-search__box svg { flex: none; }
+      .x-search input { flex: 1; min-width: 0; height: 50px; border: 0; background: transparent; color: var(--text-primary); font: var(--type-body); outline: none; }
+      .x-search input::-webkit-search-cancel-button { display: none; }
+      .x-search kbd { flex: none; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--stroke-secondary); font: var(--type-caption); color: var(--text-tertiary, var(--text-secondary)); }
+      .x-search__pop { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 8px); padding: 8px; border-radius: var(--r-l); border: 1px solid var(--stroke-primary); background: var(--fill-primary-on); box-shadow: var(--hark-shadow, 0 12px 40px rgba(0,0,0,.18)); max-height: min(60vh, 460px); overflow-y: auto; }
+      .x-search__pop p { margin: 4px 10px 6px; font: var(--type-caption); color: var(--text-secondary); }
+      .x-search__pop ul { list-style: none; margin: 0; padding: 0; }
+      .x-search__pop a { display: block; padding: 10px; border-radius: var(--r-s); color: var(--text-primary); text-decoration: none; }
+      .x-search__pop a:hover, .x-search__pop a.is-on { background: var(--hover-wash); }
+      .x-search__pop b { display: block; font: var(--type-label); }
+      .x-search__pop small { display: block; margin-top: 2px; font: var(--type-small); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @media (max-width: 760px) { .x-search kbd { display: none; } }
+
       /* Hero buttons */
       .hero .links { margin-top: 6px; }
 
@@ -228,6 +246,7 @@
       .js .hero__copy > :nth-child(2) { animation-delay: 80ms; }
       .js .hero__copy > :nth-child(3) { animation-delay: 160ms; }
       .js .hero__copy > :nth-child(4) { animation-delay: 240ms; }
+      .js .hero__copy > :nth-child(5) { animation-delay: 300ms; }
       .js .hero > .callout { animation: x-rise 900ms var(--ease-out) 320ms both; }
       @keyframes x-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
       @media (prefers-reduced-motion: reduce) {
@@ -288,6 +307,17 @@
             <p class="hero__eyebrow">Personal site</p>
             <h1>把常用工具、记录和小作品整理到一个清爽入口。</h1>
             <p class="hero__sub">这里是秋天霹雳的 GitHub Pages 主页。页面保持静态部署，打开即用，后续可以继续扩展成博客、资源库或作品集。</p>
+            <div class="x-search" id="siteSearch" role="search">
+              <label class="x-search__box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input id="ssQ" type="search" placeholder="搜索文章、工具、项目…" aria-label="搜索本站" autocomplete="off" enterkeyhint="search" aria-controls="ssPop" aria-expanded="false">
+                <kbd aria-hidden="true">/</kbd>
+              </label>
+              <div class="x-search__pop" id="ssPop" hidden>
+                <p id="ssHead">最新文章</p>
+                <ul id="ssRes"></ul>
+              </div>
+            </div>
             <div class="links">
               <a class="btn" href="/posts.html">查看文章</a>
               <a class="btn" href="https://space.bilibili.com/399766872" target="_blank" rel="noopener">Bilibili</a>
@@ -419,6 +449,39 @@
           document.addEventListener("keydown", onKey);
           var b = tip.querySelector(".am-tip__go"); if (b) b.focus({ preventScroll: true });
         }, 700);
+      })();
+    </script>
+    <script src="/assets/site-search.js?v=2610101300"></script>
+    <script>
+      (function () {
+        var wrap = document.getElementById("siteSearch"), q = document.getElementById("ssQ"), pop = document.getElementById("ssPop"), res = document.getElementById("ssRes"), head = document.getElementById("ssHead"), on = -1;
+        if (!window.SiteSearch) return;
+        function show() {
+          var v = q.value.trim(), rows = SiteSearch.find(v);
+          head.textContent = v ? (rows.length ? "搜索结果" : "") : "最新文章";
+          head.hidden = !head.textContent;
+          res.innerHTML = SiteSearch.html(rows, v);
+          on = -1; pop.hidden = false; q.setAttribute("aria-expanded", "true");
+        }
+        function hide() { pop.hidden = true; q.setAttribute("aria-expanded", "false"); }
+        function mark(n) {
+          var a = res.querySelectorAll("a"); if (!a.length) return;
+          on = (n + a.length) % a.length;
+          a.forEach(function (x, i) { x.classList.toggle("is-on", i === on); });
+          a[on].scrollIntoView({ block: "nearest" });
+        }
+        q.addEventListener("focus", show);
+        q.addEventListener("input", show);
+        q.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowDown") { e.preventDefault(); if (pop.hidden) show(); mark(on + 1); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); mark(on - 1); }
+          else if (e.key === "Enter") { var a = res.querySelectorAll("a"); var t = a[on >= 0 ? on : 0]; if (t) { e.preventDefault(); t.click(); } }
+          else if (e.key === "Escape") { hide(); q.blur(); }
+        });
+        document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) hide(); });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || "")) && !e.target.isContentEditable) { e.preventDefault(); q.focus(); }
+        });
       })();
     </script>
     <script src="hark.js"></script>
