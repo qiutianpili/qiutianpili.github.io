@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>名单查询</title>
+  <link rel="stylesheet" href="/assets/fonts/geist.css">
+  <link rel="stylesheet" href="/assets/hark-sub.css">
+  <style>
+    :root { color-scheme: light dark; --api: ""; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--fill-primary-on); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; }
+    .hero { background: var(--hero-surface); color: var(--hero-text); padding: 56px 20px 64px; }
+    .hero-in, main { max-width: 760px; margin: 0 auto; }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 6vw, 40px); font-weight: 600; letter-spacing: -0.02em; }
+    .hero p { margin: 0; color: var(--hero-text-muted); font-size: 15px; }
+    main { padding: 0 16px 80px; margin-top: -32px; display: grid; gap: 16px; }
+    .card { background: var(--fill-primary-on); border: 1px solid var(--stroke-primary); border-radius: 24px; padding: 22px; box-shadow: var(--hark-shadow); }
+    .card h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+    .muted { color: var(--text-secondary); font-size: 14px; margin: 0; }
+    .pair { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 6px; }
+    .pair-code { font: 600 clamp(30px, 8vw, 42px)/1 var(--mono); letter-spacing: 0.14em; padding: 14px 18px; border-radius: 16px; background: var(--fill-tertiary); user-select: all; }
+    .cmd { font-family: var(--mono); background: var(--fill-tertiary); border-radius: 8px; padding: 2px 8px; user-select: all; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    input { flex: 1 1 200px; min-width: 0; height: 46px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--stroke-primary); background: var(--fill-tertiary); color: var(--text-primary); font: 500 16px var(--sans); outline: none; }
+    input:focus { border-color: var(--text-secondary); }
+    input.code { font: 600 20px var(--mono); letter-spacing: 0.3em; text-align: center; max-width: 220px; }
+    button { height: 46px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--stroke-primary); background: var(--fill-tertiary); color: var(--text-primary); font: 600 15px var(--sans); cursor: pointer; }
+    button.primary { background: var(--fill-primary); color: var(--text-primary-on); border-color: transparent; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .msg { margin-top: 10px; font-size: 14px; min-height: 1.4em; color: var(--text-secondary); }
+    .msg.err { color: var(--fill-system-red); }
+    .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+    .badge { font-size: 13px; color: var(--text-secondary); }
+    .results { display: grid; gap: 10px; margin-top: 14px; }
+    .person { border: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); border-radius: 16px; padding: 14px; }
+    .person b { font-size: 16px; }
+    .person .n { font-size: 12px; color: var(--text-secondary); margin-left: 6px; }
+    .files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .file { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: auto; min-height: 34px; padding: 6px 14px; font-size: 13px; font-weight: 500; background: var(--fill-primary-on); }
+    .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .line { margin-top: 8px; font-size: 12px; color: var(--text-secondary); overflow-wrap: anywhere; }
+    .viewer { position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / 0.7); display: none; align-items: center; justify-content: center; padding: 16px; }
+    .viewer.on { display: flex; }
+    .viewer-box { background: var(--fill-primary-on); border-radius: 20px; max-width: min(960px, 100%); max-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+    .viewer-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--stroke-secondary); }
+    .viewer-head span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .viewer-body { overflow: auto; }
+    .viewer-body img { display: block; max-width: 100%; height: auto; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="hero"><div class="hero-in"><h1>名单查询</h1><p>通过机器人验证后，可临时查询姓名所在的文件并下载。</p></div></header>
+  <main>
+    <section id="pairCard" class="card">
+      <h2>第一步：把识别码发给机器人</h2>
+      <p class="muted">在已开放的群里或私聊机器人发送下面这条消息，机器人会回复验证码。识别码 10 分钟内有效。</p>
+      <div class="pair"><div id="pairCode" class="pair-code">······</div><button id="copyBtn" type="button">复制指令</button><button id="newBtn" type="button">换一个</button></div>
+      <p class="muted">发送：<span id="cmd" class="cmd">/验证码 ······</span></p>
+      <h2 style="margin-top:22px">第二步：输入验证码</h2>
+      <form id="verifyForm" class="row" autocomplete="off">
+        <input id="codeInput" class="code" inputmode="numeric" maxlength="6" placeholder="6 位数字" aria-label="验证码">
+        <button class="primary" type="submit" id="verifyBtn">验证</button>
+      </form>
+      <div id="pairMsg" class="msg"></div>
+    </section>
+
+    <section id="findCard" class="card" hidden>
+      <div class="bar"><h2>查找对象</h2><span class="badge"><span id="who"></span> · 剩余 <span id="left">--</span> · <a href="#" id="logout">退出</a></span></div>
+      <p class="muted">输入姓名或昵称；支持通配符：张* 、王小?（* 表示一个或多个字，? 表示一个字）。</p>
+      <form id="findForm" class="row" autocomplete="off">
+        <input id="findInput" type="search" maxlength="64" placeholder="如 张三、张*、王小?" aria-label="姓名">
+        <button class="primary" type="submit" id="findBtn">查找</button>
+      </form>
+      <div id="findMsg" class="msg"></div>
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+
+  <div id="viewer" class="viewer" role="dialog" aria-modal="true">
+    <div class="viewer-box">
+      <div class="viewer-head"><span id="viewerName"></span><div style="display:flex;gap:8px"><button id="viewerDl" type="button">下载</button><button id="viewerClose" type="button">关闭</button></div></div>
+      <div class="viewer-body"><img id="viewerImg" alt=""></div>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    const API = 'https://ns.20610728.xyz/portal';
+    const $ = id => document.getElementById(id);
+    const store = { get: k => { try { return sessionStorage.getItem(k) || ''; } catch (_) { return ''; } }, set: (k, v) => { try { v ? sessionStorage.setItem(k, v) : sessionStorage.removeItem(k); } catch (_) {} } };
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    let challenge = store.get('ns-challenge'), token = store.get('ns-token'), expiresAt = Number(store.get('ns-exp')) || 0, timer = 0;
+
+    async function api(path, body, auth) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (auth && token) headers.Authorization = 'Bearer ' + token;
+      let res;
+      try { res = await fetch(API + path, { method: body === undefined ? 'GET' : 'POST', headers, body: body === undefined ? undefined : JSON.stringify(body), credentials: 'omit' }); }
+      catch (_) { throw new Error('连接查询服务失败，请稍后再试'); }
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && auth) { logout('登录已过期，请重新验证'); throw new Error('登录已过期'); }
+      if (!res.ok || data.ok === false) { const e = new Error(data.error || data.message || ('请求失败 ' + res.status)); e.status = res.status; throw e; }
+      return data;
+    }
+    const setMsg = (el, text, err) => { el.textContent = text || ''; el.classList.toggle('err', Boolean(err)); };
+
+    async function newChallenge() {
+      $('newBtn').disabled = true; setMsg($('pairMsg'), '');
+      try {
+        const data = await api('/challenge', {});
+        challenge = data.challenge; store.set('ns-challenge', challenge);
+        showPair(data.pair_code);
+      } catch (e) { setMsg($('pairMsg'), e.message, true); }
+      finally { $('newBtn').disabled = false; }
+    }
+    function showPair(code) { $('pairCode').textContent = code; $('cmd').textContent = '/验证码 ' + code; $('codeInput').focus(); }
+    async function restoreChallenge() {
+      if (!challenge) return newChallenge();
+      try { const data = await api('/challenge/state', { challenge }); showPair(data.pair_code); if (data.claimed) setMsg($('pairMsg'), '机器人已发出验证码，请输入。'); }
+      catch (_) { newChallenge(); }
+    }
+
+    function tick() {
+      const left = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
+      $('left').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+      if (left <= 0) logout('查询时间已到，请重新验证');
+    }
+    function enter(user) {
+      $('pairCard').hidden = true; $('findCard').hidden = false;
+      $('who').textContent = user ? (user.nickname || user.user_id || '已验证') : '已验证';
+      clearInterval(timer); timer = setInterval(tick, 1000); tick(); $('findInput').focus();
+    }
+    function logout(reason) {
+      if (token) fetch(API + '/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).catch(() => {});
+      token = ''; expiresAt = 0; store.set('ns-token', ''); store.set('ns-exp', ''); store.set('ns-challenge', ''); challenge = '';
+      clearInterval(timer); $('results').innerHTML = ''; setMsg($('findMsg'), '');
+      $('findCard').hidden = true; $('pairCard').hidden = false; $('codeInput').value = '';
+      setMsg($('pairMsg'), reason || '', Boolean(reason)); newChallenge();
+    }
+
+    $('verifyForm').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const code = $('codeInput').value.replace(/\D/g, '');
+      if (code.length !== 6) { setMsg($('pairMsg'), '请输入机器人回复的 6 位验证码', true); return; }
+      $('verifyBtn').disabled = true;
+      try {
+        const data = await api('/verify', { challenge, code });
+        token = data.token; expiresAt = Date.now() + data.expires_in * 1000;
+        store.set('ns-token', token); store.set('ns-exp', String(expiresAt)); store.set('ns-challenge', ''); store.set('ns-user', JSON.stringify(data.user || {}));
+        enter(data.user);
+      } catch (e) { setMsg($('pairMsg'), e.message, true); if (e.status === 410) newChallenge(); }
+      finally { $('verifyBtn').disabled = false; }
+    });
+    $('newBtn').addEventListener('click', newChallenge);
+    $('copyBtn').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('cmd').textContent); setMsg($('pairMsg'), '已复制，去发给机器人吧'); } catch (_) { setMsg($('pairMsg'), '复制失败，请手动输入'); } });
+    $('logout').addEventListener('click', ev => { ev.preventDefault(); logout(); });
+
+    const fileUrl = (id, inline) => `${API}/files/${encodeURIComponent(id)}/content?token=${encodeURIComponent(token)}${inline ? '&inline=1' : ''}`;
+    const isImage = name => /\.(jpe?g|png|gif|webp|bmp)$/i.test(name || '');
+    function download(id) { const a = document.createElement('a'); a.href = fileUrl(id, false); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+
+    $('findForm').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const query = $('findInput').value.trim();
+      if (!query) return;
+      $('findBtn').disabled = true; setMsg($('findMsg'), '查找中…');
+      try {
+        const data = await api('/find', { query }, true);
+        const names = data.names || [];
+        if (!names.length) { setMsg($('findMsg'), data.message || `未找到“${query}”。${data.wildcard ? '' : '可以试试通配符，如 张*。'}`); $('results').innerHTML = ''; return; }
+        setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。图片可预览，其他文件直接下载。`);
+        $('results').innerHTML = names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${esc(f.line)}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
+      } catch (e) { setMsg($('findMsg'), e.message, true); }
+      finally { $('findBtn').disabled = false; }
+    });
+    $('results').addEventListener('click', ev => {
+      const btn = ev.target.closest('.file'); if (!btn) return;
+      const { id, name } = btn.dataset;
+      if (!isImage(name)) { download(id); return; }
+      $('viewerName').textContent = name; $('viewerImg').src = fileUrl(id, true); $('viewerDl').dataset.id = id; $('viewer').classList.add('on');
+    });
+    const closeViewer = () => { $('viewer').classList.remove('on'); $('viewerImg').removeAttribute('src'); };
+    $('viewerClose').addEventListener('click', closeViewer);
+    $('viewer').addEventListener('click', ev => { if (ev.target === $('viewer')) closeViewer(); });
+    document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeViewer(); });
+    $('viewerDl').addEventListener('click', () => download($('viewerDl').dataset.id));
+
+    if (token && expiresAt > Date.now()) {
+      api('/session', undefined, true).then(data => { expiresAt = Date.now() + data.expires_in * 1000; store.set('ns-exp', String(expiresAt)); enter(data.user); }).catch(() => {});
+    } else { token = ''; restoreChallenge(); }
+  })();
+  </script>
+  <script src="/assets/hark-sub.js" data-no-theme></script>
+</body>
+</html>
