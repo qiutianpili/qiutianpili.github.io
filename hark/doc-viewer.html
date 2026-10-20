@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>在线文档查看器</title>
-  <meta name="description" content="在线文档查看器：拖入 Word、Excel、PDF、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
+  <meta name="description" content="在线文档查看器：拖入 Word、Excel、PDF、图片、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
     <link rel="stylesheet" href="hark.css" />
     <link rel="stylesheet" href="hark-hero.css" />
     <style>
@@ -50,6 +50,10 @@
       .x-grid thead th:first-child { left: 0; z-index: 2; }
       .x-grid td.n { text-align: right; font-variant-numeric: tabular-nums; }
       .x-more { padding: 10px; font: var(--type-small); color: #666; }
+      /* image */
+      .x-img { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; background-color: var(--fill-tertiary); background-image: linear-gradient(45deg, rgba(128,128,128,.12) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.12) 75%), linear-gradient(45deg, rgba(128,128,128,.12) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.12) 75%); background-size: 20px 20px; background-position: 0 0, 10px 10px; }
+      .x-img.is-grab { cursor: grabbing; }
+      .x-img img { position: absolute; left: 0; top: 0; max-width: none; max-height: none; transform-origin: center center; will-change: transform; image-rendering: auto; -webkit-user-drag: none; pointer-events: none; }
       /* pdf / text */
       .x-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
       .x-text { margin: 0; padding: 20px 24px; min-height: 100%; box-sizing: border-box; background: #fff; color: #111; font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
@@ -61,7 +65,7 @@
       .x-list li:hover { background: var(--hover-wash); }
       .x-list li.is-cur { background: var(--fill-tertiary); }
       .x-ext { width: 44px; height: 52px; border-radius: 8px; display: grid; place-items: center; font: 700 11px/1 var(--sans, sans-serif); letter-spacing: .02em; color: #fff; background: #6b7280; text-transform: uppercase; }
-      .x-ext.w { background: #2b579a; } .x-ext.x { background: #217346; } .x-ext.p { background: #c4314b; } .x-ext.t { background: #6b7280; }
+      .x-ext.w { background: #2b579a; } .x-ext.x { background: #217346; } .x-ext.p { background: #c4314b; } .x-ext.t { background: #6b7280; } .x-ext.i { background: #7c3aed; }
       .x-list b { display: block; font: var(--type-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .x-list small { font: var(--type-caption); color: var(--text-secondary); }
       .x-list li.is-bad small { color: var(--fill-system-red); }
@@ -90,7 +94,7 @@
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="秋天霹雳">
   <meta property="og:title" content="在线文档查看器">
-  <meta property="og:description" content="在线文档查看器：拖入 Word、Excel、PDF、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
+  <meta property="og:description" content="在线文档查看器：拖入 Word、Excel、PDF、图片、CSV、TXT 文件直接在浏览器里查看，不上传任何文件。">
   <meta property="og:url" content="https://20610728.xyz/hark/doc-viewer.html">
   <meta property="og:image" content="https://20610728.xyz/assets/og.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -103,8 +107,8 @@
           <button class="btn" id="addBtn" type="button">打开文件</button>
           <button class="btn" id="demoBtn" type="button">看示例</button>
           <button class="btn" id="sideBtn" type="button" aria-expanded="true">收起列表</button>
-          <p class="fineprint">文件只在你的浏览器里解析，不会上传。支持 DOCX、XLSX / XLS / ODS / CSV、PDF、TXT / MD / JSON 等；旧版 DOC 和 PPT 暂不支持。</p>
-          <input type="file" id="fileIn" multiple hidden accept=".docx,.docm,.dotx,.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,.pdf,.txt,.md,.json,.xml,.log,.ini,.yaml,.yml" />
+          <p class="fineprint">文件只在你的浏览器里解析，不会上传。支持 DOCX、XLSX / XLS / ODS / CSV、PDF、图片、TXT / MD / JSON 等；旧版 DOC 和 PPT 暂不支持。</p>
+          <input type="file" id="fileIn" multiple hidden accept=".docx,.docm,.dotx,.xlsx,.xlsm,.xlsb,.xls,.ods,.csv,.tsv,.pdf,.txt,.md,.json,.xml,.log,.ini,.yaml,.yml,.png,.jpg,.jpeg,.jpe,.jfif,.gif,.webp,.bmp,.avif,.ico,.svg,image/*" />
         </div>
         <div class="x-body" id="body">
           <div class="x-stage" id="stage">
@@ -113,11 +117,14 @@
               <button class="x-cb" id="zOut" type="button" aria-label="缩小" title="缩小">−</button>
               <span class="x-zoom" id="zVal">100%</span>
               <button class="x-cb" id="zIn" type="button" aria-label="放大" title="放大">+</button>
+              <button class="x-cb" id="iFit" type="button" title="适应宽度 / 整张" hidden>适应宽度</button>
+              <button class="x-cb" id="i11" type="button" title="原始大小（双击图片也可切换）" hidden>1:1</button>
+              <button class="x-cb" id="iRot" type="button" title="旋转 90°（R）" hidden>旋转</button>
               <button class="x-cb" id="dl" type="button" title="下载原文件">下载</button>
               <button class="x-cb" id="fs" type="button" title="全屏">全屏</button>
             </div>
             <div class="x-view" id="view">
-              <div class="x-drop" id="drop" role="button" tabindex="0">拖入文件或点击打开<small>Word（.docx）、Excel（.xlsx .xls .csv）、PDF、文本文件都可以直接看，可以一次放多个。</small></div>
+              <div class="x-drop" id="drop" role="button" tabindex="0">拖入文件或点击打开<small>Word（.docx）、Excel（.xlsx .xls .csv）、PDF、图片、文本文件都可以直接看，可以一次放多个。</small></div>
             </div>
           </div>
           <aside class="x-side" id="side">
@@ -134,16 +141,18 @@
         const $ = (id) => document.getElementById(id);
         const view = $("view"), listEl = $("list"), drop = $("drop");
         const V = "/assets/vendor/";
-        const KIND = (n) => {
+        const KIND = (n, mime) => {
           const e = (n.split(".").pop() || "").toLowerCase();
+          if (/^(png|jpe?g|jpe|jfif|pjpeg|pjp|gif|webp|bmp|avif|ico|svg)$/.test(e)) return "image";
           if (/^(docx|docm|dotx)$/.test(e)) return "docx";
           if (/^(xlsx|xlsm|xlsb|xls|ods|csv|tsv)$/.test(e)) return "sheet";
           if (e === "pdf") return "pdf";
           if (/^(txt|md|json|xml|log|ini|yaml|yml|html?|css|js|ts|py|sh|bat|ps1|c|cpp|h|java|go|rs|sql)$/.test(e)) return "text";
           if (/^(doc|ppt|pptx|wps|et|dps)$/.test(e)) return "unsupported";
+          if (/^image\//i.test(mime || "")) return "image";
           return "";
         };
-        const CLS = { docx: "w", sheet: "x", pdf: "p", text: "t", unsupported: "" };
+        const CLS = { docx: "w", sheet: "x", pdf: "p", text: "t", image: "i", unsupported: "" };
         let list = [], cur = -1, zoom = 1, toastT, renderId = 0, pdfUrl = null;
 
         const toast = (t) => { const el = $("toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("is-on"), 2400); };
@@ -168,7 +177,7 @@
           const fs = [...files];
           if (!fs.length) return;
           const start = list.length;
-          fs.forEach((f) => list.push({ name: f.name, file: f, kind: KIND(f.name) }));
+          fs.forEach((f) => list.push({ name: f.name, file: f, kind: KIND(f.name, f.type) }));
           toast(`已添加 ${fs.length} 个文件`);
           show(start);
         }
@@ -181,6 +190,8 @@
           const p = view.querySelector(".x-text"); if (p) p.style.fontSize = 13 * zoom + "px";
           const pdf = !!view.querySelector(".x-frame");
           $("zIn").hidden = $("zOut").hidden = $("zVal").hidden = pdf;
+          $("iFit").hidden = $("i11").hidden = $("iRot").hidden = !im;
+          if (im) $("zVal").textContent = Math.round(im.s * 100) + "%";
         }
 
         async function show(i) {
@@ -188,6 +199,7 @@
           cur = i; const it = list[i], id = ++renderId;
           renderList();
           if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+          imgOff();
           $("bar").hidden = false; $("name").textContent = it.name; zoom = 1;
           msg("正在打开…");
           try {
@@ -206,6 +218,10 @@
             } else if (it.kind === "pdf") {
               pdfUrl = URL.createObjectURL(it.file.type === "application/pdf" ? it.file : new Blob([it.file], { type: "application/pdf" }));
               view.innerHTML = `<iframe class="x-frame" title="${esc(it.name)}" src="${pdfUrl}"></iframe>`;
+            } else if (it.kind === "image") {
+              pdfUrl = URL.createObjectURL(it.file);
+              await imageView(pdfUrl, it.name, id);
+              if (id !== renderId) return;
             } else if (it.kind === "text") {
               let t = await it.file.text();
               if (/\.json$/i.test(it.name)) { try { t = JSON.stringify(JSON.parse(t), null, 2); } catch (e) {} }
@@ -225,6 +241,115 @@
           }
           renderList(); applyZoom();
           view.scrollTop = 0;
+        }
+
+        // ---- 图片：适应宽度 / 整张 / 1:1，滚轮与双指缩放，拖动，旋转 ----
+        let im = null, ro = null;
+        function imgOff() { if (ro) { ro.disconnect(); ro = null; } im = null; }
+        function imageView(url, name, id) {
+          return new Promise((ok, no) => {
+            const box = document.createElement("div"); box.className = "x-img"; box.tabIndex = 0; box.title = "拖动查看；滚轮滚动（图片能完整显示时滚轮缩放）；Ctrl+滚轮或双指缩放；双击切换原始大小";
+            const img = new Image(); img.alt = name; img.decoding = "async"; img.draggable = false;
+            img.onerror = () => no(new Error("图片无法显示，可能已损坏，或浏览器不支持这种格式"));
+            img.onload = () => {
+              if (id !== renderId) return ok();
+              view.innerHTML = ""; box.appendChild(img); view.appendChild(box);
+              im = { box, img, w: img.naturalWidth || 300, h: img.naturalHeight || 150, s: 1, cx: 0, cy: 0, rot: 0, mode: "auto" };
+              img.style.width = im.w + "px"; img.style.height = im.h + "px";
+              imgFit("auto"); bindImg(box);
+              if (window.ResizeObserver) { ro = new ResizeObserver(() => { if (!im) return; im.mode === "free" ? imgClamp() : imgFit(im.auto ? "auto" : im.mode); }); ro.observe(box); }
+              ok();
+            };
+            img.src = url;
+          });
+        }
+        const rw = () => (im.rot % 180 ? im.h : im.w), rh = () => (im.rot % 180 ? im.w : im.h);
+        const vw = () => im.box.clientWidth || 1, vh = () => im.box.clientHeight || 1;
+        function imgDraw() {
+          im.img.style.transform = `translate(${im.cx - im.w / 2}px, ${im.cy - im.h / 2}px) rotate(${im.rot}deg) scale(${im.s})`;
+          $("zVal").textContent = Math.round(im.s * 100) + "%";
+          $("iFit").textContent = im.mode === "width" ? "整张" : "适应宽度";
+          $("i11").setAttribute("aria-pressed", Math.abs(im.s - 1) < 0.001);
+        }
+        function imgClamp() {
+          const W = vw(), H = vh(), dw = rw() * im.s, dh = rh() * im.s;
+          im.cx = dw <= W ? W / 2 : Math.min(dw / 2, Math.max(W - dw / 2, im.cx));
+          im.cy = dh <= H ? H / 2 : Math.min(dh / 2, Math.max(H - dh / 2, im.cy));
+          imgDraw();
+        }
+        function imgFit(mode) {
+          const W = vw(), H = vh(), tall = rh() / rw() > H / W;
+          let m = mode;
+          if (m === "auto") m = tall ? "width" : "all";
+          if (m === "width") im.s = mode === "auto" ? Math.min(1, W / rw()) : W / rw();
+          else im.s = mode === "auto" ? Math.min(1, W / rw(), H / rh()) : Math.min(W / rw(), H / rh());
+          im.mode = m; im.auto = mode === "auto";
+          im.cx = W / 2; im.cy = rh() * im.s / 2;
+          imgClamp();
+        }
+        function imgZoomAt(s2, px, py) {
+          s2 = Math.min(20, Math.max(0.02, s2));
+          const k = s2 / im.s;
+          im.cx = px + (im.cx - px) * k; im.cy = py + (im.cy - py) * k; im.s = s2; im.mode = "free"; im.auto = false;
+          imgClamp();
+        }
+        const imgZoomBy = (k) => imgZoomAt(im.s * k, vw() / 2, vh() / 2);
+        function imgOne(px, py) {
+          if (Math.abs(im.s - 1) < 0.001) return imgFit("auto");
+          imgZoomAt(1, px == null ? vw() / 2 : px, py == null ? vh() / 2 : py);
+        }
+        function imgRotate() { im.rot = (im.rot + 90) % 360; imgFit(im.mode === "free" || im.auto ? "auto" : im.mode); }
+        $("iFit").onclick = () => im && imgFit(im.mode === "width" ? "all" : "width");
+        $("i11").onclick = () => im && imgOne();
+        $("iRot").onclick = () => im && imgRotate();
+        function bindImg(box) {
+          const pts = new Map(); let last = null, pinch = null, moved = 0, lastTap = 0, lastXY = [0, 0];
+          const rel = (e) => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+          box.addEventListener("wheel", (e) => {
+            if (!im) return; e.preventDefault();
+            const [px, py] = rel(e);
+            const big = rh() * im.s > vh() + 1 || rw() * im.s > vw() + 1;
+            if (!e.ctrlKey && !e.metaKey && big) {
+              const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? vh() : 1;
+              let dx = e.deltaX * k, dy = e.deltaY * k; if (e.shiftKey && !dx) { dx = dy; dy = 0; }
+              im.cx -= dx; im.cy -= dy; imgClamp(); return;
+            }
+            const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+            imgZoomAt(im.s * Math.exp(-Math.max(-300, Math.min(300, d)) * (e.ctrlKey ? 0.01 : 0.0025)), px, py);
+          }, { passive: false });
+          box.addEventListener("pointerdown", (e) => {
+            if (!im) return; box.setPointerCapture && box.setPointerCapture(e.pointerId);
+            pts.set(e.pointerId, rel(e)); moved = 0;
+            if (pts.size === 1) { last = rel(e); box.classList.add("is-grab"); }
+            if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, s: im.s, m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; }
+          });
+          box.addEventListener("pointermove", (e) => {
+            if (!im || !pts.has(e.pointerId)) return;
+            const p = rel(e); pts.set(e.pointerId, p);
+            if (pts.size >= 2 && pinch) {
+              const [a, b] = [...pts.values()], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+              im.cx += m[0] - pinch.m[0]; im.cy += m[1] - pinch.m[1]; pinch.m = m;
+              imgZoomAt(pinch.s * (Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d), m[0], m[1]); moved = 99;
+            } else if (last) {
+              moved += Math.abs(p[0] - last[0]) + Math.abs(p[1] - last[1]);
+              im.cx += p[0] - last[0]; im.cy += p[1] - last[1]; last = p; if (im.mode !== "free" && moved > 3) { im.mode = "free"; im.auto = false; } imgClamp();
+            }
+          });
+          const up = (e) => {
+            if (!pts.has(e.pointerId)) return;
+            const p = pts.get(e.pointerId); pts.delete(e.pointerId);
+            if (pts.size < 2) pinch = null;
+            if (pts.size === 1) last = [...pts.values()][0];
+            if (!pts.size) {
+              last = null; box.classList.remove("is-grab");
+              if (moved < 6 && e.type === "pointerup") {
+                const now = Date.now();
+                if (now - lastTap < 320 && Math.hypot(p[0] - lastXY[0], p[1] - lastXY[1]) < 30) { lastTap = 0; imgOne(p[0], p[1]); }
+                else { lastTap = now; lastXY = p; }
+              }
+            }
+          };
+          box.addEventListener("pointerup", up); box.addEventListener("pointercancel", up);
         }
 
         const MAXR = 5000, MAXC = 200;
@@ -270,7 +395,7 @@
         }
 
         function reset() {
-          renderId++; cur = -1; $("bar").hidden = true;
+          renderId++; cur = -1; $("bar").hidden = true; imgOff();
           if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
           view.innerHTML = ""; view.appendChild(drop); renderList();
         }
@@ -287,8 +412,8 @@
           if (rm) { const i = +rm.dataset.rm; list.splice(i, 1); if (i === cur) { list.length ? show(Math.min(i, list.length - 1)) : reset(); } else { if (i < cur) cur--; renderList(); } return; }
           const li = e.target.closest("li[data-i]"); if (li) show(+li.dataset.i);
         };
-        $("zIn").onclick = () => { zoom = Math.min(3, +(zoom + 0.1).toFixed(2)); applyZoom(); };
-        $("zOut").onclick = () => { zoom = Math.max(0.3, +(zoom - 0.1).toFixed(2)); applyZoom(); };
+        $("zIn").onclick = () => { if (im) return imgZoomBy(1.25); zoom = Math.min(3, +(zoom + 0.1).toFixed(2)); applyZoom(); };
+        $("zOut").onclick = () => { if (im) return imgZoomBy(0.8); zoom = Math.max(0.3, +(zoom - 0.1).toFixed(2)); applyZoom(); };
         $("dl").onclick = () => { const it = list[cur]; if (!it) return; const a = document.createElement("a"); a.href = URL.createObjectURL(it.file); a.download = it.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
         $("fs").onclick = () => { const s = $("stage"); document.fullscreenElement ? document.exitFullscreen() : s.requestFullscreen && s.requestFullscreen(); };
 
@@ -302,6 +427,9 @@
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "o") { e.preventDefault(); pick(); }
           else if (cur >= 0 && (e.key === "+" || e.key === "=")) $("zIn").click();
           else if (cur >= 0 && e.key === "-") $("zOut").click();
+          else if (im && e.key.toLowerCase() === "r") imgRotate();
+          else if (im && e.key === "0") imgFit(im.mode === "width" ? "all" : "width");
+          else if (im && e.key === "1") imgOne();
         });
 
         $("demoBtn").onclick = () => Promise.all(["sample.docx", "sample.xlsx"].map((n) => fetch("doc-samples/" + n).then((r) => { if (!r.ok) throw 0; return r.blob(); }).then((b) => new File([b], "示例" + n.slice(6), { type: b.type }))))
