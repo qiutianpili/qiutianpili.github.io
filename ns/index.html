@@ -171,8 +171,9 @@
       try {
         const data = await api('/find', { query }, true);
         const names = data.names || [];
-        if (!names.length) { setMsg($('findMsg'), data.message || `未找到“${query}”。${data.wildcard ? '' : '可以试试通配符，如 张*。'}`); $('results').innerHTML = ''; return; }
-        setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。图片可预览，其他文件直接下载。`);
+        const left = typeof data.finds_left === 'number' ? `本次登录还可查询 ${data.finds_left} 次。` : '';
+        if (!names.length) { setMsg($('findMsg'), (data.message || `未找到“${query}”。${data.wildcard ? '' : '可以试试通配符，如 张*。'}`) + left); $('results').innerHTML = ''; return; }
+        setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。图片可预览，其他文件直接下载。${left}`);
         $('results').innerHTML = names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${esc(f.line)}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
       } catch (e) { setMsg($('findMsg'), e.message, true); }
       finally { $('findBtn').disabled = false; }
