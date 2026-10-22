@@ -313,12 +313,16 @@
   }
 
   /* ---------- 入口：分享链接直接显示结果 ---------- */
-  var m = location.hash.match(/^#r=([0-9a-z]{28})$/);
-  var dec = m && decode(m[1]);
-  if (dec) {
+  function fromHash() {
+    var m = location.hash.match(/^#r=([0-9a-z]{28})$/);
+    var dec = m && decode(m[1]);
+    if (!dec) return false;
     var own = st.a.filter(Boolean).length === N && encode(score(st.a).s) === m[1];
     shared = !own; $("shared-banner").hidden = own;
     renderResult(dec, own ? score(st.a) : null);
+    return true;
   }
+  fromHash();
+  window.addEventListener("hashchange", fromHash);
   window.addEventListener("resize", function () { if (lastScores && chartMode === "radar" && $("v-result").classList.contains("is-on")) {/* svg 自适应，无需重绘 */} });
 })();
