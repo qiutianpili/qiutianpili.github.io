@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>七宗罪 × 七美德 · 14 维人格光谱 | 秋天霹雳</title>
+  <meta name="description" content="56 道题、14 个维度，看看骄傲、嫉妒、耐心、慷慨这些古老的概念，在你身上各占几分。含雷达图、成对解读、人格称号与可分享结果卡。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/fonts/geist.css">
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/tests/sins-virtues/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="七宗罪 × 七美德 · 14 维人格光谱">
+  <meta property="og:description" content="56 道题、14 个维度，测一测你的罪与美德光谱。">
+  <meta property="og:url" content="https://20610728.xyz/tests/sins-virtues/">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="sv.css?v=1">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+    <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+      <span class="x-brand__mark" aria-hidden="true">Q</span>
+      <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+    </a>
+    <nav class="x-pill x-links" aria-label="站点导航">
+      <a href="/">首页</a>
+      <a href="/posts.html">文章</a>
+      <a href="/hark/">项目</a>
+    </nav>
+    <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+  </header>
+
+  <main class="sv" id="sv">
+    <!-- 首页 -->
+    <section class="sv-view is-on" id="v-intro" aria-labelledby="t-intro">
+      <div class="sv-hero">
+        <div class="sv-orb" aria-hidden="true"><span></span><span></span></div>
+        <p class="sv-eyebrow">人格光谱 · 14 维</p>
+        <h1 id="t-intro"><span class="c-sin">七宗罪</span><i>×</i><span class="c-vir">七美德</span></h1>
+        <p class="sv-lede">骄傲、嫉妒、耐心、慷慨……这些流传了一千多年的词，在你身上各占几分？56 道题，大约 8 分钟。</p>
+        <div class="sv-cta">
+          <button class="sv-btn sv-btn--primary" id="b-start" type="button">开始测试</button>
+          <button class="sv-btn" id="b-resume" type="button" hidden>继续上次进度</button>
+        </div>
+        <p class="sv-meta">每题自动跳转 · 键盘 1–5 作答 · 进度自动保存</p>
+      </div>
+
+      <div class="sv-grid">
+        <article class="sv-card">
+          <h2>测什么</h2>
+          <div class="sv-chips" id="chips"></div>
+          <p class="sv-note">每个维度 4 道题，其中 1 道反向计分；各维度独立打分（0–10），罪与美德之间不会互相抵消。</p>
+        </article>
+        <article class="sv-card">
+          <h2>怎么看结果</h2>
+          <ul class="sv-list">
+            <li><b>不是道德评分。</b>“罪”在这里代表人类的原始驱动力，“美德”代表调节它们的能力，两者都有好处，也都有代价。</li>
+            <li><b>高分 = 常用。</b>分数只说明某种反应在你身上出现得多，不代表好坏。</li>
+            <li><b>会变。</b>状态、关系、人生阶段都会改变结果，隔一段时间再测会很有意思。</li>
+          </ul>
+        </article>
+        <article class="sv-card">
+          <h2>作答建议</h2>
+          <ul class="sv-list">
+            <li>按最近一段时间、平常状态下的真实反应作答，而不是理想中的自己。</li>
+            <li>别想太久，第一直觉通常最准。</li>
+            <li>本测试仅供娱乐与自我探索，不构成任何心理诊断。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- 答题 -->
+    <section class="sv-view" id="v-quiz" aria-label="答题">
+      <div class="sv-quiz">
+        <div class="sv-top">
+          <button class="sv-icon" id="b-back" type="button" aria-label="上一题">←</button>
+          <div class="sv-prog" role="progressbar" aria-valuemin="0" aria-valuemax="56" aria-valuenow="0" id="prog">
+            <div class="sv-prog__bar" id="prog-bar"></div>
+          </div>
+          <span class="sv-count" id="count">1 / 56</span>
+        </div>
+        <div class="sv-stage" id="stage">
+          <article class="sv-q" id="qcard">
+            <p class="sv-q__tag" id="qtag"></p>
+            <h2 class="sv-q__text" id="qtext"></h2>
+          </article>
+        </div>
+        <div class="sv-scale" id="scale" role="radiogroup" aria-label="符合程度"></div>
+        <div class="sv-scale-legend"><span>不符合</span><span>符合</span></div>
+        <div class="sv-bottom">
+          <button class="sv-link" id="b-quit" type="button">退出（进度已保存）</button>
+          <button class="sv-btn sv-btn--primary sv-btn--sm" id="b-finish" type="button" hidden>查看结果</button>
+          <button class="sv-link" id="b-next" type="button">下一题 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结果 -->
+    <section class="sv-view" id="v-result" aria-label="结果">
+      <div class="sv-shared" id="shared-banner" hidden>这是别人分享的结果。<button class="sv-link" id="b-own" type="button">我也测一测 →</button></div>
+
+      <header class="sv-res-head">
+        <p class="sv-eyebrow">你的人格称号</p>
+        <h1 class="sv-title" id="r-title">—</h1>
+        <p class="sv-lede" id="r-sub"></p>
+        <div class="sv-badges" id="r-badges"></div>
+      </header>
+
+      <div class="sv-res-grid">
+        <article class="sv-card sv-card--chart">
+          <div class="sv-card__head"><h2>14 维光谱</h2><div class="sv-seg" id="chart-seg"><button class="is-on" data-v="radar" type="button">雷达</button><button data-v="bars" type="button">对照</button></div></div>
+          <div class="sv-chart" id="chart"></div>
+          <p class="sv-note">左半边是七宗罪，右半边是七美德，处在同一条直线两端的是一对。悬停或点按任一维度查看解读。</p>
+        </article>
+
+        <div class="sv-side">
+          <article class="sv-card sv-idx">
+            <div><span class="sv-idx__k">驱动力</span><b class="sv-idx__v c-sin" id="i-drive">0</b><span class="sv-idx__s">七宗罪均分</span></div>
+            <div><span class="sv-idx__k">调节力</span><b class="sv-idx__v c-vir" id="i-reg">0</b><span class="sv-idx__s">七美德均分</span></div>
+            <div><span class="sv-idx__k">内在张力</span><b class="sv-idx__v" id="i-ten">0</b><span class="sv-idx__s">双高的对数</span></div>
+          </article>
+          <article class="sv-card">
+            <h2>一句话画像</h2>
+            <p id="r-summary" class="sv-p"></p>
+          </article>
+          <article class="sv-card" id="r-quality-card" hidden>
+            <h2>作答提示</h2>
+            <p id="r-quality" class="sv-p"></p>
+          </article>
+        </div>
+      </div>
+
+      <article class="sv-card" id="detail-card">
+        <div class="sv-card__head"><h2>逐维解读</h2><div class="sv-seg" id="dim-seg"><button class="is-on" data-v="all" type="button">全部</button><button data-v="sin" type="button">七宗罪</button><button data-v="virtue" type="button">七美德</button></div></div>
+        <div class="sv-dims" id="dims"></div>
+      </article>
+
+      <article class="sv-card">
+        <h2>七组对照</h2>
+        <p class="sv-note">只在两边分数明显偏高（≥6.5）或偏低（≤3.5）时给出组合解读，介于中间的归为“情境型”。</p>
+        <div class="sv-pairs" id="pairs"></div>
+      </article>
+
+      <article class="sv-card">
+        <h2>成长建议</h2>
+        <p class="sv-note">根据你最突出的维度挑出的三个小练习。</p>
+        <ol class="sv-tips" id="tips"></ol>
+      </article>
+
+      <div class="sv-actions">
+        <button class="sv-btn sv-btn--primary" id="b-img" type="button">生成结果图</button>
+        <button class="sv-btn" id="b-link" type="button">复制分享链接</button>
+        <button class="sv-btn" id="b-retake" type="button">重新测试</button>
+      </div>
+      <p class="sv-foot">仅供娱乐与自我探索，不构成心理评估或道德评价。题目与解读为本站原创。</p>
+    </section>
+  </main>
+
+  <div class="sv-modal" id="modal" hidden>
+    <div class="sv-modal__box">
+      <img id="modal-img" alt="结果图">
+      <div class="sv-actions">
+        <a class="sv-btn sv-btn--primary" id="modal-dl" download="七宗罪x七美德.png">保存图片</a>
+        <button class="sv-btn" id="modal-x" type="button">关闭</button>
+      </div>
+      <p class="sv-note">手机上也可以长按图片保存。</p>
+    </div>
+  </div>
+  <div class="sv-toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js?v=1"></script>
+  <script src="sv.js?v=1"></script>
+</body>
+</html>
