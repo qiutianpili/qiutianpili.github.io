@@ -49,12 +49,23 @@
     .viewer-head span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .viewer-body { overflow: auto; }
     .viewer-body img { display: block; max-width: 100%; height: auto; }
+    /* 静态 emoji 背景：一张 SVG 平铺在固定层上，只画一次，不随滚动重绘；仅限 😍❤️😊☺️😆🤩🍕📁📂 */
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360' viewBox='0 0 360 360'><g font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' text-anchor='middle' dominant-baseline='central'><text x='46' y='33' font-size='26' transform='rotate(23 46 33)'>%E2%9D%A4%EF%B8%8F</text><text x='126' y='59' font-size='24' transform='rotate(-12 126 59)'>%F0%9F%98%8A</text><text x='235' y='27' font-size='32' transform='rotate(-18 235 27)'>%F0%9F%93%81</text><text x='320' y='36' font-size='32' transform='rotate(-3 320 36)'>%F0%9F%8D%95</text><text x='57' y='120' font-size='24' transform='rotate(-16 57 120)'>%E2%9D%A4%EF%B8%8F</text><text x='126' y='146' font-size='24' transform='rotate(-19 126 146)'>%E2%98%BA%EF%B8%8F</text><text x='243' y='131' font-size='32' transform='rotate(7 243 131)'>%F0%9F%A4%A9</text><text x='318' y='123' font-size='26' transform='rotate(2 318 123)'>%F0%9F%A4%A9</text><text x='53' y='212' font-size='30' transform='rotate(4 53 212)'>%F0%9F%98%86</text><text x='119' y='215' font-size='30' transform='rotate(8 119 215)'>%F0%9F%98%8D</text><text x='220' y='210' font-size='24' transform='rotate(-2 220 210)'>%E2%98%BA%EF%B8%8F</text><text x='303' y='226' font-size='32' transform='rotate(-13 303 226)'>%F0%9F%98%8D</text><text x='27' y='303' font-size='24' transform='rotate(-1 27 303)'>%F0%9F%98%8A</text><text x='131' y='333' font-size='30' transform='rotate(5 131 333)'>%F0%9F%98%86</text><text x='211' y='331' font-size='24' transform='rotate(-2 211 331)'>%F0%9F%93%82</text><text x='299' y='321' font-size='24' transform='rotate(21 299 321)'>%E2%9D%A4%EF%B8%8F</text></g></svg>") 0 0 / 360px 360px repeat; opacity: 0.16; }
+    @media (prefers-color-scheme: dark) { body::before { opacity: 0.1; } }
+    @media print { body::before { display: none; } }
+    .block { text-align: center; }
     [hidden] { display: none !important; }
   </style>
 </head>
 <body>
   <header class="hero"><div class="hero-in"><h1>名单查询</h1><p>通过机器人验证后，可临时查询姓名所在的文件并下载。</p></div></header>
   <main>
+    <section id="blockCard" class="card block" hidden>
+      <h2 id="blockTitle">查询页已在其他标签页打开</h2>
+      <p class="muted" id="blockText">为防止频繁请求，同一浏览器（包括隐私窗口）只能打开一个查询页。请回到原来的页面，或关闭它后点击继续。</p>
+      <div class="row" style="justify-content:center"><button class="primary" type="button" id="blockRetry">我已关闭其他页面，继续</button></div>
+    </section>
+
     <section id="pairCard" class="card">
       <h2>第一步：把识别码发给机器人</h2>
       <p class="muted">在已开放的群里或私聊机器人发送下面这条消息，机器人会回复验证码。识别码 10 分钟内有效。</p>
@@ -95,13 +106,64 @@
     const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     let challenge = store.get('ns-challenge'), token = store.get('ns-token'), expiresAt = Number(store.get('ns-exp')) || 0, timer = 0;
 
+    // ---- 单页限制 + 浏览器指纹（服务器按指纹每分钟限 5 次、拒绝多开，多次违规封 IP） ----
+    const rid = () => { const a = new Uint8Array(12); crypto.getRandomValues(a); return Array.from(a, b => b.toString(16).padStart(2, '0')).join(''); };
+    let tab = store.get('ns-tab') || rid(); store.set('ns-tab', tab);
+    const instance = rid();
+    let fp = '', blocked = false, pingTimer = 0;
+    async function fingerprint() {
+      const parts = [navigator.userAgent, navigator.language, (navigator.languages || []).join(','), navigator.platform, navigator.hardwareConcurrency, navigator.deviceMemory, navigator.maxTouchPoints,
+        screen.width, screen.height, screen.colorDepth, window.devicePixelRatio, Intl.DateTimeFormat().resolvedOptions().timeZone, new Date().getTimezoneOffset()];
+      try {
+        const c = document.createElement('canvas'); c.width = 240; c.height = 60; const g = c.getContext('2d');
+        g.textBaseline = 'top'; g.font = '16px Arial'; g.fillStyle = '#f60'; g.fillRect(100, 1, 62, 20);
+        g.fillStyle = '#069'; g.fillText('名单查询 NS fp 😍 1.11', 2, 15); g.fillStyle = 'rgba(102,204,0,0.7)'; g.fillText('名单查询 NS fp 😍 1.11', 4, 17);
+        parts.push(c.toDataURL());
+      } catch (_) { parts.push('nocanvas'); }
+      try {
+        const gl = document.createElement('canvas').getContext('webgl'); const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+        parts.push(ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) + '|' + gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'nogl');
+      } catch (_) { parts.push('nogl'); }
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('\u241f')));
+      return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+    }
+    function showBlock(title, text, retry) {
+      blocked = true; clearInterval(pingTimer); clearInterval(timer);
+      $('blockTitle').textContent = title; $('blockText').textContent = text; $('blockRetry').hidden = !retry;
+      $('blockCard').hidden = false; $('pairCard').hidden = true; $('findCard').hidden = true;
+    }
+    const channel = 'BroadcastChannel' in window ? new BroadcastChannel('ns-portal') : null;
+    function otherTabOpen() {
+      if (!channel) return Promise.resolve(false);
+      return new Promise(resolve => {
+        let found = false;
+        const onMsg = ev => { if (ev.data && ev.data.type === 'here' && ev.data.to === instance) found = true; };
+        channel.addEventListener('message', onMsg);
+        channel.postMessage({ type: 'hello', from: instance });
+        setTimeout(() => { channel.removeEventListener('message', onMsg); resolve(found); }, 350);
+      });
+    }
+    if (channel) channel.addEventListener('message', ev => {
+      const d = ev.data || {};
+      if (d.type === 'hello' && !blocked) channel.postMessage({ type: 'here', to: d.from });
+      if (d.type === 'bye' && blocked) location.reload();
+    });
+    window.addEventListener('pagehide', () => {
+      if (blocked || !fp) return;
+      if (channel) channel.postMessage({ type: 'bye' });
+      try { navigator.sendBeacon(API + '/release', new Blob([JSON.stringify({ fp, tab })], { type: 'text/plain' })); } catch (_) {}
+    });
+
     async function api(path, body, auth) {
-      const headers = { 'Content-Type': 'application/json' };
+      if (blocked) throw new Error('当前页面已停用');
+      const headers = { 'Content-Type': 'application/json', 'X-NS-FP': fp, 'X-NS-Tab': tab };
       if (auth && token) headers.Authorization = 'Bearer ' + token;
       let res;
       try { res = await fetch(API + path, { method: body === undefined ? 'GET' : 'POST', headers, body: body === undefined ? undefined : JSON.stringify(body), credentials: 'omit' }); }
       catch (_) { throw new Error('连接查询服务失败，请稍后再试'); }
       const data = await res.json().catch(() => ({}));
+      if (data.banned) { showBlock('访问已被封禁', data.error || '访问异常，已被封禁，请联系管理员。', false); throw new Error(data.error || '已被封禁'); }
+      if (res.status === 409) { showBlock(data.reason === 'multi_browser' ? '同一网络下打开的查询页过多' : '查询页已在其他标签页或窗口打开', data.error || '只能保留一个查询页。', true); throw new Error(data.error || '多开'); }
       if (res.status === 401 && auth) { logout('登录已过期，请重新验证'); throw new Error('登录已过期'); }
       if (!res.ok || data.ok === false) { const e = new Error(data.error || data.message || ('请求失败 ' + res.status)); e.status = res.status; throw e; }
       return data;
@@ -159,7 +221,7 @@
     $('copyBtn').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('cmd').textContent); setMsg($('pairMsg'), '已复制，去发给机器人吧'); } catch (_) { setMsg($('pairMsg'), '复制失败，请手动输入'); } });
     $('logout').addEventListener('click', ev => { ev.preventDefault(); logout(); });
 
-    const fileUrl = (id, inline) => `${API}/files/${encodeURIComponent(id)}/content?token=${encodeURIComponent(token)}${inline ? '&inline=1' : ''}`;
+    const fileUrl = (id, inline) => `${API}/files/${encodeURIComponent(id)}/content?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}${inline ? '&inline=1' : ''}`;
     const isImage = name => /\.(jpe?g|png|gif|webp|bmp)$/i.test(name || '');
     function download(id) { const a = document.createElement('a'); a.href = fileUrl(id, false); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }
 
@@ -190,9 +252,16 @@
     document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeViewer(); });
     $('viewerDl').addEventListener('click', () => download($('viewerDl').dataset.id));
 
-    if (token && expiresAt > Date.now()) {
-      api('/session', undefined, true).then(data => { expiresAt = Date.now() + data.expires_in * 1000; store.set('ns-exp', String(expiresAt)); enter(data.user); }).catch(() => {});
-    } else { token = ''; restoreChallenge(); }
+    $('blockRetry').addEventListener('click', () => location.reload());
+
+    (async () => {
+      if (await otherTabOpen()) { showBlock('查询页已在其他标签页打开', '同一浏览器只能打开一个查询页。请回到原来的页面；关闭它后这里会自动继续。', true); tab = rid(); store.set('ns-tab', tab); return; }
+      try { fp = await fingerprint(); } catch (_) { showBlock('浏览器不支持', '请使用最新版浏览器通过 https 打开查询页。', false); return; }
+      pingTimer = setInterval(() => { api('/ping', {}).catch(() => {}); }, 30000);
+      if (token && expiresAt > Date.now()) {
+        api('/session', undefined, true).then(data => { expiresAt = Date.now() + data.expires_in * 1000; store.set('ns-exp', String(expiresAt)); enter(data.user); }).catch(() => {});
+      } else { token = ''; restoreChallenge(); }
+    })();
   })();
   </script>
   <script src="/assets/hark-sub.js" data-no-theme></script>
