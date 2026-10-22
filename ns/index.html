@@ -11,12 +11,14 @@
   <style>
     :root { color-scheme: light dark; --api: ""; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: var(--fill-primary-on); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; }
-    .hero { background: var(--hero-surface); color: var(--hero-text); padding: 56px 20px 64px; }
-    .hero-in, main { max-width: 760px; margin: 0 auto; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 5vh, 56px) clamp(12px, 4vw, 32px) 88px; background: var(--fill-primary-on); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; }
+    /* 内容整体居中：深色标题卡与下方卡片作为一组，在任意窗口里水平+垂直居中，内容超出时正常向下滚动 */
+    .hero { width: 100%; max-width: 760px; margin: 0 auto; background: var(--hero-surface); color: var(--hero-text); padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 36px) 64px; border-radius: 28px; text-align: center; }
+    .hero-in { max-width: 600px; margin: 0 auto; }
+    main { width: 100%; max-width: 728px; margin: -40px auto 0; }
     .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 6vw, 40px); font-weight: 600; letter-spacing: -0.02em; }
     .hero p { margin: 0; color: var(--hero-text-muted); font-size: 15px; }
-    main { padding: 0 16px 80px; margin-top: -32px; display: grid; gap: 16px; }
+    main { padding: 0 clamp(8px, 2vw, 16px); display: grid; gap: 16px; }
     .card { background: var(--fill-primary-on); border: 1px solid var(--stroke-primary); border-radius: 24px; padding: 22px; box-shadow: var(--hark-shadow); }
     .card h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
     .muted { color: var(--text-secondary); font-size: 14px; margin: 0; }
@@ -54,6 +56,7 @@
     @media (prefers-color-scheme: dark) { body::before { opacity: 0.1; } }
     @media print { body::before { display: none; } }
     .block { text-align: center; }
+    @media (max-width: 480px) { .hero { border-radius: 22px; } .card { padding: 18px; border-radius: 20px; } input.code { max-width: none; } .pair-code { flex: 1 1 100%; text-align: center; } }
     [hidden] { display: none !important; }
   </style>
 </head>
