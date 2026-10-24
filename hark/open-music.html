@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0f">
+<title>请在浏览器中打开 · Any Music</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="canonical" href="https://20610728.xyz/hark/open-music.html">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0b0b0f;color:#ececf1;font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 96px) 22px 40px;background-image:radial-gradient(120% 60% at 100% 0,rgba(120,110,255,.22),transparent 60%)}
+.arrow{position:fixed;top:calc(env(safe-area-inset-top) + 6px);right:14px;width:92px;height:92px;color:#fff;animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(5px,-6px)}}
+.card{width:100%;max-width:380px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px 22px 22px;text-align:center}
+.logo{width:64px;height:64px;border-radius:16px;display:block;margin:0 auto 14px}
+h1{font-size:21px;font-weight:650;letter-spacing:.2px}
+.sub{color:#a3a3b2;font-size:14px;margin-top:6px}
+ol{list-style:none;text-align:left;margin:22px 0 6px;display:grid;gap:12px}
+li{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.04);border-radius:14px;padding:12px 14px}
+.n{flex:none;width:26px;height:26px;border-radius:50%;background:#7c74ff;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.dots{display:inline-flex;gap:3px;vertical-align:middle;padding:3px 7px;border-radius:8px;background:rgba(255,255,255,.12);margin:0 2px}
+.dots i{width:4px;height:4px;border-radius:50%;background:#fff}
+b{font-weight:650;color:#fff}
+.or{color:#8a8a99;font-size:13px;margin:18px 0 10px}
+.url{display:block;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;color:#cfcfe0;background:rgba(0,0,0,.35);border-radius:10px;padding:10px 12px;word-break:break-all;user-select:all;-webkit-user-select:all}
+.btn{display:block;width:100%;margin-top:12px;border:0;border-radius:12px;padding:13px 16px;font:inherit;font-weight:600;color:#fff;background:#7c74ff;cursor:pointer}
+.btn:active{opacity:.85}
+.msg{min-height:20px;font-size:13px;color:#9be3b0;margin-top:8px}
+.skip{margin-top:22px;background:none;border:0;color:#7d7d8c;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<svg class="arrow" viewBox="0 0 92 92" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 84C20 50 42 28 74 18"/><path d="M58 14l17 4-6 16"/></svg>
+<main class="card">
+  <img class="logo" src="/assets/anymusic.png" alt="" width="64" height="64">
+  <h1>请在浏览器中打开</h1>
+  <p class="sub" id="why">当前在 <span id="app">微信</span> 内置浏览器中，Any Music 可能无法正常登录或播放。</p>
+  <ol>
+    <li><span class="n">1</span><span>点击右上角 <span class="dots" aria-label="更多"><i></i><i></i><i></i></span></span></li>
+    <li><span class="n">2</span><span>选择 <b id="act">在浏览器打开</b></span></li>
+  </ol>
+  <p class="or">或复制链接，粘贴到浏览器中打开</p>
+  <span class="url" id="url"></span>
+  <button class="btn" id="copy" type="button">复制链接</button>
+  <p class="msg" id="msg" aria-live="polite"></p>
+</main>
+<button class="skip" id="skip" type="button">仍在当前页面继续</button>
+<script>
+(function () {
+  var ua = navigator.userAgent || "";
+  var wx = /MicroMessenger/i.test(ua), qq = /\sQQ\/\d|\sTIM\/\d|V1_(AND|IPH)_SQ/.test(ua);
+  var ios = /iPhone|iPad|iPod/i.test(ua);
+  var to = "/";
+  try { to = new URLSearchParams(location.search).get("to") || "/"; } catch (e) {}
+  if (!/^\/(?![\/\\])/.test(to)) to = "/";
+  var target = "https://music.20610728.xyz" + to;
+  if (!wx && !qq) { location.replace(target); return; }
+  var $ = function (id) { return document.getElementById(id); };
+  $("app").textContent = wx ? (/wxwork/i.test(ua) ? "企业微信" : "微信") : (/\sTIM\//.test(ua) ? "TIM" : "QQ");
+  $("act").textContent = ios ? (wx ? "在 Safari 中打开" : "用 Safari 打开") : (wx ? "在浏览器打开" : "用浏览器打开");
+  $("url").textContent = target;
+  function done(ok) {
+    $("msg").style.color = ok ? "#9be3b0" : "#ffb4a8";
+    $("msg").textContent = ok ? "已复制，打开浏览器粘贴即可" : "复制失败，请长按上方链接手动复制";
+  }
+  function legacy() {
+    var t = document.createElement("textarea");
+    t.value = target; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;top:-100px;opacity:0";
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, t.value.length);
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(t); done(ok);
+  }
+  $("copy").onclick = function () {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(target).then(function () { done(true); }, legacy);
+    } else legacy();
+  };
+  $("skip").onclick = function () {
+    location.replace(target + (target.indexOf("?") < 0 ? "?" : "&") + "al_inapp=1");
+  };
+})();
+</script>
+</body>
+</html>
