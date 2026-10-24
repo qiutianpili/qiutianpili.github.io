@@ -43,6 +43,9 @@
     .files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .file { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: auto; min-height: 34px; padding: 6px 14px; font-size: 13px; font-weight: 500; background: var(--fill-primary-on); }
     .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+    .file.img::before { content: "🖼"; font-size: 13px; }
+    .tip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: var(--fill-tertiary); color: var(--text-secondary); font-size: 12px; }
     .line { margin-top: 8px; font-size: 12px; color: var(--text-secondary); overflow-wrap: anywhere; }
     .viewer { position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / 0.7); display: none; align-items: center; justify-content: center; padding: 16px; }
     .viewer.on { display: flex; }
@@ -238,16 +241,29 @@
         const names = data.names || [];
         const left = typeof data.finds_left === 'number' ? `本次登录还可查询 ${data.finds_left} 次。` : '';
         if (!names.length) { setMsg($('findMsg'), (data.message || `未找到“${query}”。${data.wildcard ? '' : '可以试试通配符，如 张*。'}`) + left); $('results').innerHTML = ''; return; }
-        setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。图片可预览，其他文件直接下载。${left}`);
-        $('results').innerHTML = names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${esc(f.line)}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
+        setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。${left}`);
+        const hasImg = names.some(g => g.files.some(f => isImage(f.name)));
+        $('results').innerHTML = (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
       } catch (e) { setMsg($('findMsg'), e.message, true); }
       finally { $('findBtn').disabled = false; }
     });
+    // 图片：单击下载、双击预览。单击延迟判断，双击时取消待执行的下载，避免同时触发。
+    let clickTimer = null;
+    const cancelClick = () => { if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; } };
+    const openViewer = (id, name) => { $('viewerName').textContent = name; $('viewerImg').src = fileUrl(id, true); $('viewerDl').dataset.id = id; $('viewer').classList.add('on'); };
     $('results').addEventListener('click', ev => {
       const btn = ev.target.closest('.file'); if (!btn) return;
       const { id, name } = btn.dataset;
       if (!isImage(name)) { download(id); return; }
-      $('viewerName').textContent = name; $('viewerImg').src = fileUrl(id, true); $('viewerDl').dataset.id = id; $('viewer').classList.add('on');
+      cancelClick();
+      if (ev.detail > 1) return; // 双击的第二下交给 dblclick
+      clickTimer = setTimeout(() => { clickTimer = null; download(id); }, 320);
+    });
+    $('results').addEventListener('dblclick', ev => {
+      const btn = ev.target.closest('.file'); if (!btn) return;
+      const { id, name } = btn.dataset;
+      if (!isImage(name)) return;
+      ev.preventDefault(); cancelClick(); openViewer(id, name);
     });
     const closeViewer = () => { $('viewer').classList.remove('on'); $('viewerImg').removeAttribute('src'); };
     $('viewerClose').addEventListener('click', closeViewer);
