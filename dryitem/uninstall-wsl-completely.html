@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>彻底卸载 WSL：一段 PowerShell 清干净发行版、组件和残留 | 秋天霹雳</title>
+  <meta name="description" content="一段 PowerShell 脚本彻底卸载 WSL：注销所有 Linux 发行版并删除虚拟磁盘、卸载 WSL 应用包、关闭可选功能、清理 .wslconfig 残留。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <link rel="stylesheet" href="/assets/hark-doc.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/dryitem/uninstall-wsl-completely.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="彻底卸载 WSL：一段 PowerShell 清干净发行版、组件和残留 | 秋天霹雳">
+  <meta property="og:description" content="一段 PowerShell 脚本彻底卸载 WSL：注销所有 Linux 发行版并删除虚拟磁盘、卸载 WSL 应用包、关闭可选功能、清理 .wslconfig 残留。">
+  <meta property="og:url" content="https://20610728.xyz/dryitem/uninstall-wsl-completely.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/hark/">项目</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows</p>
+      <h1>彻底卸载 WSL</h1>
+    </header>
+
+    <p class="lead">只在“应用”里卸载发行版，WSL 组件、虚拟磁盘和配置文件都还会留着。下面这段 PowerShell 按顺序把<b>发行版、WSL 应用包、系统可选功能和用户配置</b>一次清干净。</p>
+    <p class="tip">第 1 步会删除所有发行版的虚拟磁盘，里面的文件<b>无法恢复</b>。有要留的数据，先用 <code>wsl --export 发行版名 D:\backup.tar</code> 导出。</p>
+
+    <h2>使用方法</h2>
+    <ol>
+      <li>右键开始菜单，选 <b>终端（管理员）</b>，确保是 PowerShell 标签页。</li>
+      <li>粘贴下面整段脚本并回车。</li>
+      <li>看到绿色的“WSL 已彻底清理完毕”后<b>重启电脑</b>。</li>
+    </ol>
+
+    <h2>完整脚本</h2>
+    <pre><code># 让 wsl.exe 输出 UTF-8，避免发行版名称夹带空字符
+$env:WSL_UTF8 = 1
+
+# 1. 注销并删除所有已安装的 Linux 发行版（连同虚拟磁盘）
+wsl --list --quiet 2&gt;$null | ForEach-Object { $name = $_.Trim(); if ($name) { Write-Host "正在注销分发: $name"; wsl --unregister $name } }
+
+# 2. 卸载通过 MSI / Store 安装的 WSL 应用包与扩展
+Get-AppxPackage -AllUsers *WindowsSubsystemForLinux* 2&gt;$null | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+Get-Package -Name "*Windows Subsystem for Linux*" 2&gt;$null | Uninstall-Package -Force -ErrorAction SilentlyContinue
+
+# 3. 执行 WSL 内置卸载命令
+wsl --uninstall 2&gt;$null
+
+# 4. 关闭系统底层可选功能（-NoRestart：先不重启，最后手动重启）
+Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
+Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart
+
+# 5. 清理用户目录下的残留配置文件
+Remove-Item -Path "$env:USERPROFILE\.wslconfig", "$env:USERPROFILE\.wslgconfig" -Force -ErrorAction SilentlyContinue
+
+Write-Host "WSL 已彻底清理完毕，请重启电脑以生效。" -ForegroundColor Green</code></pre>
+
+    <h2>每一步做了什么</h2>
+    <ul>
+      <li><b>注销发行版</b>：<code>wsl --unregister</code> 删除每个发行版和它的 <code>ext4.vhdx</code> 虚拟磁盘。</li>
+      <li><b>卸载应用包</b>：移除商店版 / MSI 版的“适用于 Linux 的 Windows 子系统”。</li>
+      <li><b>内置卸载</b>：<code>wsl --uninstall</code> 清掉新版 WSL 自带的组件；旧系统不支持也不影响后续步骤。</li>
+      <li><b>关闭可选功能</b>：关掉“适用于 Linux 的 Windows 子系统”和“虚拟机平台”。</li>
+      <li><b>清理配置</b>：删除用户目录下的 <code>.wslconfig</code> 和 <code>.wslgconfig</code>。</li>
+    </ul>
+
+    <h2>注意</h2>
+    <ul>
+      <li>关闭“虚拟机平台”后，WSA 和依赖它的安卓模拟器也会停用；还要用就别执行第 4 步的第二行。</li>
+      <li>Docker Desktop 的 WSL2 后端会一起失效，可改用 Hyper-V 后端或先卸载 Docker Desktop。</li>
+      <li>以后想重新装，管理员终端执行 <code>wsl --install</code> 后重启即可。</li>
+    </ul>
+  </main>
+</body>
+</html>
