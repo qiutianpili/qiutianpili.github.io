@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>仅清除内置 Administrator 账号的数据（不影响其他用户） | 秋天霹雳</title>
+  <meta name="description" content="删除并重置系统内置 Administrator 的用户配置文件：系统属性、PowerShell、注册表三种方法，其他用户的数据和设置不受影响。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <link rel="stylesheet" href="/assets/hark-doc.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/dryitem/reset-administrator-profile.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="仅清除内置 Administrator 账号的数据（不影响其他用户） | 秋天霹雳">
+  <meta property="og:description" content="删除并重置系统内置 Administrator 的用户配置文件：系统属性、PowerShell、注册表三种方法，其他用户的数据和设置不受影响。">
+  <meta property="og:url" content="https://20610728.xyz/dryitem/reset-administrator-profile.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/hark/">项目</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows</p>
+      <h1>如何仅清除内置 Administrator 账号的数据</h1>
+    </header>
+
+    <p class="lead">本质是<b>删除并重置 Administrator 的用户配置文件（User Profile）</b>。桌面、下载、文档、AppData 和它的注册表配置都会被清空；下次登录时系统会像首次开机一样重新生成一份默认配置，<b>其他用户的设置和数据完全不受影响</b>。</p>
+
+    <h2>前提条件</h2>
+    <ul>
+      <li><b>不能在 Administrator 账号内操作</b>：先退出它，登录电脑里的<b>另一个管理员账号</b>。</li>
+      <li>Administrator 必须是<b>已注销</b>状态，而不是锁屏或“切换用户”，否则它的 <code>NTUSER.DAT</code> 会被占用锁定。</li>
+    </ul>
+
+    <h2>方法一：系统属性删除（最安全，推荐）</h2>
+    <p>会自动清理注册表里的 Profile 关联项，并删除物理文件。</p>
+    <ol>
+      <li>按 <code>Win + R</code>，输入 <code>sysdm.cpl</code> 回车。</li>
+      <li>切换到 <b>高级</b> 选项卡，在“用户配置文件”区域点 <b>设置</b>。</li>
+      <li>在列表里找到 <code>计算机名\Administrator</code>。</li>
+      <li>选中后点 <b>删除</b>，确认时点 <b>是</b>。</li>
+    </ol>
+    <p class="tip">“删除”按钮是灰色的，说明 Administrator 的会话还在后台运行。先重启电脑，直接登录另一个管理员账号，再按上面步骤操作。</p>
+
+    <h2>方法二：PowerShell 重置（最快）</h2>
+    <p>以管理员身份打开 PowerShell：</p>
+    <ol>
+      <li>删除 Administrator 的配置文件对象（同时清除 <code>C:\Users\Administrator</code> 文件夹和注册表映射）：</li>
+    </ol>
+    <pre><code>Get-CimInstance Win32_UserProfile | Where-Object { $_.LocalPath -like "*\Administrator" } | Remove-CimInstance</code></pre>
+    <ol start="2">
+      <li>确认文件夹已删除：</li>
+    </ol>
+    <pre><code>Test-Path "C:\Users\Administrator"</code></pre>
+    <p>返回 <code>False</code> 即已彻底清除；返回 <code>True</code> 再手动删一次：</p>
+    <pre><code>Remove-Item -Path "C:\Users\Administrator" -Recurse -Force</code></pre>
+
+    <h2>方法三：注册表 + 手动删目录（前两种报错时用）</h2>
+    <ol>
+      <li>按 <code>Win + R</code>，输入 <code>regedit</code> 回车。</li>
+      <li>定位到：</li>
+    </ol>
+    <pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList</code></pre>
+    <ol start="3">
+      <li>找末尾为 <code>-500</code> 的子项（内置 Administrator 的 SID，形如 <code>S-1-5-21-xxxx-500</code>）。可点开核对右侧 <code>ProfileImagePath</code>，应为 <code>C:\Users\Administrator</code>。</li>
+      <li>右键该 SID 项，选 <b>删除</b>。</li>
+      <li>重启电脑，登录另一个管理员账号，进入 <code>C:\Users\</code>，把 <code>Administrator</code> 文件夹删掉。</li>
+    </ol>
+
+    <h2>重置后的状态</h2>
+    <ul>
+      <li>其他用户的配置、桌面和软件数据都保持原样。</li>
+      <li>再次登录 Administrator 时会显示“正在准备 Windows”，系统按 <code>C:\Users\Default</code> 重新生成一个干净的个人目录。</li>
+    </ul>
+  </main>
+</body>
+</html>
