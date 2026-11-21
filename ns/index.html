@@ -46,6 +46,14 @@
     .file { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
     .file.img::before { content: "🖼"; font-size: 13px; }
     .tip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: var(--fill-tertiary); color: var(--text-secondary); font-size: 12px; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tools button { height: 38px; padding: 0 16px; font-size: 14px; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .gallery figure { margin: 0; border: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); border-radius: 14px; overflow: hidden; cursor: zoom-in; display: flex; flex-direction: column; }
+    .gallery .ph { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; background: var(--fill-primary-on); color: var(--text-secondary); font-size: 12px; }
+    .gallery img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: top; background: var(--fill-primary-on); }
+    .gallery figcaption { padding: 6px 10px; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (max-width: 480px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
     .line { margin-top: 8px; font-size: 12px; color: var(--text-secondary); overflow-wrap: anywhere; }
     .viewer { position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / 0.7); display: none; align-items: center; justify-content: center; padding: 16px; }
     .viewer.on { display: flex; }
@@ -205,7 +213,7 @@
     function logout(reason) {
       if (token) fetch(API + '/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).catch(() => {});
       token = ''; expiresAt = 0; store.set('ns-token', ''); store.set('ns-exp', ''); store.set('ns-challenge', ''); challenge = '';
-      clearInterval(timer); $('results').innerHTML = ''; setMsg($('findMsg'), '');
+      clearInterval(timer); galleryRun++; current = { ids: [], images: [], query: '' }; $('results').innerHTML = ''; setMsg($('findMsg'), '');
       $('findCard').hidden = true; $('pairCard').hidden = false; $('codeInput').value = '';
       setMsg($('pairMsg'), reason || '', Boolean(reason)); newChallenge();
     }
@@ -230,6 +238,40 @@
     const fileUrl = (id, inline) => `${API}/files/${encodeURIComponent(id)}/content?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}${inline ? '&inline=1' : ''}`;
     const isImage = name => /\.(jpe?g|png|gif|webp|bmp)$/i.test(name || '');
     function download(id) { const a = document.createElement('a'); a.href = fileUrl(id, false); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+    // 一键下载：服务器把本次查询结果打成一个 zip，整包只算一次请求
+    let current = { ids: [], images: [], query: '' };
+    const archiveUrl = () => `${API}/files/archive?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}&ids=${encodeURIComponent(current.ids.join(','))}&name=${encodeURIComponent(current.query)}`;
+    function downloadAll(btn) {
+      if (!current.ids.length) return;
+      if (current.ids.length === 1) { download(current.ids[0]); return; }
+      const a = document.createElement('a'); a.href = archiveUrl(); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+      btn.disabled = true; const text = btn.textContent; btn.textContent = '正在打包…';
+      setTimeout(() => { btn.disabled = false; btn.textContent = text; }, 6000);
+    }
+    // 展开全部图片：逐张限速加载（约每 0.6 秒一张），不会触发频率限制
+    let galleryRun = 0;
+    function expandAll(btn) {
+      const box = $('gallery');
+      if (!box) return;
+      if (!box.hidden) { box.hidden = true; galleryRun++; box.innerHTML = ''; btn.textContent = `展开全部图片（${current.images.length} 张）`; return; }
+      const run = ++galleryRun;
+      box.innerHTML = current.images.map(f => `<figure class="gimg" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="单击放大 · ${esc(f.name)}"><div class="ph">等待加载…</div><figcaption>${esc(f.name)}</figcaption></figure>`).join('');
+      box.hidden = false; btn.textContent = '收起图片';
+      const figs = Array.from(box.querySelectorAll('figure'));
+      const next = i => {
+        if (run !== galleryRun || i >= figs.length) return;
+        const fig = figs[i], ph = fig.querySelector('.ph'), img = new Image();
+        img.alt = fig.dataset.name; img.decoding = 'async';
+        let moved = false;
+        const go = () => { if (!moved) { moved = true; setTimeout(() => next(i + 1), 600); } };
+        img.onload = () => { if (run === galleryRun) ph.replaceWith(img); go(); };
+        img.onerror = () => { if (run === galleryRun) ph.textContent = '加载失败，单击重试'; fig.dataset.failed = '1'; go(); };
+        ph.textContent = '加载中…';
+        img.src = fileUrl(fig.dataset.id, true);
+        setTimeout(go, 8000);
+      };
+      next(0);
+    }
 
     $('findForm').addEventListener('submit', async ev => {
       ev.preventDefault();
@@ -243,7 +285,12 @@
         if (!names.length) { setMsg($('findMsg'), (data.message || `未找到“${query}”。${data.wildcard ? '' : '可以试试通配符，如 张*。'}`) + left); $('results').innerHTML = ''; return; }
         setMsg($('findMsg'), `${data.name_count} 个姓名，涉及 ${data.file_count} 个文件${data.truncated ? `，另有 ${data.truncated} 个未显示，请缩小范围` : ''}。${left}`);
         const hasImg = names.some(g => g.files.some(f => isImage(f.name)));
-        $('results').innerHTML = (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
+        const seen = new Map();
+        names.forEach(g => g.files.forEach(f => { if (!seen.has(f.id)) seen.set(f.id, f); }));
+        current = { ids: Array.from(seen.keys()), images: Array.from(seen.values()).filter(f => isImage(f.name)), query };
+        galleryRun++;
+        const tools = `<div class="tools"><button type="button" class="primary" id="dlAll">一键下载（${current.ids.length} 个文件）</button>${current.images.length ? `<button type="button" id="expandAll">展开全部图片（${current.images.length} 张）</button>` : ''}</div>${current.images.length ? '<div id="gallery" class="gallery" hidden></div>' : ''}`;
+        $('results').innerHTML = tools + (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
       } catch (e) { setMsg($('findMsg'), e.message, true); }
       finally { $('findBtn').disabled = false; }
     });
@@ -252,6 +299,13 @@
     const cancelClick = () => { if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; } };
     const openViewer = (id, name) => { $('viewerName').textContent = name; $('viewerImg').src = fileUrl(id, true); $('viewerDl').dataset.id = id; $('viewer').classList.add('on'); };
     $('results').addEventListener('click', ev => {
+      if (ev.target.closest('#dlAll')) { downloadAll(ev.target.closest('#dlAll')); return; }
+      if (ev.target.closest('#expandAll')) { expandAll(ev.target.closest('#expandAll')); return; }
+      const fig = ev.target.closest('.gimg');
+      if (fig) {
+        if (fig.dataset.failed) { delete fig.dataset.failed; const ph = fig.querySelector('.ph'); const img = new Image(); img.alt = fig.dataset.name; img.onload = () => ph.replaceWith(img); img.onerror = () => { ph.textContent = '加载失败，单击重试'; fig.dataset.failed = '1'; }; ph.textContent = '加载中…'; img.src = fileUrl(fig.dataset.id, true); return; }
+        openViewer(fig.dataset.id, fig.dataset.name); return;
+      }
       const btn = ev.target.closest('.file'); if (!btn) return;
       const { id, name } = btn.dataset;
       if (!isImage(name)) { download(id); return; }
