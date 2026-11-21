@@ -67,6 +67,11 @@
     @media (prefers-color-scheme: dark) { body::before { opacity: 0.1; } }
     @media print { body::before { display: none; } }
     .block { text-align: center; }
+    .inapp-arrow { position: fixed; top: 6px; right: 14px; z-index: 60; font-size: 44px; line-height: 1; animation: nsbob 1.2s ease-in-out infinite; pointer-events: none; }
+    @keyframes nsbob { 50% { transform: translateY(-6px); } }
+    .steps { text-align: left; margin: 14px auto 0; padding-left: 1.3em; max-width: 420px; font-size: 15px; }
+    .steps li { margin: 6px 0; }
+    .linkbox { margin-top: 14px; font: 500 14px var(--mono); padding: 10px 14px; border-radius: 12px; background: var(--fill-tertiary); overflow-wrap: anywhere; user-select: all; }
     @media (max-width: 480px) { .hero { border-radius: 22px; } .card { padding: 18px; border-radius: 20px; } input.code { max-width: none; } .pair-code { flex: 1 1 100%; text-align: center; } }
     [hidden] { display: none !important; }
   </style>
@@ -74,6 +79,20 @@
 <body>
   <header class="hero"><div class="hero-in"><h1>名单查询</h1><p>通过机器人验证后，可临时查询姓名所在的文件并下载。</p></div></header>
   <main>
+    <section id="inAppCard" class="card block" hidden>
+      <h2 id="inAppTitle">请在浏览器中打开</h2>
+      <p class="muted">为保证安全，查询页不支持在 QQ、微信等 App 的内置浏览器里使用。</p>
+      <ol class="steps">
+        <li>点击右上角的 <b>···</b>（或 <b>⋮</b>）按钮</li>
+        <li>选择 <b>“在浏览器中打开”</b>（或“用默认浏览器打开”）</li>
+        <li>也可以复制下面的链接，粘贴到 Chrome、Edge、Safari、夸克、QQ 浏览器等浏览器中打开</li>
+      </ol>
+      <div class="linkbox" id="inAppLink"></div>
+      <div class="row" style="justify-content:center"><button class="primary" type="button" id="inAppCopy">复制链接</button></div>
+      <div class="msg" id="inAppMsg" style="text-align:center"></div>
+    </section>
+    <div class="inapp-arrow" id="inAppArrow" hidden>↗️</div>
+
     <section id="blockCard" class="card block" hidden>
       <h2 id="blockTitle">查询页已在其他标签页打开</h2>
       <p class="muted" id="blockText">为防止频繁请求，同一浏览器（包括隐私窗口）只能打开一个查询页。请回到原来的页面，或关闭它后点击继续。</p>
@@ -326,6 +345,27 @@
     $('viewerDl').addEventListener('click', () => download($('viewerDl').dataset.id));
 
     $('blockRetry').addEventListener('click', () => location.reload());
+
+    // ---- 内置浏览器检测：QQ / TIM / 微信 / 企业微信内置浏览器不允许使用，引导到第三方浏览器 ----
+    // 只拦 App 内置浏览器；独立的 QQ 浏览器（MQQBrowser 且不带 " QQ/"）不受影响。
+    const ua = navigator.userAgent || '';
+    const inApp = /MicroMessenger|WindowsWechat|wxwork/i.test(ua) ? '微信' : (/\s(QQ|TIM)\/\d|V1_(AND|IPH|IPAD)_SQ|QQTheme/i.test(ua) ? 'QQ' : '');
+    if (inApp) {
+      blocked = true;
+      ['pairCard', 'findCard', 'blockCard'].forEach(id => { const el = $(id); if (el) el.hidden = true; });
+      $('inAppTitle').textContent = `请在浏览器中打开（当前为${inApp}内置浏览器）`;
+      $('inAppLink').textContent = location.href.split('#')[0];
+      $('inAppCard').hidden = false; $('inAppArrow').hidden = !/Android|iPhone|iPad|iPod/i.test(ua);
+      $('inAppCopy').addEventListener('click', async () => {
+        const text = $('inAppLink').textContent;
+        let ok = false;
+        try { await navigator.clipboard.writeText(text); ok = true; } catch (_) {
+          try { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove(); } catch (_) {}
+        }
+        setMsg($('inAppMsg'), ok ? '链接已复制，打开浏览器粘贴即可' : '复制失败，请长按上面的链接手动复制');
+      });
+      return;
+    }
 
     (async () => {
       if (await otherTabOpen()) { showBlock('查询页已在其他标签页打开', '同一浏览器只能打开一个查询页。请回到原来的页面；关闭它后这里会自动继续。', true); tab = rid(); store.set('ns-tab', tab); return; }
