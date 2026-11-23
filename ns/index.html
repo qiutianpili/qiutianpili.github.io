@@ -6,6 +6,8 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <title>名单查询</title>
+  <link rel="preconnect" href="https://ns.20610728.xyz" crossorigin>
+  <link rel="dns-prefetch" href="https://ns.20610728.xyz">
   <link rel="stylesheet" href="/assets/fonts/geist.css">
   <link rel="stylesheet" href="/assets/hark-sub.css">
   <style>
@@ -146,7 +148,7 @@
       <p class="muted">点击“<span id="getCodeLink" class="hl-red" role="button" tabindex="0" title="点击获取验证码">获取验证码</span>”得到识别码，在已开放的群里向机器人发送下面这条消息，机器人会回复验证码。识别码获取后 10 分钟内有效。</p>
       <div class="pair"><div id="pairCode" class="pair-code"><button id="getCodeBtn" class="get-code" type="button">获取验证码</button><svg class="hand-cursor" aria-hidden="true" viewBox="-1 -1 19 24" shape-rendering="crispEdges"><path d="M5 0h2v1h1v6h2v1h2v1h2v1h1v1h1v6h-1v2h-1v3H5v-3H4v-2H3v-2H2v-2H1v-3h3v1h1V1h0z" fill="#fff" stroke="#000"/><path d="M8 8v4M11 9v3M14 10v3" stroke="#000" fill="none"/></svg></div><button id="copyBtn" type="button" disabled>复制指令</button><button id="newBtn" type="button" disabled>换一个</button></div>
       <p class="muted">发送：<span id="cmd" class="cmd">@番茄Bot /验证码 UAHSTT</span><span id="pairLeft" class="pair-left" hidden></span></p>
-      <figure class="example"><img src="example-verify.png?v=2" width="1080" height="757" alt="示例：在群里发送 @番茄Bot /验证码 识别码，机器人回复验证码" loading="lazy" decoding="async"><figcaption>示例</figcaption></figure>
+      <figure class="example"><img src="example-verify.webp?v=2" width="840" height="589" alt="示例：在群里发送 @番茄Bot /验证码 识别码，机器人回复验证码" loading="lazy" decoding="async"><figcaption>示例</figcaption></figure>
       <h2 style="margin-top:22px">第二步：输入验证码</h2>
       <form id="verifyForm" class="row" autocomplete="off">
         <input id="codeInput" class="code" inputmode="numeric" maxlength="6" placeholder="6 位数字" aria-label="验证码">
