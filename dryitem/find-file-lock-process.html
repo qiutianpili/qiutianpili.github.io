@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文件被占用？查出是哪个进程在用：Windows 三种方法 | 秋天霹雳</title>
+  <meta name="description" content="Windows 提示文件正在使用、无法删除时，如何查出占用它的进程：资源监视器、PowerToys File Locksmith、Sysinternals handle.exe 加 taskkill。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <link rel="stylesheet" href="/assets/hark-doc.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/dryitem/find-file-lock-process.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="文件被占用？查出是哪个进程在用：Windows 三种方法 | 秋天霹雳">
+  <meta property="og:description" content="Windows 提示文件正在使用、无法删除时，如何查出占用它的进程：资源监视器、PowerToys File Locksmith、Sysinternals handle.exe 加 taskkill。">
+  <meta property="og:url" content="https://20610728.xyz/dryitem/find-file-lock-process.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/hark/">项目</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows</p>
+      <h1>查出文件被哪个进程占用</h1>
+    </header>
+
+    <p class="lead">删除、重命名或移动时提示“操作无法完成，因为文件已在另一程序中打开”，先找出占用它的进程，再关掉即可。三种方法按场景选：</p>
+    <ul>
+      <li><b>资源监视器</b>：系统自带，不用装软件。</li>
+      <li><b>File Locksmith</b>：右键一键查看，适合经常遇到。</li>
+      <li><b>handle.exe</b>：纯命令行，适合脚本和远程维护。</li>
+    </ul>
+
+    <h2>方法一：资源监视器</h2>
+    <ol>
+      <li>按 <code>Win + R</code>，输入 <code>resmon</code> 回车。</li>
+      <li>切到 <b>CPU</b> 选项卡，展开 <b>关联的句柄</b>。</li>
+      <li>在“搜索句柄”框里输入文件名或文件夹名（支持部分匹配，如 <code>test.docx</code>），等几秒出结果。</li>
+      <li>“映像”列就是占用它的进程名和 PID，比如 <code>WINWORD.EXE</code>、<code>explorer.exe</code>。</li>
+      <li>确认可以关闭的话，右键该进程 → <b>结束进程</b>，文件就解锁了。</li>
+    </ol>
+    <p class="tip">占用者是 <code>explorer.exe</code> 时别直接结束，改到任务管理器里右键“Windows 资源管理器” → <b>重新启动</b>。</p>
+
+    <h2>方法二：PowerToys File Locksmith</h2>
+    <ol>
+      <li>安装微软官方 PowerToys：<code>winget install Microsoft.PowerToys</code>，在设置里确认 <b>File Locksmith</b> 已开启。</li>
+      <li>右键被占用的文件或文件夹（Win11 先点“显示更多选项”，或按住 Shift 右键）。</li>
+      <li>选 <b>使用 File Locksmith 解锁</b>。</li>
+      <li>弹窗列出所有占用进程的名称、PID 和路径，点右侧 <b>结束任务</b> 即可。</li>
+    </ol>
+    <p>如果是系统服务占用，点窗口顶部的 <b>以管理员身份重启</b>，才能扫到高权限进程。</p>
+
+    <h2>方法三：handle.exe 命令行</h2>
+    <p>Sysinternals 出品，没装的话先安装：</p>
+    <pre><code>winget install Microsoft.Sysinternals.Handle</code></pre>
+    <p>在<b>管理员</b>终端里查询（首次运行会要求同意许可协议，加 <code>-accepteula</code> 跳过弹窗）：</p>
+    <pre><code>handle.exe -accepteula "D:\路径\被占用的文件名.txt"</code></pre>
+    <p>输出类似：</p>
+    <pre><code>notepad.exe        pid: 14820   type: File           1A4: D:\路径\被占用的文件名.txt</code></pre>
+    <p>拿到 PID 后强制结束：</p>
+    <pre><code>taskkill /PID 14820 /F</code></pre>
+
+    <h2>注意</h2>
+    <ul>
+      <li>强制结束会丢掉该程序里没保存的内容，能正常关就先正常关。</li>
+      <li>不认识的系统进程（如 <code>System</code>、<code>svchost.exe</code>）别乱结束，实在不行就重启电脑。</li>
+    </ul>
+  </main>
+</body>
+</html>
