@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Windows runas 命令用法：以其他用户身份运行程序 | 秋天霹雳</title>
+  <meta name="description" content="Windows runas 命令速查：语法、常用参数、以本地/域用户运行 cmd 和程序、/savecred、/netonly、带空格路径的写法及常见报错。">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/fonts/geist.css" />
+  <link rel="stylesheet" href="/assets/hark-sub.css?v=2610101300">
+  <link rel="stylesheet" href="/assets/hark-doc.css?v=2610101300">
+  <script src="/assets/hark-sub.js?v=2610101300"></script>
+  <link rel="canonical" href="https://20610728.xyz/dryitem/runas-usage.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="秋天霹雳">
+  <meta property="og:title" content="Windows runas 命令用法：以其他用户身份运行程序 | 秋天霹雳">
+  <meta property="og:description" content="Windows runas 命令速查：语法、常用参数、以本地/域用户运行 cmd 和程序、/savecred、/netonly、带空格路径的写法及常见报错。">
+  <meta property="og:url" content="https://20610728.xyz/dryitem/runas-usage.html">
+  <meta property="og:image" content="https://20610728.xyz/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <header class="x-bar hark-bar">
+      <a class="x-pill x-brand" href="/" aria-label="秋天霹雳 首页">
+        <span class="x-brand__mark" aria-hidden="true">Q</span>
+        <span class="x-brand__text"><b>秋天霹雳</b><small>20610728.xyz</small></span>
+      </a>
+      <nav class="x-pill x-links" aria-label="站点导航">
+        <a href="/">首页</a>
+        <a href="/posts.html">文章</a>
+        <a href="/hark/">项目</a>
+      </nav>
+      <button class="x-pill x-theme" type="button" data-theme-toggle aria-label="切换深浅色"></button>
+    </header>
+  <main class="doc">
+    <header class="doc-head">
+      <p class="doc-eyebrow">教程 · Windows</p>
+      <h1>runas 命令用法</h1>
+    </header>
+
+    <p class="lead"><code>runas</code> 是 Windows 自带的命令，不用注销切换账号，就能<b>用另一个用户的身份</b>启动某个程序。最常见的写法：</p>
+    <pre><code>runas /user:Dell cmd</code></pre>
+    <p>回车后输入 Dell 的密码，会弹出一个新的命令提示符窗口，标题带“（以 电脑名\Dell 身份运行）”，里面执行的命令都以 Dell 的身份进行。输入 <code>whoami</code> 可确认。</p>
+
+    <h2>语法</h2>
+    <pre><code>runas [/profile | /noprofile] [/env] [/netonly | /savecred] [/smartcard]
+      /user:用户名 "程序 [参数]"</code></pre>
+    <ul>
+      <li>密码只能在提示时手动输入，不能写在命令里，也不会回显。</li>
+      <li>程序带参数时，整条命令要用双引号括起来。</li>
+    </ul>
+
+    <h2>用户名的写法</h2>
+    <ul>
+      <li><code>/user:Dell</code>：本机用户，最简单。</li>
+      <li><code>/user:电脑名\Dell</code> 或 <code>/user:Dell@电脑名</code>：明确指定本机账号。</li>
+      <li><code>/user:域名\用户名</code> 或 <code>/user:用户名@域名</code>：域账号。</li>
+    </ul>
+
+    <h2>常用参数</h2>
+    <ul>
+      <li><code>/profile</code>：加载该用户的配置文件（默认）。</li>
+      <li><code>/noprofile</code>：不加载配置文件，启动更快，但部分程序可能出错。</li>
+      <li><code>/env</code>：沿用当前用户的环境变量和当前目录。</li>
+      <li><code>/netonly</code>：本机仍是你自己，只有访问网络资源时用指定账号，常用于管理别的域的服务器。</li>
+      <li><code>/savecred</code>：把密码存进凭据管理器，之后不再询问（家庭版无效）。</li>
+      <li><code>/smartcard</code>：用智能卡提供凭据。</li>
+      <li><code>/showtrustlevels</code>、<code>/trustlevel</code>：查看 / 指定信任级别运行。</li>
+    </ul>
+
+    <h2>常用示例</h2>
+    <pre><code>:: 以 Dell 身份打开命令提示符
+runas /user:Dell cmd
+
+:: 以本机 Administrator 打开 PowerShell
+runas /user:%COMPUTERNAME%\Administrator powershell
+
+:: 打开程序并带参数（整体加引号）
+runas /user:Dell "notepad C:\test.txt"
+
+:: 以管理员身份打开计算机管理
+runas /user:Administrator "mmc %windir%\system32\compmgmt.msc"
+
+:: 路径里有空格：内层引号用 \" 转义
+runas /user:Dell "\"C:\Program Files\7-Zip\7zFM.exe\""
+
+:: 只在访问网络时使用域账号
+runas /netonly /user:contoso\admin "mmc %windir%\system32\dsa.msc"
+
+:: 记住密码，下次不再询问
+runas /savecred /user:Dell cmd</code></pre>
+
+    <h2>注意</h2>
+    <ul>
+      <li><b>runas 不等于“以管理员身份运行”</b>：开了 UAC 时，普通管理员账号经 runas 启动的程序仍是受限权限；内置 Administrator 才直接是完整权限。需要提权，用右键“以管理员身份运行”。</li>
+      <li><b>/savecred 有风险</b>：保存后，当前用户可以用这个账号免密码运行<b>任何</b>程序。不用了到“控制面板 → 凭据管理器 → Windows 凭据”删除。</li>
+      <li><b>空密码账号用不了</b>：系统默认禁止空密码账号做这种登录，会报 1327，给账号设个密码即可。</li>
+      <li>图形界面的替代：按住 Shift 右键程序 → <b>以其他用户身份运行</b>。</li>
+    </ul>
+
+    <h2>常见报错</h2>
+    <ul>
+      <li><b>1326</b>：用户名或密码错误，检查用户名写法（试试 <code>电脑名\用户名</code>）。</li>
+      <li><b>1327</b>：账号限制，多为空密码或该账号被禁止登录。</li>
+      <li><b>1058</b>：<b>Secondary Logon</b>（seclogon）服务被禁用，在 <code>services.msc</code> 中改为“手动”并启动。</li>
+      <li>从网络共享启动程序失败：runas 的账号可能没有该共享的访问权限，先把程序复制到本地。</li>
+    </ul>
+  </main>
+</body>
+</html>
