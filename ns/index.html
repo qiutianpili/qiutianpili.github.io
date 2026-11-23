@@ -9,18 +9,38 @@
   <link rel="stylesheet" href="/assets/fonts/geist.css">
   <link rel="stylesheet" href="/assets/hark-sub.css">
   <style>
-    :root { color-scheme: light dark; --api: ""; }
+    :root { color-scheme: dark; --api: "";
+      /* 金属像素流体背景上的毛玻璃配色：统一用深色玻璃 + 白字描边阴影，浅色/深色系统下都清楚 */
+      --text-primary: #f7f9fc; --text-secondary: rgb(236 241 248 / 0.82); --text-primary-on: #10141b;
+      --fill-primary: #eef2f7; --fill-tertiary: rgb(255 255 255 / 0.10); --fill-primary-on: rgb(18 22 30 / 0.34);
+      --stroke-primary: rgb(255 255 255 / 0.22); --stroke-secondary: rgb(255 255 255 / 0.14);
+      --glass: rgb(20 24 32 / 0.30); --glass-strong: rgb(16 20 28 / 0.46);
+      --ink-stroke: rgb(6 8 12 / 0.55);
+      --ink-shadow: 0 1px 2px rgb(0 0 0 / 0.55), 0 2px 10px rgb(0 0 0 / 0.35);
+      --ink-outline: -1px 0 0 var(--ink-stroke), 1px 0 0 var(--ink-stroke), 0 -1px 0 var(--ink-stroke), 0 1px 0 var(--ink-stroke);
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 5vh, 56px) clamp(12px, 4vw, 32px) 88px; background: var(--fill-primary-on); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; }
+    body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 5vh, 56px) clamp(12px, 4vw, 32px) 88px; background: #1a1e26 linear-gradient(135deg, #2b3039, #8d96a3 45%, #3a404a 70%, #c4ccd6); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; text-shadow: var(--ink-shadow); }
+    /* 背景：WebGL 金属像素流体（参考 Folia「隐现」像素 + 流体双层），低分辨率渲染后像素化放大 */
+    #fluid { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+    @media print { #fluid { display: none; } }
+    .glass { background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); border: 1px solid var(--stroke-primary); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 10px 40px rgb(0 0 0 / 0.28); }
     /* 内容整体居中：深色标题卡与下方卡片作为一组，在任意窗口里水平+垂直居中，内容超出时正常向下滚动 */
-    .hero { width: 100%; max-width: 760px; margin: 0 auto; background: var(--hero-surface); color: var(--hero-text); padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 36px) 64px; border-radius: 28px; text-align: center; }
+    .hero { width: 100%; max-width: 760px; margin: 0 auto; background: var(--glass-strong); -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%); border: 1px solid var(--stroke-primary); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 12px 48px rgb(0 0 0 / 0.3); color: var(--text-primary); padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 36px) 64px; border-radius: 28px; text-align: center; }
     .hero-in { max-width: 600px; margin: 0 auto; }
     main { width: 100%; max-width: 728px; margin: -40px auto 0; }
-    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 6vw, 40px); font-weight: 600; letter-spacing: -0.02em; }
-    .hero p { margin: 0; color: var(--hero-text-muted); font-size: 15px; }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 6vw, 40px); font-weight: 600; letter-spacing: -0.02em; -webkit-text-stroke: 1.2px var(--ink-stroke); paint-order: stroke fill; text-shadow: 0 2px 4px rgb(0 0 0 / 0.5), 0 6px 22px rgb(0 0 0 / 0.4); }
+    .hero p { margin: 0; color: var(--text-secondary); font-size: 15px; text-shadow: var(--ink-outline), var(--ink-shadow); }
     main { padding: 0 clamp(8px, 2vw, 16px); display: grid; gap: 16px; }
-    .card { background: var(--fill-primary-on); border: 1px solid var(--stroke-primary); border-radius: 24px; padding: 22px; box-shadow: var(--hark-shadow); }
-    .card h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+    .card { background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); border: 1px solid var(--stroke-primary); border-radius: 24px; padding: 22px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 10px 40px rgb(0 0 0 / 0.28); }
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .card, .hero { background: rgb(22 26 34 / 0.82); } }
+    .card h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; -webkit-text-stroke: 0.6px var(--ink-stroke); paint-order: stroke fill; text-shadow: var(--ink-shadow); }
+    .muted, .msg, .badge, .line, .tip, .person .n, .steps { text-shadow: var(--ink-outline), var(--ink-shadow); }
+    .person b, .pair-code { -webkit-text-stroke: 0.5px var(--ink-stroke); paint-order: stroke fill; }
+    a { color: #dbe8ff; }
+    input, button, .gallery figcaption { text-shadow: none; }
+    input::placeholder { color: rgb(236 241 248 / 0.55); }
+    button:not(.primary), input { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
     .muted { color: var(--text-secondary); font-size: 14px; margin: 0; }
     .pair { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 6px; }
     .pair-code { font: 600 clamp(30px, 8vw, 42px)/1 var(--mono); letter-spacing: 0.14em; padding: 14px 18px; border-radius: 16px; background: var(--fill-tertiary); user-select: all; }
@@ -33,18 +53,19 @@
     button.primary { background: var(--fill-primary); color: var(--text-primary-on); border-color: transparent; }
     button:disabled { opacity: 0.5; cursor: default; }
     .msg { margin-top: 10px; font-size: 14px; min-height: 1.4em; color: var(--text-secondary); }
-    .msg.err { color: var(--fill-system-red); }
+    .msg.err { color: #ff8a80; }
     .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
     .badge { font-size: 13px; color: var(--text-secondary); }
     .results { display: grid; gap: 10px; margin-top: 14px; }
-    .person { border: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); border-radius: 16px; padding: 14px; }
+    .person { border: 1px solid var(--stroke-secondary); background: rgb(255 255 255 / 0.07); border-radius: 16px; padding: 14px; }
     .person b { font-size: 16px; }
     .person .n { font-size: 12px; color: var(--text-secondary); margin-left: 6px; }
     .files { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .file { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: auto; min-height: 34px; padding: 6px 14px; font-size: 13px; font-weight: 500; background: var(--fill-primary-on); }
     .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .file { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
-    .file.img::before { content: "🖼"; font-size: 13px; }
+    .ico { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .file .ico { opacity: 0.9; }
     .tip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: var(--fill-tertiary); color: var(--text-secondary); font-size: 12px; }
     .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .tools button { height: 38px; padding: 0 16px; font-size: 14px; }
@@ -66,10 +87,6 @@
     .viewer-head span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .viewer-body { overflow: auto; }
     .viewer-body img { display: block; max-width: 100%; height: auto; }
-    /* 静态 emoji 背景：一张 SVG 平铺在固定层上，只画一次，不随滚动重绘；仅限 😍❤️😊☺️😆🤩🍕📁📂 */
-    body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360' viewBox='0 0 360 360'><g font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' text-anchor='middle' dominant-baseline='central'><text x='46' y='33' font-size='26' transform='rotate(23 46 33)'>%E2%9D%A4%EF%B8%8F</text><text x='126' y='59' font-size='24' transform='rotate(-12 126 59)'>%F0%9F%98%8A</text><text x='235' y='27' font-size='32' transform='rotate(-18 235 27)'>%F0%9F%93%81</text><text x='320' y='36' font-size='32' transform='rotate(-3 320 36)'>%F0%9F%8D%95</text><text x='57' y='120' font-size='24' transform='rotate(-16 57 120)'>%E2%9D%A4%EF%B8%8F</text><text x='126' y='146' font-size='24' transform='rotate(-19 126 146)'>%E2%98%BA%EF%B8%8F</text><text x='243' y='131' font-size='32' transform='rotate(7 243 131)'>%F0%9F%A4%A9</text><text x='318' y='123' font-size='26' transform='rotate(2 318 123)'>%F0%9F%A4%A9</text><text x='53' y='212' font-size='30' transform='rotate(4 53 212)'>%F0%9F%98%86</text><text x='119' y='215' font-size='30' transform='rotate(8 119 215)'>%F0%9F%98%8D</text><text x='220' y='210' font-size='24' transform='rotate(-2 220 210)'>%E2%98%BA%EF%B8%8F</text><text x='303' y='226' font-size='32' transform='rotate(-13 303 226)'>%F0%9F%98%8D</text><text x='27' y='303' font-size='24' transform='rotate(-1 27 303)'>%F0%9F%98%8A</text><text x='131' y='333' font-size='30' transform='rotate(5 131 333)'>%F0%9F%98%86</text><text x='211' y='331' font-size='24' transform='rotate(-2 211 331)'>%F0%9F%93%82</text><text x='299' y='321' font-size='24' transform='rotate(21 299 321)'>%E2%9D%A4%EF%B8%8F</text></g></svg>") 0 0 / 360px 360px repeat; opacity: 0.16; }
-    @media (prefers-color-scheme: dark) { body::before { opacity: 0.1; } }
-    @media print { body::before { display: none; } }
     .block { text-align: center; }
     .inapp-arrow { position: fixed; top: 6px; right: 14px; z-index: 60; font-size: 44px; line-height: 1; animation: nsbob 1.2s ease-in-out infinite; pointer-events: none; }
     @keyframes nsbob { 50% { transform: translateY(-6px); } }
@@ -81,6 +98,7 @@
   </style>
 </head>
 <body>
+  <canvas id="fluid" aria-hidden="true"></canvas>
   <header class="hero"><div class="hero-in"><h1>名单查询</h1><p>通过机器人验证后，可临时查询姓名所在的文件并下载。</p></div></header>
   <main>
     <section id="inAppCard" class="card block" hidden>
@@ -95,7 +113,7 @@
       <div class="row" style="justify-content:center"><button class="primary" type="button" id="inAppCopy">复制链接</button></div>
       <div class="msg" id="inAppMsg" style="text-align:center"></div>
     </section>
-    <div class="inapp-arrow" id="inAppArrow" hidden>↗️</div>
+    <div class="inapp-arrow" id="inAppArrow" hidden><svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true" style="fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 4px rgb(0 0 0 / .6))"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></div>
 
     <section id="blockCard" class="card block" hidden>
       <h2 id="blockTitle">查询页已在其他标签页打开</h2>
@@ -138,6 +156,13 @@
   <script>
   (() => {
     const API = 'https://ns.20610728.xyz/portal';
+    // 矢量图标（替代原来的 emoji）
+    const svg = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+    const ICON = {
+      image: svg('<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="m21 16-5.2-5.2a1.5 1.5 0 0 0-2.1 0L5 19.5"/>'),
+      file: svg('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>'),
+      download: svg('<path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/>')
+    };
     const $ = id => document.getElementById(id);
     const store = { get: k => { try { return sessionStorage.getItem(k) || ''; } catch (_) { return ''; } }, set: (k, v) => { try { v ? sessionStorage.setItem(k, v) : sessionStorage.removeItem(k); } catch (_) {} } };
     const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -322,7 +347,7 @@
         picked.clear();
         galleryRun++;
         const tools = `<div class="tools"><button type="button" class="primary" id="dlAll">一键下载（${current.ids.length} 个文件）</button><button type="button" id="pickAll">全选</button><button type="button" id="dlSel" disabled>下载所选（0）</button>${current.images.length ? `<button type="button" id="expandAll">展开全部图片（${current.images.length} 张）</button>` : ''}</div>${current.images.length ? '<div id="gallery" class="gallery" hidden></div>' : ''}`;
-        $('results').innerHTML = tools + (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载　勾选左侧方框可批量下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<span class="fitem"><label class="pick" title="勾选后可“下载所选”"><input type="checkbox" data-pick="${esc(f.id)}" aria-label="选择 ${esc(f.name)}"></label><button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button></span>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
+        $('results').innerHTML = tools + (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载　勾选左侧方框可批量下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<span class="fitem"><label class="pick" title="勾选后可“下载所选”"><input type="checkbox" data-pick="${esc(f.id)}" aria-label="选择 ${esc(f.name)}"></label><button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}">${isImage(f.name) ? ICON.image : ICON.file}<span>${esc(f.name)}</span>${isImage(f.name) ? '' : ICON.download}</button></span>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
       } catch (e) { setMsg($('findMsg'), e.message, true); }
       finally { $('findBtn').disabled = false; }
     });
@@ -399,5 +424,58 @@
   })();
   </script>
   <script src="/assets/hark-sub.js" data-no-theme></script>
+  <script>
+  // 金属像素流体背景：域扭曲 fbm 高度场 → 法线 → 铬金属环境反射 + 细微虹彩，叠加 4×4 Bayer 有序抖动并量化，低分辨率渲染再像素化放大。
+  (() => {
+    const canvas = document.getElementById('fluid');
+    const gl = canvas && (canvas.getContext('webgl', {antialias: false, alpha: false, preserveDrawingBuffer: false, powerPreference: 'low-power'}) || canvas.getContext('experimental-webgl'));
+    if (!gl) { if (canvas) canvas.remove(); return; }
+    const vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+    const fs = `precision mediump float;
+uniform vec2 R;uniform float T;
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<4;i++){v+=a*n2(p);p=m*p;a*=.5;}return v;}
+float field(vec2 p){vec2 q=vec2(fbm(p+vec2(0.,T*.05)),fbm(p+vec2(5.2,1.3)-T*.04));
+ vec2 r=vec2(fbm(p+2.*q+vec2(1.7,9.2)+T*.03),fbm(p+2.*q+vec2(8.3,2.8)-T*.025));return fbm(p+1.8*r);}
+float b2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}
+float bayer(vec2 a){return b2(.5*a)*.25+b2(a);}
+void main(){vec2 fc=gl_FragCoord.xy;vec2 uv=fc/R.y*.85;
+ float e=1.5/R.y*.85;float h=field(uv);float hx=field(uv+vec2(e,0.));float hy=field(uv+vec2(0.,e));
+ vec3 n=normalize(vec3((h-hx)*3.2,(h-hy)*3.2,e*14.));
+ vec3 v=vec3(0.,0.,1.);vec3 r=reflect(-v,n);
+ float y=r.y*.5+.5;
+ vec3 env=mix(vec3(.07,.08,.10),vec3(.36,.39,.45),smoothstep(.0,.45,y));
+ env=mix(env,vec3(.80,.84,.90),smoothstep(.45,.72,y));
+ env=mix(env,vec3(1.),smoothstep(.86,.98,y));
+ vec3 L=normalize(vec3(-.4,.6,.7));float sp=pow(max(dot(reflect(-L,n),v),0.),28.);
+ vec3 iri=.5+.5*cos(6.2831*(h*1.3+vec3(.0,.33,.67))+T*.08);
+ vec3 c=env*mix(vec3(1.),iri*.55+.6,.28)+sp*.9;
+ c*=.82+.25*h;
+ float lv=5.;float d=bayer(fc)-.5;c=floor(c*lv+d+.5)/lv;
+ gl_FragColor=vec4(clamp(c,0.,1.),1.);}`;
+    const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; };
+    const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
+    if (!v || !f) { canvas.remove(); return; }
+    const prog = gl.createProgram(); gl.attachShader(prog, v); gl.attachShader(prog, f); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { canvas.remove(); return; }
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const uR = gl.getUniformLocation(prog, 'R'), uT = gl.getUniformLocation(prog, 'T');
+    const PX = 4; // 每个“像素块”占 4 个 CSS 像素
+    const resize = () => { const w = Math.max(1, Math.ceil(innerWidth / PX)), h = Math.max(1, Math.ceil(innerHeight / PX)); if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); } };
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const t0 = performance.now() - 20000; let last = 0, raf = 0;
+    const draw = now => { resize(); gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform1f(uT, (now - t0) / 1000); gl.drawArrays(gl.TRIANGLES, 0, 3); };
+    const loop = now => { raf = requestAnimationFrame(loop); if (now - last < 1000 / 24) return; last = now; draw(now); };
+    if (still) { draw(performance.now()); addEventListener('resize', () => draw(performance.now())); return; }
+    raf = requestAnimationFrame(loop);
+    document.addEventListener('visibilitychange', () => { cancelAnimationFrame(raf); if (!document.hidden) raf = requestAnimationFrame(loop); });
+    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(raf); });
+  })();
+  </script>
 </body>
 </html>
