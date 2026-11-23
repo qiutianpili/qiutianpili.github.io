@@ -55,6 +55,10 @@
     .get-code { height: auto; min-height: 70px; padding: 0 26px; border: 0; border-radius: 16px; background: transparent; color: #8fe3ff; font: 700 clamp(20px, 5vw, 24px)/1 var(--sans); letter-spacing: 0.08em; text-shadow: 0 0 1px rgb(0 0 0 / 0.6), 0 2px 10px rgb(0 0 0 / 0.45); -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     .get-code:hover { color: #c2f0ff; }
     .get-code:disabled { opacity: 0.7; }
+    .hl-red { color: #ff5a5f; font-weight: 700; }
+    .example { margin: 10px 0 0; text-align: center; }
+    .example img { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; filter: drop-shadow(0 4px 14px rgb(0 0 0 / 0.35)); }
+    .example figcaption { margin-top: 4px; font-size: 12px; opacity: 0.75; }
     .pair-left { margin-left: 10px; font-variant-numeric: tabular-nums; }
     .cmd { font-family: var(--mono); background: var(--fill-tertiary); border-radius: 8px; padding: 2px 8px; user-select: all; }
     .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
@@ -135,9 +139,10 @@
 
     <section id="pairCard" class="card">
       <h2>第一步：把识别码发给机器人</h2>
-      <p class="muted">点击“获取验证码”得到识别码，在已开放的群里或私聊机器人发送下面这条消息，机器人会回复验证码。识别码获取后 10 分钟内有效。</p>
+      <p class="muted">点击“<span class="hl-red">获取验证码</span>”得到识别码，在已开放的群里机器人发送下面这条消息，机器人会回复验证码。识别码获取后 10 分钟内有效。</p>
       <div class="pair"><div id="pairCode" class="pair-code"><button id="getCodeBtn" class="get-code" type="button">获取验证码</button></div><button id="copyBtn" type="button" disabled>复制指令</button><button id="newBtn" type="button" disabled>换一个</button></div>
-      <p class="muted">发送：<span id="cmd" class="cmd">@番茄bot /验证码 ······</span><span id="pairLeft" class="pair-left" hidden></span></p>
+      <p class="muted">发送：<span id="cmd" class="cmd">@番茄Bot /验证码 UAHSTT</span><span id="pairLeft" class="pair-left" hidden></span></p>
+      <figure class="example"><img src="example-verify.png" width="1080" height="757" alt="示例：在群里发送 @番茄Bot /验证码 识别码，机器人回复验证码" loading="lazy" decoding="async"><figcaption>示例</figcaption></figure>
       <h2 style="margin-top:22px">第二步：输入验证码</h2>
       <form id="verifyForm" class="row" autocomplete="off">
         <input id="codeInput" class="code" inputmode="numeric" maxlength="6" placeholder="6 位数字" aria-label="验证码">
@@ -245,12 +250,11 @@
     const setMsg = (el, text, err) => { el.textContent = text || ''; el.classList.toggle('err', Boolean(err)); };
 
     // 识别码只在用户点击“获取验证码”后才申请和显示，并从那一刻开始倒计时；打开页面不自动申请
-    const EXAMPLE = Array.from({length: 6}, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
     let pairCodeNow = '', pairExp = 0, pairTimer = 0;
     function resetPair(reason, err) {
       clearInterval(pairTimer); pairCodeNow = ''; pairExp = 0; challenge = ''; store.set('ns-challenge', '');
       $('pairCode').innerHTML = '<button id="getCodeBtn" class="get-code" type="button">获取验证码</button>';
-      $('cmd').textContent = '@番茄bot /验证码 ' + EXAMPLE + '（示例）'; $('pairLeft').hidden = true;
+      $('pairLeft').hidden = true;
       $('copyBtn').disabled = true; $('newBtn').disabled = true;
       if (reason !== undefined) setMsg($('pairMsg'), reason, err);
     }
@@ -270,7 +274,7 @@
     }
     function showPair(code, ttl) {
       pairCodeNow = code; pairExp = Date.now() + ttl * 1000;
-      $('pairCode').textContent = code; $('cmd').textContent = '@番茄bot /验证码 ' + code;
+      $('pairCode').textContent = code; 
       $('copyBtn').disabled = false; $('newBtn').disabled = false; $('pairLeft').hidden = false;
       clearInterval(pairTimer); pairTimer = setInterval(pairTick, 1000); pairTick(); $('codeInput').focus();
     }
