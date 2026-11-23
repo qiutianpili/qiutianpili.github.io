@@ -51,6 +51,11 @@
     .muted { color: var(--text-secondary); font-size: 14px; margin: 0; }
     .pair { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 6px; }
     .pair-code { font: 600 clamp(30px, 8vw, 42px)/1 var(--mono); letter-spacing: 0.14em; padding: 14px 18px; border-radius: 16px; background: var(--fill-tertiary); user-select: all; }
+    .pair-code:has(.get-code) { padding: 0; }
+    .get-code { height: auto; min-height: 70px; padding: 0 26px; border: 0; border-radius: 16px; background: transparent; color: #8fe3ff; font: 700 clamp(20px, 5vw, 24px)/1 var(--sans); letter-spacing: 0.08em; text-shadow: 0 0 1px rgb(0 0 0 / 0.6), 0 2px 10px rgb(0 0 0 / 0.45); -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    .get-code:hover { color: #c2f0ff; }
+    .get-code:disabled { opacity: 0.7; }
+    .pair-left { margin-left: 10px; font-variant-numeric: tabular-nums; }
     .cmd { font-family: var(--mono); background: var(--fill-tertiary); border-radius: 8px; padding: 2px 8px; user-select: all; }
     .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
     input { flex: 1 1 200px; min-width: 0; height: 46px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--stroke-primary); background: var(--fill-tertiary); color: var(--text-primary); font: 500 16px var(--sans); outline: none; }
@@ -130,9 +135,9 @@
 
     <section id="pairCard" class="card">
       <h2>第一步：把识别码发给机器人</h2>
-      <p class="muted">在已开放的群里或私聊机器人发送下面这条消息，机器人会回复验证码。识别码 10 分钟内有效。</p>
-      <div class="pair"><div id="pairCode" class="pair-code">······</div><button id="copyBtn" type="button">复制指令</button><button id="newBtn" type="button">换一个</button></div>
-      <p class="muted">发送：<span id="cmd" class="cmd">/验证码 ······</span></p>
+      <p class="muted">点击“获取验证码”得到识别码，在已开放的群里或私聊机器人发送下面这条消息，机器人会回复验证码。识别码获取后 10 分钟内有效。</p>
+      <div class="pair"><div id="pairCode" class="pair-code"><button id="getCodeBtn" class="get-code" type="button">获取验证码</button></div><button id="copyBtn" type="button" disabled>复制指令</button><button id="newBtn" type="button" disabled>换一个</button></div>
+      <p class="muted">发送：<span id="cmd" class="cmd">@番茄bot /验证码 ······</span><span id="pairLeft" class="pair-left" hidden></span></p>
       <h2 style="margin-top:22px">第二步：输入验证码</h2>
       <form id="verifyForm" class="row" autocomplete="off">
         <input id="codeInput" class="code" inputmode="numeric" maxlength="6" placeholder="6 位数字" aria-label="验证码">
@@ -239,20 +244,35 @@
     }
     const setMsg = (el, text, err) => { el.textContent = text || ''; el.classList.toggle('err', Boolean(err)); };
 
+    // 识别码只在用户点击“获取验证码”后才申请和显示，并从那一刻开始倒计时；打开页面不自动申请
+    const EXAMPLE = Array.from({length: 6}, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
+    let pairCodeNow = '', pairExp = 0, pairTimer = 0;
+    function resetPair(reason, err) {
+      clearInterval(pairTimer); pairCodeNow = ''; pairExp = 0; challenge = ''; store.set('ns-challenge', '');
+      $('pairCode').innerHTML = '<button id="getCodeBtn" class="get-code" type="button">获取验证码</button>';
+      $('cmd').textContent = '@番茄bot /验证码 ' + EXAMPLE + '（示例）'; $('pairLeft').hidden = true;
+      $('copyBtn').disabled = true; $('newBtn').disabled = true;
+      if (reason !== undefined) setMsg($('pairMsg'), reason, err);
+    }
+    function pairTick() {
+      const left = Math.max(0, Math.round((pairExp - Date.now()) / 1000));
+      $('pairLeft').textContent = `（剩余 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}）`;
+      if (left <= 0) resetPair('识别码已过期，请重新点击“获取验证码”', true);
+    }
     async function newChallenge() {
+      const btn = $('getCodeBtn'); if (btn) { btn.disabled = true; btn.textContent = '获取中…'; }
       $('newBtn').disabled = true; setMsg($('pairMsg'), '');
       try {
         const data = await api('/challenge', {});
         challenge = data.challenge; store.set('ns-challenge', challenge);
-        showPair(data.pair_code);
-      } catch (e) { setMsg($('pairMsg'), e.message, true); }
-      finally { $('newBtn').disabled = false; }
+        showPair(data.pair_code, Number(data.expires_in) || 600);
+      } catch (e) { setMsg($('pairMsg'), e.message, true); if (btn && btn.isConnected) { btn.disabled = false; btn.textContent = '获取验证码'; } else if (pairCodeNow) $('newBtn').disabled = false; }
     }
-    function showPair(code) { $('pairCode').textContent = code; $('cmd').textContent = '/验证码 ' + code; $('codeInput').focus(); }
-    async function restoreChallenge() {
-      if (!challenge) return newChallenge();
-      try { const data = await api('/challenge/state', { challenge }); showPair(data.pair_code); if (data.claimed) setMsg($('pairMsg'), '机器人已发出验证码，请输入。'); }
-      catch (_) { newChallenge(); }
+    function showPair(code, ttl) {
+      pairCodeNow = code; pairExp = Date.now() + ttl * 1000;
+      $('pairCode').textContent = code; $('cmd').textContent = '@番茄bot /验证码 ' + code;
+      $('copyBtn').disabled = false; $('newBtn').disabled = false; $('pairLeft').hidden = false;
+      clearInterval(pairTimer); pairTimer = setInterval(pairTick, 1000); pairTick(); $('codeInput').focus();
     }
 
     function tick() {
@@ -270,7 +290,7 @@
       token = ''; expiresAt = 0; store.set('ns-token', ''); store.set('ns-exp', ''); store.set('ns-challenge', ''); challenge = '';
       clearInterval(timer); galleryRun++; current = { ids: [], images: [], query: '' }; picked.clear(); $('results').innerHTML = ''; setMsg($('findMsg'), '');
       $('findCard').hidden = true; $('pairCard').hidden = false; $('codeInput').value = '';
-      setMsg($('pairMsg'), reason || '', Boolean(reason)); newChallenge();
+      resetPair(reason || '', Boolean(reason));
     }
 
     $('verifyForm').addEventListener('submit', async ev => {
@@ -279,15 +299,18 @@
       if (code.length !== 6) { setMsg($('pairMsg'), '请输入机器人回复的 6 位验证码', true); return; }
       $('verifyBtn').disabled = true;
       try {
+        if (!challenge) { setMsg($('pairMsg'), '请先点击“获取验证码”，把识别码发给机器人', true); $('verifyBtn').disabled = false; return; }
         const data = await api('/verify', { challenge, code });
         token = data.token; expiresAt = Date.now() + data.expires_in * 1000;
         store.set('ns-token', token); store.set('ns-exp', String(expiresAt)); store.set('ns-challenge', ''); store.set('ns-user', JSON.stringify(data.user || {}));
+        clearInterval(pairTimer);
         enter(data.user);
-      } catch (e) { setMsg($('pairMsg'), e.message, true); if (e.status === 410) newChallenge(); }
+      } catch (e) { setMsg($('pairMsg'), e.message, true); if (e.status === 410) resetPair('识别码已过期，请重新点击“获取验证码”', true); }
       finally { $('verifyBtn').disabled = false; }
     });
     $('newBtn').addEventListener('click', newChallenge);
-    $('copyBtn').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('cmd').textContent); setMsg($('pairMsg'), '已复制，去发给机器人吧'); } catch (_) { setMsg($('pairMsg'), '复制失败，请手动输入'); } });
+    $('pairCode').addEventListener('click', ev => { if (ev.target.closest('#getCodeBtn')) newChallenge(); });
+    $('copyBtn').addEventListener('click', async () => { if (!pairCodeNow) return; try { await navigator.clipboard.writeText('/验证码 ' + pairCodeNow); setMsg($('pairMsg'), '已复制，去发给机器人吧'); } catch (_) { setMsg($('pairMsg'), '复制失败，请手动输入'); } });
     $('logout').addEventListener('click', ev => { ev.preventDefault(); logout(); });
 
     const fileUrl = (id, inline) => `${API}/files/${encodeURIComponent(id)}/content?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}${inline ? '&inline=1' : ''}`;
@@ -426,7 +449,7 @@
       pingTimer = setInterval(() => { api('/ping', {}).catch(() => {}); }, 30000);
       if (token && expiresAt > Date.now()) {
         api('/session', undefined, true).then(data => { expiresAt = Date.now() + data.expires_in * 1000; store.set('ns-exp', String(expiresAt)); enter(data.user); }).catch(() => {});
-      } else { token = ''; restoreChallenge(); }
+      } else { token = ''; resetPair(); }
     })();
   })();
   </script>
