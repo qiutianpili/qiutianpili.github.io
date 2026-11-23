@@ -48,6 +48,10 @@
     .tip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: var(--fill-tertiary); color: var(--text-secondary); font-size: 12px; }
     .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .tools button { height: 38px; padding: 0 16px; font-size: 14px; }
+    .fitem { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
+    .pick { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 34px; cursor: pointer; flex: none; }
+    .pick input { width: 18px; height: 18px; margin: 0; accent-color: var(--fill-primary); cursor: pointer; }
+    .fitem.on .file { border-color: var(--text-secondary); }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
     .gallery figure { margin: 0; border: 1px solid var(--stroke-secondary); background: var(--fill-tertiary); border-radius: 14px; overflow: hidden; cursor: zoom-in; display: flex; flex-direction: column; }
     .gallery .ph { aspect-ratio: 3 / 4; display: flex; align-items: center; justify-content: center; background: var(--fill-primary-on); color: var(--text-secondary); font-size: 12px; }
@@ -232,7 +236,7 @@
     function logout(reason) {
       if (token) fetch(API + '/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + token } }).catch(() => {});
       token = ''; expiresAt = 0; store.set('ns-token', ''); store.set('ns-exp', ''); store.set('ns-challenge', ''); challenge = '';
-      clearInterval(timer); galleryRun++; current = { ids: [], images: [], query: '' }; $('results').innerHTML = ''; setMsg($('findMsg'), '');
+      clearInterval(timer); galleryRun++; current = { ids: [], images: [], query: '' }; picked.clear(); $('results').innerHTML = ''; setMsg($('findMsg'), '');
       $('findCard').hidden = true; $('pairCard').hidden = false; $('codeInput').value = '';
       setMsg($('pairMsg'), reason || '', Boolean(reason)); newChallenge();
     }
@@ -259,13 +263,21 @@
     function download(id) { const a = document.createElement('a'); a.href = fileUrl(id, false); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); }
     // 一键下载：服务器把本次查询结果打成一个 zip，整包只算一次请求
     let current = { ids: [], images: [], query: '' };
-    const archiveUrl = () => `${API}/files/archive?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}&ids=${encodeURIComponent(current.ids.join(','))}&name=${encodeURIComponent(current.query)}`;
-    function downloadAll(btn) {
-      if (!current.ids.length) return;
-      if (current.ids.length === 1) { download(current.ids[0]); return; }
-      const a = document.createElement('a'); a.href = archiveUrl(); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+    const picked = new Set();
+    const archiveUrl = ids => `${API}/files/archive?token=${encodeURIComponent(token)}&fp=${fp}&tab=${encodeURIComponent(tab)}&ids=${encodeURIComponent(ids.join(','))}&name=${encodeURIComponent(current.query)}`;
+    function syncPicked() {
+      document.querySelectorAll('#results [data-pick]').forEach(box => { box.checked = picked.has(box.dataset.pick); box.closest('.fitem').classList.toggle('on', box.checked); });
+      const sel = $('dlSel'), all = $('pickAll');
+      if (sel) { sel.disabled = picked.size === 0; sel.textContent = `下载所选（${picked.size}）`; }
+      if (all) all.textContent = picked.size && picked.size === current.ids.length ? '取消全选' : '全选';
+    }
+    function downloadAll(btn, only) {
+      const ids = only || current.ids;
+      if (!ids.length) return;
+      if (ids.length === 1) { download(ids[0]); return; }
+      const a = document.createElement('a'); a.href = archiveUrl(ids); a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
       btn.disabled = true; const text = btn.textContent; btn.textContent = '正在打包…';
-      setTimeout(() => { btn.disabled = false; btn.textContent = text; }, 6000);
+      setTimeout(() => { btn.disabled = false; btn.textContent = text; syncPicked(); }, 6000);
     }
     // 展开全部图片：逐张限速加载（约每 0.6 秒一张），不会触发频率限制
     let galleryRun = 0;
@@ -307,9 +319,10 @@
         const seen = new Map();
         names.forEach(g => g.files.forEach(f => { if (!seen.has(f.id)) seen.set(f.id, f); }));
         current = { ids: Array.from(seen.keys()), images: Array.from(seen.values()).filter(f => isImage(f.name)), query };
+        picked.clear();
         galleryRun++;
-        const tools = `<div class="tools"><button type="button" class="primary" id="dlAll">一键下载（${current.ids.length} 个文件）</button>${current.images.length ? `<button type="button" id="expandAll">展开全部图片（${current.images.length} 张）</button>` : ''}</div>${current.images.length ? '<div id="gallery" class="gallery" hidden></div>' : ''}`;
-        $('results').innerHTML = tools + (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
+        const tools = `<div class="tools"><button type="button" class="primary" id="dlAll">一键下载（${current.ids.length} 个文件）</button><button type="button" id="pickAll">全选</button><button type="button" id="dlSel" disabled>下载所选（0）</button>${current.images.length ? `<button type="button" id="expandAll">展开全部图片（${current.images.length} 张）</button>` : ''}</div>${current.images.length ? '<div id="gallery" class="gallery" hidden></div>' : ''}`;
+        $('results').innerHTML = tools + (hasImg ? '<div><span class="tip">图片：单击下载 · 双击预览　其他文件：单击下载　勾选左侧方框可批量下载</span></div>' : '') + names.map(g => `<div class="person"><b>${esc(g.name)}</b><span class="n">${g.files.length} 个文件</span><div class="files">${g.files.map(f => `<span class="fitem"><label class="pick" title="勾选后可“下载所选”"><input type="checkbox" data-pick="${esc(f.id)}" aria-label="选择 ${esc(f.name)}"></label><button class="file${isImage(f.name) ? ' img' : ''}" type="button" data-id="${esc(f.id)}" data-name="${esc(f.name)}" title="${isImage(f.name) ? '单击下载 · 双击预览' : '单击下载'}${f.line ? '\n' + esc(f.line) : ''}"><span>${esc(f.name)}</span>${isImage(f.name) ? '' : ' ↓'}</button></span>`).join('')}</div>${g.files.length === 1 && g.files[0].line ? `<div class="line">${esc(g.files[0].line)}</div>` : ''}</div>`).join('');
       } catch (e) { setMsg($('findMsg'), e.message, true); }
       finally { $('findBtn').disabled = false; }
     });
@@ -320,6 +333,9 @@
     $('results').addEventListener('click', ev => {
       if (ev.target.closest('#dlAll')) { downloadAll(ev.target.closest('#dlAll')); return; }
       if (ev.target.closest('#expandAll')) { expandAll(ev.target.closest('#expandAll')); return; }
+      if (ev.target.closest('#pickAll')) { const all = picked.size === current.ids.length; picked.clear(); if (!all) current.ids.forEach(id => picked.add(id)); syncPicked(); return; }
+      if (ev.target.closest('#dlSel')) { downloadAll(ev.target.closest('#dlSel'), Array.from(picked)); return; }
+      if (ev.target.closest('.pick')) return;
       const fig = ev.target.closest('.gimg');
       if (fig) {
         if (fig.dataset.failed) { delete fig.dataset.failed; const ph = fig.querySelector('.ph'); const img = new Image(); img.alt = fig.dataset.name; img.onload = () => ph.replaceWith(img); img.onerror = () => { ph.textContent = '加载失败，单击重试'; fig.dataset.failed = '1'; }; ph.textContent = '加载中…'; img.src = fileUrl(fig.dataset.id, true); return; }
@@ -331,6 +347,11 @@
       cancelClick();
       if (ev.detail > 1) return; // 双击的第二下交给 dblclick
       clickTimer = setTimeout(() => { clickTimer = null; download(id); }, 320);
+    });
+    $('results').addEventListener('change', ev => {
+      const box = ev.target.closest('[data-pick]'); if (!box) return;
+      box.checked ? picked.add(box.dataset.pick) : picked.delete(box.dataset.pick);
+      syncPicked();
     });
     $('results').addEventListener('dblclick', ev => {
       const btn = ev.target.closest('.file'); if (!btn) return;
