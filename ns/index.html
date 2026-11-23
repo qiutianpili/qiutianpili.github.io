@@ -21,8 +21,8 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 5vh, 56px) clamp(12px, 4vw, 32px) 88px; background: #1a1e26 linear-gradient(135deg, #2b3039, #8d96a3 45%, #3a404a 70%, #c4ccd6); color: var(--text-primary); font-family: var(--sans); line-height: 1.45; text-shadow: var(--ink-shadow); }
-    /* 背景：WebGL 金属像素流体（参考 Folia「隐现」像素 + 流体双层），低分辨率渲染后像素化放大 */
-    #fluid { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+    /* 背景：WebGL 金属流体（参考 Folia「隐现」流体层），半分辨率渲染后平滑放大 */
+    #fluid { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; display: block; }
     @media print { #fluid { display: none; } }
     .glass { background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); border: 1px solid var(--stroke-primary); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 10px 40px rgb(0 0 0 / 0.28); }
     /* 内容整体居中：深色标题卡与下方卡片作为一组，在任意窗口里水平+垂直居中，内容超出时正常向下滚动 */
@@ -425,7 +425,7 @@
   </script>
   <script src="/assets/hark-sub.js" data-no-theme></script>
   <script>
-  // 金属像素流体背景：域扭曲 fbm 高度场 → 法线 → 铬金属环境反射 + 细微虹彩，叠加 4×4 Bayer 有序抖动并量化，低分辨率渲染再像素化放大。
+  // 金属流体背景：域扭曲 fbm 高度场 → 法线 → 铬金属环境反射 + 细微虹彩，半分辨率渲染后平滑放大。
   (() => {
     const canvas = document.getElementById('fluid');
     const gl = canvas && (canvas.getContext('webgl', {antialias: false, alpha: false, preserveDrawingBuffer: false, powerPreference: 'low-power'}) || canvas.getContext('experimental-webgl'));
@@ -439,8 +439,6 @@ float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<4;i++){v+=a*n2(p);p=m*p;a*=.5;}return v;}
 float field(vec2 p){vec2 q=vec2(fbm(p+vec2(0.,T*.05)),fbm(p+vec2(5.2,1.3)-T*.04));
  vec2 r=vec2(fbm(p+2.*q+vec2(1.7,9.2)+T*.03),fbm(p+2.*q+vec2(8.3,2.8)-T*.025));return fbm(p+1.8*r);}
-float b2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}
-float bayer(vec2 a){return b2(.5*a)*.25+b2(a);}
 void main(){vec2 fc=gl_FragCoord.xy;vec2 uv=fc/R.y*.85;
  float e=1.5/R.y*.85;float h=field(uv);float hx=field(uv+vec2(e,0.));float hy=field(uv+vec2(0.,e));
  vec3 n=normalize(vec3((h-hx)*3.2,(h-hy)*3.2,e*14.));
@@ -453,7 +451,6 @@ void main(){vec2 fc=gl_FragCoord.xy;vec2 uv=fc/R.y*.85;
  vec3 iri=.5+.5*cos(6.2831*(h*1.3+vec3(.0,.33,.67))+T*.08);
  vec3 c=env*mix(vec3(1.),iri*.55+.6,.28)+sp*.9;
  c*=.82+.25*h;
- float lv=5.;float d=bayer(fc)-.5;c=floor(c*lv+d+.5)/lv;
  gl_FragColor=vec4(clamp(c,0.,1.),1.);}`;
     const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; };
     const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
@@ -465,7 +462,7 @@ void main(){vec2 fc=gl_FragCoord.xy;vec2 uv=fc/R.y*.85;
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     const uR = gl.getUniformLocation(prog, 'R'), uT = gl.getUniformLocation(prog, 'T');
-    const PX = 4; // 每个“像素块”占 4 个 CSS 像素
+    const PX = 2; // 半分辨率渲染，浏览器平滑放大
     const resize = () => { const w = Math.max(1, Math.ceil(innerWidth / PX)), h = Math.max(1, Math.ceil(innerHeight / PX)); if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); } };
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const t0 = performance.now() - 20000; let last = 0, raf = 0;
